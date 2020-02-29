@@ -1,0 +1,165 @@
+﻿#MainTitle {
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: bolder;
+}
+
+div, fieldset {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+h1 {
+    text-align: center;
+}
+h4 {
+    margin: 10px 0;
+}
+
+/* TABBED BOXES */
+
+ul.tabbed {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+ul.tabbed li {
+    float: left;
+    background-color: cyan;
+}
+
+ul.tabbed li span {
+    display: inline-block;
+    color: black;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+    transition: 0.3s;
+    font-size: 17px;
+}
+
+ul.tabbed li span:hover {
+    cursor: pointer;
+    background-color: darkcyan;
+}
+
+ul.tabbed li span:focus, .active {
+    background-color: lightcyan;
+}
+
+.tabContent {
+    display: none;
+    padding: 6px 12px;
+    background-color: lightcyan;
+    border: 1px solid lightcyan;
+    border-top: none;
+}
+
+/* ^^ TABBED BOXES ^^ */
+
+#fullGameContainer {
+    -webkit-box-sizing: content-box;
+    -moz-box-sizing: content-box;
+    box-sizing: content-box;
+    width: 960px;
+    height: 600px;
+
+    position: relative;
+    
+    margin: 50px auto 0px auto;
+    border: 2px solid darkorchid;
+
+    /*Start off not displaying*/
+    display: none;
+    z-index: -1;
+}
+
+#canvasContainer {
+    position: absolute;
+    width: 960px;
+    height: 540px;
+}
+
+canvas {
+    position: absolute;
+    width: 960px;
+    height: 540px;
+}
+
+#inGameBarMenu {
+    position:absolute;
+    bottom: 0;
+    height: 60px;
+    display: block;
+    width: 100%;
+    text-align: center;
+}
+
+#inGameBarMenu > * {
+    position: relative;
+    display: inline;
+    margin: 5px auto;
+    vertical-align: middle;
+}
+
+#mainMenu > * {
+    position: relative;
+    display: block;
+    margin: 20px auto;
+}
+
+#optionsMenu {
+    position: relative;
+    display: block;
+    width: 475px;
+    margin: 50px auto 0 auto;
+
+    text-align: center;
+
+    background-color: burlywood;
+    padding: 20px;
+
+    /*Start off not displaying*/
+    display:none;
+}
+
+/*
+.newOptionsMenuStyles {
+    position:absolute;
+    margin: auto;
+    top: 50%;
+    transform: translate(0, -50%);
+}
+*/
+
+button {
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    color: #2d1803;
+}
+
+#startBtn {
+    width: 200px;
+    height: 75px;
+    background-color: aquamarine;
+}
+
+#optionsBtn {
+    width: 48px;
+    cursor: pointer;
+}
+
+#closeOptionsBtn {
+    cursor: pointer;
+    position:absolute;
+    top:0;
+    right:0;
+    margin: -16px -16px 0 0;
+}
+
+.centredBlock {
+    display: block;
+    text-align: center;
+    margin: 0 auto;
+}

@@ -1,0 +1,98 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Doom Lagoon</title>
+
+    <link rel="stylesheet" type="text/css" href="CSS/Styles.css" />
+
+    <script src="/socket.io/socket.io.js"></script>
+
+    <script src="https://kit.fontawesome.com/ec9700dfbe.js" crossorigin="anonymous"></script>
+    <script src="phaser.min.js"></script>
+
+    <script type="text/javascript" src="JS/Constants.js"></script>
+    <script type="text/javascript" src="JS/GameObjects.js"></script>
+    <script type="text/javascript" src="JS/Network.js"></script>
+    <script type="text/javascript" src="JS/Utility.js"></script>
+    <script type="text/javascript" src="JS/Setup.js"></script>
+    <script type="text/javascript" src="JS/Load.js"></script>
+    <script type="text/javascript" src="JS/Menu.js"></script>
+    <script type="text/javascript" src="JS/Play.js"></script>
+    <script type="text/javascript" src="JS/End.js"></script>
+
+    <!-- SCENES -->
+    <script type="text/javascript" src="JS/Scenes/Title.js"></script>
+    <script type="text/javascript" src="JS/Scenes/Overworld.js"></script>
+    <script type="text/javascript" src="JS/Scenes/Battle.js"></script>
+
+    <script type="text/javascript" src="JS/Main.js"></script>
+</head>
+<body onload="Main.Init();">
+    <h1 id="MainTitle">Doom Lagoon</h1>
+
+    
+    <div id="mainMenu">
+        <input id="dispNameField" type="text" placeholder="Display Name" maxlength="10" onkeyup="menuState.ChangeName()" />
+        <button id="startBtn" onclick="menuState.Start()" disabled>Play</button>
+        <button alt="options" id="optionsBtn" onclick="menuState.OptionsOnMainOff()"><i class="fas fa-cog fa-2x"></i></button>
+    </div>
+
+    <div id="optionsMenu">
+        <img src="Assets\GUI\free_xRed.png" alt="close" id="closeOptionsBtn" onclick="menuState.OptionsOffMainOn()" />
+        <ul class="tabbed">
+            <!--<li><a href="#" class="tablink" onclick="">Game</a></li> Exit, Resume, etc. -->
+            <li><span id="firstOptionShown" class="tabLink" onclick="OpenOptionFromSet(this, 'saveOptions')">Saving</span></li>
+            <li><span class="tabLink" onclick="OpenOptionFromSet(this, 'audioOptions')">Audio</span></li>
+            <!--<li><span class="tabLink" onclick="OpenOptionFromSet(this, 'audioOptions')">Customize</span></li> Changing colours, shapes, graphics?? -->
+        </ul>
+
+        <!--<div id="gameOptions" class="tabContent"></div>-->
+        <div id="saveOptions" class="tabContent">
+            <div><h4>Browser Saving: <em>--<script>canSaveLocal ? document.write("Available") : document.write("Unavailable")</script>--</em></h4></div>
+            <div id="useLocalSavingOption">Save to browser? <input type="checkbox" onclick="DoSaveLocally(this);" /></div>
+            <br />
+            <h4>Database Saving</h4>
+            <input id="username" class="centredBlock" type="text" placeholder="Username" />
+            <input id="password" class="centredBlock" type="password" placeholder="Password" />
+            <button id="signInBtn" class="centredBlock" onclick="Network.SignIn()">Log in</button>
+            <button id="signUpBtn" class="centredBlock" onclick="Network.SignUp()">Sign up</button>
+            <button id="removeAccountBtn" class="centredBlock" onclick="Network.RemoveAccount()">Remove Account</button>
+        </div>
+        <div id="audioOptions" class="tabContent">
+            <label for="volumeSlider" class="centredBlock">Volume</label>
+            <input id="volumeSlider" class="centredBlock" type="range" />
+            <div class="centredBlock"><label for="musicToggle">Music: </label><input id="musicToggle" type="checkbox" /></div>
+            <div class="centredBlock"><label for="soundFXToggle">Sound FX: </label><input id="soundFXToggle" type="checkbox" /></div>
+        </div>
+        <!--<div id="customOptions" class="tabContent">
+                <label for="colourSelection">Select colour:</label>
+                <select id="colourSelection" onchange="ColourChange(this.value)">
+                    <option value="black" selected="selected">black</option>
+                    <option value="red">red</option>
+                    <option value="green">green</option>
+                    <option value="blue">blue</option>
+                </select>
+            </div>-->
+    </div>
+
+    <!-- Make sure first tabbed box shows up -->
+    <script>OpenOptionFromSet(document.getElementById('firstOptionShown'), 'saveOptions');</script>
+
+    <div id="fullGameContainer">
+        <div id="canvasContainer"></div>
+        <div id="inGameBarMenu">
+            <input type="text" id="msgInput" />
+            <button onclick="Network.SendMsg()">Send</button>
+        </div>
+    </div>
+
+    <script>
+        // TEST AREA
+
+
+    </script>
+
+</body>
+</html>

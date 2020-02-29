@@ -8,6 +8,10 @@
   },
   "author": "Odin von Doom",
   "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/chargingsleipnir/DoomLagoon.git"
+  },
   "dependencies": {
     "express": "^4.17.1",
     "socket.io": "^2.3.0"
