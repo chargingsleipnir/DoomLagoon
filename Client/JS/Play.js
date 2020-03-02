@@ -37,7 +37,7 @@ var playState = (function() {
             map.setTileIndexCallback(1, testCallback, this);
             */
 
-            player = new ClientPlayer(
+            player = new LocalPlayer(
                 { x: data.gridSpawn.x, y: data.gridSpawn.y }, 
                 'navBoatRight', 
                 menuState.GetDispName(),
@@ -152,7 +152,6 @@ var playState = (function() {
                 for (var id in sprites[type])
                     sprites[type][id].Update();
             }
-            
         },
         render: function () {
             game.debug.cameraInfo(game.camera, 32, 32);

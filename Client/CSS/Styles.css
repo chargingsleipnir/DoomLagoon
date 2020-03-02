@@ -76,7 +76,7 @@ ul.tabbed li span:focus, .active {
     z-index: -1;
 }
 
-#canvasContainer {
+#CanvasContainer {
     position: absolute;
     width: 960px;
     height: 540px;
@@ -139,7 +139,7 @@ button {
     color: #2d1803;
 }
 
-#startBtn {
+#StartBtn {
     width: 200px;
     height: 75px;
     background-color: aquamarine;

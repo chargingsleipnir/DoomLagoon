@@ -16,13 +16,16 @@
     <script type="text/javascript" src="JS/GameObjects.js"></script>
     <script type="text/javascript" src="JS/Network.js"></script>
     <script type="text/javascript" src="JS/Utility.js"></script>
-    <script type="text/javascript" src="JS/Setup.js"></script>
-    <script type="text/javascript" src="JS/Load.js"></script>
-    <script type="text/javascript" src="JS/Menu.js"></script>
     <script type="text/javascript" src="JS/Play.js"></script>
     <script type="text/javascript" src="JS/End.js"></script>
 
+    <script type="text/javascript" src="JS/Characters/NPC.js"></script>
+    <script type="text/javascript" src="JS/Characters/NetPlayer.js"></script>
+    <script type="text/javascript" src="JS/Characters/LocalPlayer.js"></script>
+
     <!-- SCENES -->
+    <script type="text/javascript" src="JS/Scenes/Setup.js"></script>
+    <script type="text/javascript" src="JS/Scenes/MainMenu.js"></script>
     <script type="text/javascript" src="JS/Scenes/Title.js"></script>
     <script type="text/javascript" src="JS/Scenes/Overworld.js"></script>
     <script type="text/javascript" src="JS/Scenes/Battle.js"></script>
@@ -34,9 +37,9 @@
 
     
     <div id="mainMenu">
-        <input id="dispNameField" type="text" placeholder="Display Name" maxlength="10" onkeyup="menuState.ChangeName()" />
-        <button id="startBtn" onclick="menuState.Start()" disabled>Play</button>
-        <button alt="options" id="optionsBtn" onclick="menuState.OptionsOnMainOff()"><i class="fas fa-cog fa-2x"></i></button>
+        <input id="DispNameField" type="text" placeholder="Display Name" maxlength="10"/>
+        <button id="StartBtn" disabled>Play</button>
+        <button alt="options" id="OptionsBtn"><i class="fas fa-cog fa-2x"></i></button>
     </div>
 
     <div id="optionsMenu">
@@ -50,15 +53,16 @@
 
         <!--<div id="gameOptions" class="tabContent"></div>-->
         <div id="saveOptions" class="tabContent">
-            <div><h4>Browser Saving: <em>--<script>canSaveLocal ? document.write("Available") : document.write("Unavailable")</script>--</em></h4></div>
-            <div id="useLocalSavingOption">Save to browser? <input type="checkbox" onclick="DoSaveLocally(this);" /></div>
+            <!-- TODO: Obviously get this js call right the hell out of here. Good time for some ejs/moustache I think. Just straight js manipulation at least. -->
+            <div><h4>Browser Saving: <em>--<span id="LocalSaveAvailText"></span>--</em></h4></div>
+            <div id="UseLocalSavingOption">Save to browser? <input type="checkbox" /></div>
             <br />
             <h4>Database Saving</h4>
-            <input id="username" class="centredBlock" type="text" placeholder="Username" />
-            <input id="password" class="centredBlock" type="password" placeholder="Password" />
-            <button id="signInBtn" class="centredBlock" onclick="Network.SignIn()">Log in</button>
-            <button id="signUpBtn" class="centredBlock" onclick="Network.SignUp()">Sign up</button>
-            <button id="removeAccountBtn" class="centredBlock" onclick="Network.RemoveAccount()">Remove Account</button>
+            <input id="Username" class="centredBlock" type="text" placeholder="Username" />
+            <input id="Password" class="centredBlock" type="password" placeholder="Password" />
+            <button id="SignInBtn" class="centredBlock">Log in</button>
+            <button id="SignUpBtn" class="centredBlock">Sign up</button>
+            <button id="RemoveAccountBtn" class="centredBlock">Remove Account</button>
         </div>
         <div id="audioOptions" class="tabContent">
             <label for="volumeSlider" class="centredBlock">Volume</label>
@@ -78,10 +82,10 @@
     </div>
 
     <!-- Make sure first tabbed box shows up -->
-    <script>OpenOptionFromSet(document.getElementById('firstOptionShown'), 'saveOptions');</script>
+    <script>MainMenu.OpenOptionFromSet(document.getElementById('firstOptionShown'), 'saveOptions');</script>
 
     <div id="fullGameContainer">
-        <div id="canvasContainer"></div>
+        <div id="CanvasContainer"></div>
         <div id="inGameBarMenu">
             <input type="text" id="msgInput" />
             <button onclick="Network.SendMsg()">Send</button>

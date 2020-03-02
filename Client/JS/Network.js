@@ -7,7 +7,7 @@ var Network = (function () {
         InitSocketConnection: function (Callback) {
             // ESTABLISH CONNECTION
             try {
-                socket = io.connect('127.0.0.1:8080');
+                socket = io.connect('127.0.0.1:8000');
                 //socket = io.connect('http://doomlagoon-gvd.rhcloud.com:8000');
                 socket.on('connect', function () {
                     //console.log("Socket connected: " + socket.connected);
