@@ -10,7 +10,6 @@ class MainMenu extends Phaser.Scene {
     dispName;
 
     btn_Options;
-    btn_CloseOptions;
     btn_StartGame;
     text_LocalSaveAvail;
 
@@ -31,7 +30,7 @@ class MainMenu extends Phaser.Scene {
         this.input_Username = document.getElementById("Username"),
         this.input_Password = document.getElementById("Password");
 
-        this.cont_MainMenu = document.getElementById("mainMenu");
+        this.cont_MainMenu = document.getElementById("MainMenu");
         this.cont_OptionsMenu = document.getElementById('optionsMenu');
         this.cont_Game = document.getElementById("fullGameContainer");
         this.cont_BarMenu = document.getElementById('inGameBarMenu');
@@ -47,7 +46,8 @@ class MainMenu extends Phaser.Scene {
             }
         });
 
-        this.btn_StartGame = document.getElementById('StartBtn').addEventListener("click", (e) => {
+        this.btn_StartGame = document.getElementById('StartBtn');
+        this.btn_StartGame.addEventListener("click", (e) => {
             // Check local storage, databse info, etc. to pass to play state
             Network.CreateResponse("WorldInitData", function (data) {
                 // TODO: transfer data forward as in old phaser
@@ -64,7 +64,12 @@ class MainMenu extends Phaser.Scene {
             this.isOptionsMenuOpen = true;
         });
 
-        this.btn_CloseOptions = document.getElementById('closeOptionsBtn');
+        document.getElementById('CloseOptionsBtn').addEventListener('click', () => {
+            Utility.html.ElemHideRear(this.cont_OptionsMenu);
+            Utility.html.ElemShowFront(this.cont_MainMenu);
+            this.isOptionsMenuOpen = false;
+        });
+
         this.text_LocalSaveAvail = document.getElementById('LocalSaveAvailText');
 
         var checkbox_LocalSave = document.getElementById('UseLocalSavingOption');
@@ -152,17 +157,17 @@ class MainMenu extends Phaser.Scene {
     create ()
     {
         // Set canvas div as parent of options menu to maintain containment throughout game.
-        this.cont_Game.appendChild(this.cont_OptionsMenu);
-        this.cont_BarMenu.appendChild(this.btn_Options);
+        //this.cont_Game.appendChild(this.cont_OptionsMenu);
+        //this.cont_BarMenu.appendChild(this.btn_Options);
         //cont_OptionsMenu.className += ' newOptionsMenuStyles';
         
-        this.btn_Options.onclick = function () { this.isOptionsMenuOpen ? menuState.OptionsOff() : menuState.OptionsOn(); }
-        this.btn_CloseOptions.onclick = this.OptionsOff;
+        //this.btn_Options.onclick = function () { this.isOptionsMenuOpen ? menuState.OptionsOff() : menuState.OptionsOn(); }
+        //this.btn_CloseOptions.onclick = this.OptionsOff;
         //btn_CloseOptions.parentNode.removeChild(btn_CloseOptions);
         
-        Utility.html.ElemHideRear(this.cont_OptionsMenu);
-        Utility.html.ElemHideRear(this.cont_MainMenu);
-        Utility.html.ElemShowMiddle(this.cont_Game);
+        //Utility.html.ElemHideRear(this.cont_OptionsMenu);
+        //Utility.html.ElemHideRear(this.cont_MainMenu);
+        //Utility.html.ElemShowMiddle(this.cont_Game);
     }
 
     static get GetDispName () {
@@ -175,11 +180,6 @@ class MainMenu extends Phaser.Scene {
     }
     static OptionsOff () {
         Utility.html.ElemHideRear(this.cont_OptionsMenu);
-        this.isOptionsMenuOpen = false;
-    }
-    static OptionsOffMainOn () {
-        Utility.html.ElemHideRear(this.cont_OptionsMenu);
-        Utility.html.ElemShowFront(this.cont_MainMenu);
         this.isOptionsMenuOpen = false;
     }
 

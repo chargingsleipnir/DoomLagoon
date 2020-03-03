@@ -13,7 +13,7 @@ class Main {
             }
         },
         parent: "CanvasContainer",
-        scene: [Setup, MainMenu, Title, Overworld, Battle]
+        scene: [Setup, MainMenu, OptionsMenu, Title, Overworld, Battle]
     }
 
     static get CanSaveLocal() {

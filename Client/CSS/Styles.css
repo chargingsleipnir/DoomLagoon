@@ -1,6 +1,16 @@
-﻿#MainTitle {
-    font-family: 'Courier New', Courier, monospace;
-    font-weight: bolder;
+﻿body {
+    background-image: url("../Assets/SuperMarioWorldReal.png");
+}
+
+button, input[type="button"] {
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+}
+
+.centered {
+    display: block;
+    margin: 0 auto;
 }
 
 div, fieldset {
@@ -104,13 +114,62 @@ canvas {
     vertical-align: middle;
 }
 
-#mainMenu > * {
-    position: relative;
-    display: block;
+#MainMenu {
+    background-image: url("../Assets/GUI/bg_Paper.png");
+    width: 512px;
+    height: 512px;
+    padding: 15px;
+}
+
+#MainMenu > * {
     margin: 20px auto;
 }
 
-#optionsMenu {
+.flexCentreChild {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.bg_InputWide {
+    background-image: url("../Assets/GUI/bg_InputWide.png");
+    width: 285px;
+    height: 60px;
+    padding: 10px;
+}
+
+.bg_InputWide > input[type="text"] {
+    border: none;
+    background-color: transparent;
+    height: 25px;
+    width: 200px;
+    color: white;
+    font-size: 18pt;
+    text-align: center;    
+}
+.bg_InputWide > input[type="text"]::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 18pt;
+}
+
+.bg_InputWide > input[type="button"] {
+    border: none;
+    background-color: transparent;
+    height: 100%;
+    width: 100%;
+    color: white;
+    font-size: 18pt;
+    text-align: center;
+}
+
+.bg_InputSquare {
+    background-image: url("../Assets/GUI/bg_InputSquare.png");
+    height: 80px;
+    width: 80px;
+    padding: 5px;
+}
+
+#OptionsMenu {
     position: relative;
     display: block;
     width: 475px;
@@ -139,18 +198,8 @@ button {
     color: #2d1803;
 }
 
-#StartBtn {
-    width: 200px;
-    height: 75px;
-    background-color: aquamarine;
-}
 
-#optionsBtn {
-    width: 48px;
-    cursor: pointer;
-}
-
-#closeOptionsBtn {
+#CloseOptionsBtn {
     cursor: pointer;
     position:absolute;
     top:0;
