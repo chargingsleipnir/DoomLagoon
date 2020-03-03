@@ -8,6 +8,10 @@ button, input[type="button"] {
     cursor: pointer;
 }
 
+input[type="text"] {
+    outline: none;
+}
+
 .centered {
     display: block;
     margin: 0 auto;
@@ -26,7 +30,20 @@ h4 {
     margin: 10px 0;
 }
 
-/* TABBED BOXES */
+.margTop10 {
+    margin-top: 10px;;
+}
+
+.margTop25 {
+    margin-top: 25px;;
+}
+
+.flexFlowRight {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-around;
+    align-items: center;
+}
 
 ul.tabbed {
     list-style: none;
@@ -35,39 +52,12 @@ ul.tabbed {
     overflow: hidden;
 }
 
-ul.tabbed li {
-    float: left;
-    background-color: cyan;
-}
-
-ul.tabbed li span {
-    display: inline-block;
-    color: black;
-    text-align: center;
-    padding: 14px 16px;
-    text-decoration: none;
-    transition: 0.3s;
-    font-size: 17px;
-}
-
-ul.tabbed li span:hover {
-    cursor: pointer;
-    background-color: darkcyan;
-}
-
-ul.tabbed li span:focus, .active {
-    background-color: lightcyan;
-}
-
-.tabContent {
+.optionPanel {
     display: none;
-    padding: 6px 12px;
-    background-color: lightcyan;
-    border: 1px solid lightcyan;
-    border-top: none;
 }
-
-/* ^^ TABBED BOXES ^^ */
+.optionPanel.active {
+    display: block;
+}
 
 #fullGameContainer {
     -webkit-box-sizing: content-box;
@@ -114,11 +104,12 @@ canvas {
     vertical-align: middle;
 }
 
-#MainMenu {
+.bg_Paper512 {
     background-image: url("../Assets/GUI/bg_Paper.png");
     width: 512px;
     height: 512px;
     padding: 15px;
+    box-shadow: 3px 3px 10px 0 black;
 }
 
 #MainMenu > * {
@@ -131,14 +122,14 @@ canvas {
     align-items: center;
 }
 
-.bg_InputWide {
-    background-image: url("../Assets/GUI/bg_InputWide.png");
-    width: 285px;
-    height: 60px;
+.frame_Wood {
+    background-image: url("../Assets/GUI/frame_Wood_250x50.png");
+    width: 250px;
+    height: 50px;
     padding: 10px;
 }
 
-.bg_InputWide > input[type="text"] {
+.frame_Wood > input[type="text"] {
     border: none;
     background-color: transparent;
     height: 25px;
@@ -147,9 +138,16 @@ canvas {
     font-size: 18pt;
     text-align: center;    
 }
-.bg_InputWide > input[type="text"]::placeholder {
-    color: rgba(255, 255, 255, 0.5);
+.frame_Wood > input[type="text"]::placeholder {
+    color: rgba(255, 255, 255, 0.66);
     font-size: 18pt;
+}
+
+.bg_InputWide {
+    background-image: url("../Assets/GUI/bg_InputWide.png");
+    width: 285px;
+    height: 60px;
+    padding: 10px;
 }
 
 .bg_InputWide > input[type="button"] {
@@ -162,8 +160,15 @@ canvas {
     text-align: center;
 }
 
+.bg_InputWide.disabled {
+    opacity: 0.66;
+    cursor: default;
+    pointer-events: none;
+}
+
 .bg_InputSquare {
     background-image: url("../Assets/GUI/bg_InputSquare.png");
+    color: white;
     height: 80px;
     width: 80px;
     padding: 5px;
@@ -172,12 +177,7 @@ canvas {
 #OptionsMenu {
     position: relative;
     display: block;
-    width: 475px;
-    margin: 50px auto 0 auto;
-
     text-align: center;
-
-    background-color: burlywood;
     padding: 20px;
 
     /*Start off not displaying*/
@@ -204,7 +204,12 @@ button {
     position:absolute;
     top:0;
     right:0;
-    margin: -16px -16px 0 0;
+    padding: 0;
+    margin: 5px;
+}
+#CloseOptionsBtn:hover {
+    color: white;
+    background-color: black;
 }
 
 .centredBlock {

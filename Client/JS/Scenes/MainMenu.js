@@ -1,21 +1,14 @@
 class MainMenu extends Phaser.Scene {
     
-    input_Username;
-    input_Password;
-
-    cont_MainMenu;
-    cont_OptionsMenu;
-    cont_Game;
-    cont_BarMenu;
     dispName;
+
+    static elem_Container;
+
+    input_Username;
+    input_Password; 
 
     btn_Options;
     btn_StartGame;
-    text_LocalSaveAvail;
-
-    isOptionsMenuOpen;
-
-    doSaveLocally;
 
     constructor() {
         super("MainMenu");
@@ -30,19 +23,18 @@ class MainMenu extends Phaser.Scene {
         this.input_Username = document.getElementById("Username"),
         this.input_Password = document.getElementById("Password");
 
-        this.cont_MainMenu = document.getElementById("MainMenu");
-        this.cont_OptionsMenu = document.getElementById('optionsMenu');
-        this.cont_Game = document.getElementById("fullGameContainer");
-        this.cont_BarMenu = document.getElementById('inGameBarMenu');
+        MainMenu.elem_Container = document.getElementById("MainMenu");
 
         document.getElementById('DispNameField').addEventListener("keyup", (e) => {
-            this.dispName = e.target.value;
+            this.dispName = e.currentTarget.value;
             // Cannot play without at least one character name
-            if (e.target.value == '') {
+            if (e.currentTarget.value == '') {
                 this.btn_StartGame.disabled = true;
+                this.btn_StartGame.parentElement.classList.add("disabled");
             }
             else {
                 this.btn_StartGame.disabled = false;
+                this.btn_StartGame.parentElement.classList.remove("disabled");
             }
         });
 
@@ -59,33 +51,17 @@ class MainMenu extends Phaser.Scene {
 
         this.btn_Options = document.getElementById('OptionsBtn');
         this.btn_Options.addEventListener("click", (e) => {
-            Utility.html.ElemHideRear(this.cont_MainMenu);
-            Utility.html.ElemShowFront(this.cont_OptionsMenu);
-            this.isOptionsMenuOpen = true;
+
+
+            // TODO: Make this work additively if possible, so "init" and "create" only runs once.
+            // 
+
+            this.scene.start("OptionsMenu");
+            //OptionsMenu.ShowSelf();
+            Utility.html.ElemHideRear(MainMenu.elem_Container);
         });
 
-        document.getElementById('CloseOptionsBtn').addEventListener('click', () => {
-            Utility.html.ElemHideRear(this.cont_OptionsMenu);
-            Utility.html.ElemShowFront(this.cont_MainMenu);
-            this.isOptionsMenuOpen = false;
-        });
-
-        this.text_LocalSaveAvail = document.getElementById('LocalSaveAvailText');
-
-        var checkbox_LocalSave = document.getElementById('UseLocalSavingOption');
         
-        this.doSaveLocally = false;
-
-        if (Main.CanSaveLocal) {
-            this.text_LocalSaveAvail.innerHTML = "Available";
-            checkbox_LocalSave.addEventListener('change', (e) => {
-                this.doSaveLocally = e.target.checked;
-            });
-        }
-        else {
-            this.text_LocalSaveAvail.innerHTML = "Unavailable";
-            checkbox_LocalSave.parentNode.removeChild(checkbox_LocalSave);
-        }
 
         Network.CreateResponse("SignInResponse", (success) => { });
         Network.CreateResponse("SignUpResponse", (success) => { });
@@ -109,8 +85,6 @@ class MainMenu extends Phaser.Scene {
                 password: this.input_Password.value
             });
         });
-        
-        this.isOptionsMenuOpen = false;
 
         // TODO: This was old and left commented, not sure if it's still required, especially here. Perhaps in "init" of "Overworld"?
         // Send canvas click position to the server
@@ -156,52 +130,14 @@ class MainMenu extends Phaser.Scene {
 
     create ()
     {
-        // Set canvas div as parent of options menu to maintain containment throughout game.
-        //this.cont_Game.appendChild(this.cont_OptionsMenu);
-        //this.cont_BarMenu.appendChild(this.btn_Options);
-        //cont_OptionsMenu.className += ' newOptionsMenuStyles';
-        
-        //this.btn_Options.onclick = function () { this.isOptionsMenuOpen ? menuState.OptionsOff() : menuState.OptionsOn(); }
-        //this.btn_CloseOptions.onclick = this.OptionsOff;
-        //btn_CloseOptions.parentNode.removeChild(btn_CloseOptions);
-        
-        //Utility.html.ElemHideRear(this.cont_OptionsMenu);
-        //Utility.html.ElemHideRear(this.cont_MainMenu);
-        //Utility.html.ElemShowMiddle(this.cont_Game);
+
     }
 
     static get GetDispName () {
         return this.dispName || "I am Error";
     }
 
-    static OptionsOn () {
-        Utility.html.ElemShowFront(this.cont_OptionsMenu);
-        this.isOptionsMenuOpen = true;
-    }
-    static OptionsOff () {
-        Utility.html.ElemHideRear(this.cont_OptionsMenu);
-        this.isOptionsMenuOpen = false;
-    }
-
-    static OpenOptionFromSet(elem, id) {
-        var i,
-            tabContent, 
-            tabLinks;
-        
-        // Make all tabs display nothing for now
-        tabContent = document.getElementsByClassName("tabContent");
-        for (let i = 0; i < tabContent.length; i++) {
-            tabContent[i].style.display = "none";
-        }
-        
-        // Get all elements with class="tabLink" and remove the class "active"
-        tabLinks = document.getElementsByClassName("tabLink");
-        for (i = 0; i < tabLinks.length; i++) {
-            tabLinks[i].className = tabLinks[i].className.replace(" active", "");
-        }
-        
-        // Show the current tab, and add an "active" class to the link that opened the tab
-        document.getElementById(id).style.display = "block";
-        elem.className += " active";
+    static ShowSelf() {
+        Utility.html.ElemShowFront(MainMenu.elem_Container);
     }
 }

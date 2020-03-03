@@ -34,13 +34,13 @@
     <script type="text/javascript" src="JS/Main.js"></script>
 </head>
 <body onload="Main.Init();">
-    <img src="Assets/Title.png" alt="Doom Lagoon" class="centered" />
+    <img src="Assets/Title.png" alt="Doom Lagoon" class="centered margTop25" />
     
-    <div id="MainMenu" class="centered">
-        <div class="bg_InputWide flexCentreChild">
+    <div id="MainMenu" class="bg_Paper512 centered margTop25">
+        <div class="frame_Wood flexCentreChild">
             <input id="DispNameField" type="text" placeholder="Display Name" maxlength="10"/>
         </div>
-        <div class="bg_InputWide flexCentreChild">
+        <div class="bg_InputWide flexCentreChild disabled">
             <input id="StartBtn" type="button" value="Play" disabled />
         </div>
         <div class="bg_InputWide flexCentreChild">
@@ -51,47 +51,34 @@
     <!-- TODO: Use for in-game options button: <i class="fas fa-cog fa-2x"></i> -->
 
     <!-- TODO: Make this it's own scene to be called from any other appropriate scene -->
-    <div id="optionsMenu">
+    <div id="OptionsMenu" class="bg_Paper512 centered margTop25">
         <button alt="close" id="CloseOptionsBtn"><i class="fas fa-window-close fa-2x"></i></button>
-        <ul class="tabbed">
-            <!--<li><a href="#" class="tablink" onclick="">Game</a></li> Exit, Resume, etc. -->
-            <li><span id="firstOptionShown" class="tabLink" onclick="OpenOptionFromSet(this, 'saveOptions')">Saving</span></li>
-            <li><span class="tabLink" onclick="OpenOptionFromSet(this, 'audioOptions')">Audio</span></li>
-            <!--<li><span class="tabLink" onclick="OpenOptionFromSet(this, 'audioOptions')">Customize</span></li> Changing colours, shapes, graphics?? -->
-        </ul>
+        <!-- TODO: Move this off to the left, columnized -->
+        <div class="flexFlowRight">
+            <ul id="OptionsMenuTabs" class="tabbed">
+                <li><button class="bg_InputSquare tabLink active" data-panel-Id="SaveOptions"><i class="fas fa-save fa-3x"></i></button></li>
+                <li><button class="bg_InputSquare tabLink margTop10" data-panel-Id="AudioOptions"><i class="fas fa-headphones fa-3x"></i></button></li>
+            </ul>
 
-        <!--<div id="gameOptions" class="tabContent"></div>-->
-        <div id="saveOptions" class="tabContent">
-            <!-- TODO: Obviously get this js call right the hell out of here. Good time for some ejs/moustache I think. Just straight js manipulation at least. -->
-            <div><h4>Browser Saving: <em>--<span id="LocalSaveAvailText"></span>--</em></h4></div>
-            <div id="UseLocalSavingOption">Save to browser? <input type="checkbox" /></div>
-            <br />
-            <h4>Database Saving</h4>
-            <input id="Username" class="centredBlock" type="text" placeholder="Username" />
-            <input id="Password" class="centredBlock" type="password" placeholder="Password" />
-            <button id="SignInBtn" class="centredBlock">Log in</button>
-            <button id="SignUpBtn" class="centredBlock">Sign up</button>
-            <button id="RemoveAccountBtn" class="centredBlock">Remove Account</button>
+            <div id="SaveOptions" class="optionPanel active">
+                <div><h4>Browser Saving: <em>--<span id="LocalSaveAvailText"></span>--</em></h4></div>
+                <div id="UseLocalSavingOption">Save to browser? <input type="checkbox" /></div>
+                <br />
+                <h4>Database Saving</h4>
+                <input id="Username" class="centredBlock" type="text" placeholder="Username" />
+                <input id="Password" class="centredBlock" type="password" placeholder="Password" />
+                <button id="SignInBtn" class="centredBlock">Log in</button>
+                <button id="SignUpBtn" class="centredBlock">Sign up</button>
+                <button id="RemoveAccountBtn" class="centredBlock">Remove Account</button>
+            </div>
+            <div id="AudioOptions" class="optionPanel">
+                <label for="volumeSlider" class="centredBlock">Volume</label>
+                <input id="volumeSlider" class="centredBlock" type="range" />
+                <div class="centredBlock"><label for="musicToggle">Music: </label><input id="musicToggle" type="checkbox" /></div>
+                <div class="centredBlock"><label for="soundFXToggle">Sound FX: </label><input id="soundFXToggle" type="checkbox" /></div>
+            </div>
         </div>
-        <div id="audioOptions" class="tabContent">
-            <label for="volumeSlider" class="centredBlock">Volume</label>
-            <input id="volumeSlider" class="centredBlock" type="range" />
-            <div class="centredBlock"><label for="musicToggle">Music: </label><input id="musicToggle" type="checkbox" /></div>
-            <div class="centredBlock"><label for="soundFXToggle">Sound FX: </label><input id="soundFXToggle" type="checkbox" /></div>
-        </div>
-        <!--<div id="customOptions" class="tabContent">
-                <label for="colourSelection">Select colour:</label>
-                <select id="colourSelection" onchange="ColourChange(this.value)">
-                    <option value="black" selected="selected">black</option>
-                    <option value="red">red</option>
-                    <option value="green">green</option>
-                    <option value="blue">blue</option>
-                </select>
-            </div>-->
     </div>
-
-    <!-- Make sure first tabbed box shows up -->
-    <script>MainMenu.OpenOptionFromSet(document.getElementById('firstOptionShown'), 'saveOptions');</script>
 
     <div id="fullGameContainer">
         <div id="CanvasContainer"></div>
