@@ -1,28 +1,27 @@
-class Main {
+var Main = (() => {
 
-    static game;
-
-    static config = {
-        type: Phaser.AUTO,
-        width: 960,
-        height: 540,
-        physics: {
-            default: 'arcade',
-            arcade: {
-                gravity: { y: 200 }
-            }
+    return {
+        game: null,
+        phaserConfig: {
+            type: Phaser.AUTO,
+            width: 960,
+            height: 540,
+            physics: {
+                default: 'arcade',
+                arcade: {
+                    gravity: { y: 200 }
+                }
+            },
+            parent: "CanvasContainer",
+            scene: [Title, Overworld, Battle]
         },
-        parent: "CanvasContainer",
-        scene: [Setup, MainMenu, OptionsMenu, Title, Overworld, Battle]
+        Init: () => {
+            // Establish socket connection
+            Network.InitSocketConnection(() => {
+                // Phaser Game starts in MainMenu on Play button
+                MainMenu.Init();
+                OptionsMenu.Init();
+            }); 
+        }
     }
-
-    static get CanSaveLocal() {
-        return (typeof (Storage) !== undefined);
-    }
-
-    static Init() {
-        Main.game = new Phaser.Game(Main.config);
-        // TODO: Still a phaser 2 thing? Not even sure what it is, check it out.
-        //game.time.advancedTiming = true;
-    }
-}
+})();

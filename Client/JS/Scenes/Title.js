@@ -4,10 +4,10 @@ class Title extends Phaser.Scene {
         super("Title");
     }
 
-    // Init()
-    // Preload()
-    // Create()
-    // Update()
+    // init()
+    // preload()
+    // create()
+    // update()
 
     preload ()
     {

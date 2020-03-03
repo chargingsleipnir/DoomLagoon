@@ -1,5 +1,5 @@
 
-var Network = (function () {
+var Network = (() => {
 
     var socket;
 
@@ -27,6 +27,10 @@ var Network = (function () {
         },
         GetSocketID: function () {
             return socket.id;
-        }
+        },
+        CanSaveLocal: () => {
+            return (typeof (Storage) !== undefined);
+        },
+        doSaveLocally: false
     };
 })();
