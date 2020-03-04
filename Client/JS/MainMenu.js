@@ -4,17 +4,10 @@ var MainMenu = (() => {
 
     var elem_Container;
 
-    var input_Username;
-    var input_Password; 
-
-    var btn_Options;
     var btn_StartGame;
 
     return {
         Init: () => {
-            input_Username = document.getElementById("Username"),
-            input_Password = document.getElementById("Password");
-
             elem_Container = document.getElementById("MainMenu");
 
             document.getElementById('DispNameField').addEventListener("keyup", (e) => {
@@ -33,8 +26,11 @@ var MainMenu = (() => {
             btn_StartGame = document.getElementById('StartBtn');
             btn_StartGame.addEventListener("click", (e) => {
                 // Check local storage, database info, etc. to pass to play state
-                Network.CreateResponse("WorldInitData", function (data) {
+                Network.CreateResponse("RecWorldInitData", function (data) {
 
+                    // Hide main menu & launch canvas/phaser game
+                    Utility.html.ElemHideRear(elem_Container);
+                    Utility.html.ElemShowMiddle(document.getElementById("FullGameContainer"));
                     Main.game = new Phaser.Game(Main.phaserConfig);
                     // TODO: Still a phaser 2 thing? Not even sure what it is, check it out.
                     //game.time.advancedTiming = true;
@@ -43,39 +39,15 @@ var MainMenu = (() => {
                     // TODO: transfer data forward as in old phaser
                     //game.state.start('play', true, false, data);
                 });
-                Network.Emit("RequestWorldData");
+                Network.Emit("ReqWorldInitData");
             });
 
-            btn_Options = document.getElementById('OptionsBtn');
-            btn_Options.addEventListener("click", (e) => {
-                OptionsMenu.Open();
-                Utility.html.ElemHideRear(elem_Container);
-            });
+            document.getElementById('MainMenuOptionsBtn').addEventListener("click", OptionsMenu.Open);
 
-            Network.CreateResponse("SignInResponse", (success) => { });
-            Network.CreateResponse("SignUpResponse", (success) => { });
-            Network.CreateResponse("RemoveAccountResponse", (success) => { });
-
-            document.getElementById('SignInBtn').addEventListener('click', (e) => {
-                Network.Emit("SignIn", {
-                    username: input_Username.value,
-                    password: input_Password.value
-                });
-            });
-            document.getElementById('SignUpBtn').addEventListener('click', (e) => {
-                Network.Emit("SignUp", {
-                    username: input_Username.value,
-                    password: input_Password.value
-                });
-            });
-            document.getElementById('RemoveAccountBtn').addEventListener('click', (e) => {
-                Network.Emit("RemoveAccount", {
-                    username: input_Username.value,
-                    password: input_Password.value
-                });
-            });
+            
 
             // TODO: This was old and left commented, not sure if it's still required, especially here. Perhaps in "init" of "Overworld"?
+            //* Just always sending click coordinates to the server
             // Send canvas click position to the server
             // function GetPosition(event) {
             //     var posParent = ElemPosition(event.currentTarget);

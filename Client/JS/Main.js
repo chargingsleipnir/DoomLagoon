@@ -5,7 +5,7 @@ var Main = (() => {
         phaserConfig: {
             type: Phaser.AUTO,
             width: 960,
-            height: 540,
+            height: 560,
             physics: {
                 default: 'arcade',
                 arcade: {

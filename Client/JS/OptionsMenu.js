@@ -4,6 +4,9 @@ var OptionsMenu = (() => {
     var elems_tab;
     var elems_panel;
 
+    var input_Username;
+    var input_Password; 
+
     function OpenOptionFromSet(tabElem, panelId) {
         // Show the clicked tab as the active one
         for (let i = 0; i < elems_tab.length; i++) {
@@ -26,7 +29,6 @@ var OptionsMenu = (() => {
 
             document.getElementById('CloseOptionsBtn').addEventListener('click', () => {
                 Utility.html.ElemHideRear(elem_Container);
-                MainMenu.Open();
             });
 
             elems_tab = document.getElementById("OptionsMenuTabs").getElementsByTagName("button");
@@ -44,16 +46,48 @@ var OptionsMenu = (() => {
             if (Network.CanSaveLocal()) {
                 text_LocalSaveAvail.innerHTML = "Available";
                 checkbox_LocalSave.addEventListener('change', (e) => {
-                    Network.doSaveLocally = e.currentTarget.checked;
+                    User.prefs.useLocalStorage = e.currentTarget.checked;
                 });
             }
             else {
                 text_LocalSaveAvail.innerHTML = "Unavailable";
                 checkbox_LocalSave.parentNode.removeChild(checkbox_LocalSave);
             }
+
+            // DATABASE SAVING
+            input_Username = document.getElementById("Username"),
+            input_Password = document.getElementById("Password");
+
+            Network.CreateResponse("SignInResponse", (success) => { });
+            Network.CreateResponse("SignUpResponse", (success) => { });
+            Network.CreateResponse("RemoveAccountResponse", (success) => { });
+
+            document.getElementById('SignInBtn').addEventListener('click', (e) => {
+                Network.Emit("SignIn", {
+                    username: input_Username.value,
+                    password: input_Password.value
+                });
+            });
+            document.getElementById('SignUpBtn').addEventListener('click', (e) => {
+                Network.Emit("SignUp", {
+                    username: input_Username.value,
+                    password: input_Password.value
+                });
+            });
+            document.getElementById('RemoveAccountBtn').addEventListener('click', (e) => {
+                Network.Emit("RemoveAccount", {
+                    username: input_Username.value,
+                    password: input_Password.value
+                });
+            });
+
+            // AUDIO OPTIONS
+            document.getElementById('VolumeSlider').addEventListener('change', (e) => {
+                User.prefs.volumePct = e.currentTarget.value;
+            });
         },
         Open: () => {
-            Utility.html.ElemShowFront(elem_Container);
+            Utility.html.ElemShowFront(elem_Container, 2);
         }
     }
 })();

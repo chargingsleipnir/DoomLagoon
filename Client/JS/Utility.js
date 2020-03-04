@@ -8,9 +8,9 @@ var Utility = {
             elem.style.display = 'block';
             elem.style.zIndex = 0;
         },
-        ElemShowFront: function (elem) {
+        ElemShowFront: function (elem, zIndex = 1) {
             elem.style.display = 'block';
-            elem.style.zIndex = 1;
+            elem.style.zIndex = zIndex;
         },
     }
 }

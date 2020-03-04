@@ -4,10 +4,11 @@ class Title extends Phaser.Scene {
         super("Title");
     }
 
-    // init()
-    // preload()
-    // create()
-    // update()
+    init() {
+        // TODO: This only ever needs to happen once throughout the lifetime of the game, but these functions get called for each scene change...
+        // I should find out if each scene has access to a one-time call no matter how mnay times the scenes change
+        document.getElementById("InGameOptionsBtn").addEventListener('click', OptionsMenu.Open);
+    }
 
     preload ()
     {

@@ -19,6 +19,9 @@
     <script type="text/javascript" src="JS/Play.js"></script>
     <script type="text/javascript" src="JS/End.js"></script>
 
+    <!-- For settings, preferences, meta info, etc. -->
+    <script type="text/javascript" src="JS/User.js"></script>
+
     <script type="text/javascript" src="JS/Characters/NPC.js"></script>
     <script type="text/javascript" src="JS/Characters/NetPlayer.js"></script>
     <script type="text/javascript" src="JS/Characters/LocalPlayer.js"></script>
@@ -37,15 +40,15 @@
 <body onload="Main.Init();" class="bg_SuperMarioWorldReal">
     <img src="Assets/Title.png" alt="Doom Lagoon" class="centered margTop25" />
     
-    <div id="MainMenu" class="menuPanel bg_Paper512 centered margTop25">
+    <div id="MainMenu" class="menuPanel bg_Paper512 deadCentreOfScreen">
         <div class="frame_Wood250x50 flexCentreChild bg_LightGrey"><input id="DispNameField" type="text" placeholder="Display Name" maxlength="10"/></div>
         <div class="bg_Button285x60 flexCentreChild disabled"><input id="StartBtn" type="button" value="Play" disabled /></div>
-        <div class="bg_Button285x60 flexCentreChild"><input id="OptionsBtn" type="button" value="Options" /></div>
+        <div class="bg_Button285x60 flexCentreChild"><input id="MainMenuOptionsBtn" type="button" value="Options" /></div>
     </div>
 
     <!-- TODO: Use for in-game options button: <i class="fas fa-cog fa-2x"></i> -->
 
-    <div id="OptionsMenu" class="menuPanel bg_Paper512 centered margTop25">
+    <div id="OptionsMenu" class="menuPanel bg_Paper512 deadCentreOfScreen">
         <button alt="close" id="CloseOptionsBtn"><i class="fas fa-window-close fa-2x"></i></button>
         <div class="flexFlowRightTop">
             <ul id="OptionsMenuTabs">
@@ -77,19 +80,23 @@
                 </button>
             </div>
             <div id="AudioOptions" class="optionPanel">
-                <label for="volumeSlider" class="centredBlock">Volume</label>
-                <input id="volumeSlider" class="centredBlock" type="range" />
+                <label for="VolumeSlider" class="centredBlock">Volume</label>
+                <input id="VolumeSlider" class="centredBlock margTop10" type="range" />
+                <!-- TODO: Implement more options
                 <div class="centredBlock"><label for="musicToggle">Music: </label><input id="musicToggle" type="checkbox" /></div>
                 <div class="centredBlock"><label for="soundFXToggle">Sound FX: </label><input id="soundFXToggle" type="checkbox" /></div>
+                -->
             </div>
         </div>
     </div>
 
-    <div id="fullGameContainer">
+    <div id="FullGameContainer">
         <div id="CanvasContainer"></div>
-        <div id="inGameBarMenu">
-            <input type="text" id="msgInput" />
-            <button onclick="Network.SendMsg()">Send</button>
+        <!-- TODO: Make this menu actually sitting within the game, overlapping some of the canvas graphical elements, like a true GUI. -->
+        <div id="InGameBarMenu" class=".bgImg">
+            <button id="InGameOptionsBtn"><i class="fas fa-cog fa-2x"></i></button>
+            <input type="text" id="PlayerChatMsg" />
+            <button id="PlayerChatSendMsgBtn"><i class="fas fa-paper-plane fa-2x"></i></button>
         </div>
     </div>
 

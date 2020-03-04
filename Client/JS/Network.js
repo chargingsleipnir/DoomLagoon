@@ -30,7 +30,6 @@ var Network = (() => {
         },
         CanSaveLocal: () => {
             return (typeof (Storage) !== undefined);
-        },
-        doSaveLocally: false
+        }
     };
 })();

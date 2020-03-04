@@ -1,4 +1,5 @@
 /*
+TODO: Use Redis or some other new type of database
 var mongojs = require('mongojs');
                                                                      SHUT DOWN DATABASE FOR NOW, KNOWING THAT IT WORKS
 var dbConnectionString = '127.0.0.1:27017/doomlagoon'

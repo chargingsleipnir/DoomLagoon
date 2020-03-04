@@ -293,7 +293,7 @@ var Map = {
 module.exports = {
     InitSocketCalls: function (io, socket) {
 
-        socket.on("RequestWorldData", function () {
+        socket.on("ReqWorldInitData", function () {
             // Get a spawn point
             var spawnIndex;
             for (var i = 0; i < spawnPoints.length; i++) {
@@ -307,7 +307,7 @@ module.exports = {
             
             // TODO: Get and send all other word init data
 
-            socket.emit("WorldInitData", {
+            socket.emit("RecWorldInitData", {
                 gridSpawn: {
                     x: spawnPoints[spawnIndex].x, 
                     y: spawnPoints[spawnIndex].y

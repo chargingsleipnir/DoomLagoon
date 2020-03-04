@@ -6,7 +6,7 @@
 }
 
 .bg_SuperMarioWorldReal { background-image: url("../Assets/SuperMarioWorldReal.png"); }
-.bg_Paper512 { background-image: url("../Assets/GUI/bg_Paper.png"); }
+.bg_Paper512 { background-image: url("../Assets/GUI/texture_Paper.png"); }
 
 .bg_Button285x60 {
     background-image: url("../Assets/GUI/bg_Button285x60.png");
@@ -89,6 +89,66 @@
     font-size: 12pt;
 }
 
+input[type="checkbox"] {
+    display: none;
+}
+input[type="checkbox"] + label {
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    display: inline-block;
+    padding: 0;
+    background-image: url("../Assets/GUI/checkboxUnchecked_20Square.png");
+}
+input[type="checkbox"]:checked + label {
+    width: 30px;
+    height: 30px;
+    background-image: url("../Assets/GUI/checkboxChecked_30Square.png");
+}
+
+input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    background-color: transparent;
+    width: 205px;
+}
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 30px;
+    margin-top: -5px;
+    background-image: url("../Assets/GUI/slider_Nub18x30.png");
+    cursor: pointer;
+}
+input[type="range"]::-moz-range-thumb {
+    width: 18px;
+    height: 30px;
+    margin-top: -5px;
+    background-image: url("../Assets/GUI/slider_Nub18x30.png");
+    cursor: pointer;
+}
+input[type="range"]::-webkit-slider-runnable-track {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 205px;
+    height: 15px;
+    background-image: url("../Assets/GUI/slider_Bar205x15.png");
+    cursor: pointer;
+}
+input[type="range"]::-moz-range-track {
+    width: 205px;
+    height: 15px;
+    background-image: url("../Assets/GUI/slider_Bar205x15.png");
+    cursor: pointer;
+}
+
+
+
+
+
+
+
 .bg_LightGrey {
     background-color: #AAA;
 }
@@ -109,28 +169,10 @@ button, input[type="button"] {
     cursor: pointer;
 }
 
-input[type="text"] {
+input {
     outline: none;
 }
 
-
-
-input[type="checkbox"] {
-    display: none;
-}
-input[type="checkbox"] + label {
-    width: 30px;
-    height: 30px;
-    cursor: pointer;
-    display: inline-block;
-    padding: 0;
-    background-image: url("../Assets/GUI/checkboxUnchecked_20Square.png");
-}
-input[type="checkbox"]:checked + label {
-    width: 30px;
-    height: 30px;
-    background-image: url("../Assets/GUI/checkboxChecked_30Square.png");
-}
 
 .centered {
     display: block;
@@ -209,7 +251,7 @@ ul {
     display: block;
 }
 
-#fullGameContainer {
+#FullGameContainer {
     -webkit-box-sizing: content-box;
     -moz-box-sizing: content-box;
     box-sizing: content-box;
@@ -229,25 +271,26 @@ ul {
 #CanvasContainer {
     position: absolute;
     width: 960px;
-    height: 540px;
+    height: 560px;
 }
 
 canvas {
     position: absolute;
     width: 960px;
-    height: 540px;
+    height: 560px;
 }
 
-#inGameBarMenu {
+#InGameBarMenu {
     position:absolute;
     bottom: 0;
-    height: 60px;
+    height: 40px;
     display: block;
     width: 100%;
     text-align: center;
+    background-image: url("../Assets/GUI/texture_Paper.png");
 }
 
-#inGameBarMenu > * {
+#InGameBarMenu > * {
     position: relative;
     display: inline;
     margin: 5px auto;
@@ -272,7 +315,7 @@ canvas {
 }
 
 #OptionsMenu {
-    position: relative;
+
     display: block;
     text-align: center;
     padding: 25px;
@@ -307,4 +350,11 @@ button {
 #CloseOptionsBtn:hover {
     color: white;
     background-color: black;
+}
+
+.deadCentreOfScreen {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }

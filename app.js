@@ -77,8 +77,8 @@ server.listen(port, ip, () => {
 
 io.sockets.on("connection", function (socket) {
   console.log('Socket connection established');
-  //dbHdlr.InitSocketCalls(socket);
-  //objHdlrs.InitSocketCalls(io, socket);
+  dbHdlr.InitSocketCalls(socket);
+  objHdlrs.InitSocketCalls(io, socket);
 });
 
 // Update function
