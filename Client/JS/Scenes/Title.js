@@ -4,6 +4,9 @@ class Title extends Phaser.Scene {
         super("Title");
     }
 
+    // TODO: This is only for showing initial loading taking place, thus, have it fade in slowly just so if the
+    // loading happens very quickly, it isn't too jarring.
+
     init() {
         // TODO: This only ever needs to happen once throughout the lifetime of the game, but these functions get called for each scene change...
         // I should find out if each scene has access to a one-time call no matter how mnay times the scenes change
@@ -41,7 +44,20 @@ class Title extends Phaser.Scene {
 
         emitter.startFollow(logo);
 
-        //this.scene.start("Overworld");
+        // Check local storage, database info, etc. to pass to play state
+        Network.CreateResponse("RecWorldInitData", function (data) {
+
+            console.log("RecWorldInitData received:", data);
+
+            // TODO: transfer data forward as in old phaser
+            //game.state.start('play', true, false, data);
+
+            //this.scene.start("Overworld");
+        });
+        
+        Network.Emit("ReqWorldInitData");
+
+        
     }
 
 }

@@ -25,21 +25,13 @@ var MainMenu = (() => {
 
             btn_StartGame = document.getElementById('StartBtn');
             btn_StartGame.addEventListener("click", (e) => {
-                // Check local storage, database info, etc. to pass to play state
-                Network.CreateResponse("RecWorldInitData", function (data) {
 
-                    // Hide main menu & launch canvas/phaser game
-                    Utility.html.ElemHideRear(elem_Container);
-                    Utility.html.ElemShowMiddle(document.getElementById("FullGameContainer"));
-                    Main.game = new Phaser.Game(Main.phaserConfig);
-                    // TODO: Still a phaser 2 thing? Not even sure what it is, check it out.
-                    //game.time.advancedTiming = true;
+                // Hide main menu & launch canvas/phaser game
+                Utility.html.ElemHideRear(elem_Container);
+                Utility.html.ElemShowMiddle(document.getElementById("FullGameContainer"));
 
-                    // Will start this automatically -> scene.start("Title");
-                    // TODO: transfer data forward as in old phaser
-                    //game.state.start('play', true, false, data);
-                });
-                Network.Emit("ReqWorldInitData");
+                // Launching of first scene happens in post Boot callback, in Main.js
+                new Phaser.Game(Main.phaserConfig);
             });
 
             document.getElementById('MainMenuOptionsBtn').addEventListener("click", OptionsMenu.Open);
