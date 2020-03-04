@@ -34,43 +34,47 @@
 
     <script type="text/javascript" src="JS/Main.js"></script>
 </head>
-<body onload="Main.Init();">
+<body onload="Main.Init();" class="bg_SuperMarioWorldReal">
     <img src="Assets/Title.png" alt="Doom Lagoon" class="centered margTop25" />
     
-    <div id="MainMenu" class="bg_Paper512 centered margTop25">
-        <div class="frame_Wood flexCentreChild">
-            <input id="DispNameField" type="text" placeholder="Display Name" maxlength="10"/>
-        </div>
-        <div class="bg_InputWide flexCentreChild disabled">
-            <input id="StartBtn" type="button" value="Play" disabled />
-        </div>
-        <div class="bg_InputWide flexCentreChild">
-            <input id="OptionsBtn" type="button" value="Options" />
-        </div>
+    <div id="MainMenu" class="menuPanel bg_Paper512 centered margTop25">
+        <div class="frame_Wood250x50 flexCentreChild bg_LightGrey"><input id="DispNameField" type="text" placeholder="Display Name" maxlength="10"/></div>
+        <div class="bg_Button285x60 flexCentreChild disabled"><input id="StartBtn" type="button" value="Play" disabled /></div>
+        <div class="bg_Button285x60 flexCentreChild"><input id="OptionsBtn" type="button" value="Options" /></div>
     </div>
 
     <!-- TODO: Use for in-game options button: <i class="fas fa-cog fa-2x"></i> -->
 
-    <!-- TODO: Make this it's own scene to be called from any other appropriate scene -->
-    <div id="OptionsMenu" class="bg_Paper512 centered margTop25">
+    <div id="OptionsMenu" class="menuPanel bg_Paper512 centered margTop25">
         <button alt="close" id="CloseOptionsBtn"><i class="fas fa-window-close fa-2x"></i></button>
-        <!-- TODO: Move this off to the left, columnized -->
-        <div class="flexFlowRight">
-            <ul id="OptionsMenuTabs" class="tabbed">
-                <li><button class="bg_InputSquare tabLink active" data-panel-Id="SaveOptions"><i class="fas fa-save fa-3x"></i></button></li>
-                <li><button class="bg_InputSquare tabLink margTop10" data-panel-Id="AudioOptions"><i class="fas fa-headphones fa-3x"></i></button></li>
+        <div class="flexFlowRightTop">
+            <ul id="OptionsMenuTabs">
+                <li><button class="bg_Button80 tabButton active" data-panel-Id="SaveOptions"><i class="fas fa-save fa-3x"></i></button></li>
+                <li><button class="bg_Button80 tabButton margTop10" data-panel-Id="AudioOptions"><i class="fas fa-headphones fa-3x"></i></button></li>
             </ul>
 
             <div id="SaveOptions" class="optionPanel active">
-                <div><h4>Browser Saving: <em>--<span id="LocalSaveAvailText"></span>--</em></h4></div>
-                <div id="UseLocalSavingOption">Save to browser? <input type="checkbox" /></div>
+                <div><h3>Browser Saving: <em><span id="LocalSaveAvailText"></span></em></h3></div>
+                <div id="UseLocalSavingOption" class="flexFlowRightCentre">
+                    <span>Save to browser?&nbsp;</span>
+                    <span><input type="checkbox" id="LocalSaveCheck" /><label for="LocalSaveCheck" class="bgImg"></label></span>
+                </div>
                 <br />
                 <h4>Database Saving</h4>
-                <input id="Username" class="centredBlock" type="text" placeholder="Username" />
-                <input id="Password" class="centredBlock" type="password" placeholder="Password" />
-                <button id="SignInBtn" class="centredBlock">Log in</button>
-                <button id="SignUpBtn" class="centredBlock">Sign up</button>
-                <button id="RemoveAccountBtn" class="centredBlock">Remove Account</button>
+                <div class="frame_Wood205x38 bgImg margTop10 bg_LightGrey centredBlock"><input id="Username" type="text" placeholder="Username" /></div>
+                <div class="frame_Wood205x38 bgImg margTop10 bg_LightGrey centredBlock"><input id="Password" type="password" placeholder="Password" /></div>
+                <button id="SignInBtn" class="flexFlowRightCentre margTop10 centered">
+                    <div class="bg_Panel42 bgImg flexCentreChild"><i class="fas fa-sign-in-alt"></i></div>
+                    <span class="margLeft10 forceFont">Log in</span>
+                </button>
+                <button id="SignUpBtn" class="flexFlowRightCentre margTop10 centered">
+                    <div class="bg_Panel42 bgImg flexCentreChild"><i class="fas fa-user-plus"></i></div>
+                    <span class="margLeft10 forceFont">Sign up</span>
+                </button>
+                <button id="RemoveAccountBtn" class="flexFlowRightCentre margTop10 centered">
+                    <div class="bg_Panel42 bgImg flexCentreChild"><i class="fas fa-user-minus"></i></div>
+                    <span class="margLeft10 forceFont">Delete</span>
+                </button>
             </div>
             <div id="AudioOptions" class="optionPanel">
                 <label for="volumeSlider" class="centredBlock">Volume</label>

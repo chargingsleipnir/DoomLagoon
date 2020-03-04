@@ -1,5 +1,106 @@
-﻿body {
-    background-image: url("../Assets/SuperMarioWorldReal.png");
+﻿/* TODO: Get on a css preprocessor (Sass, Less), though this site shouldn't really need much overall. */
+
+.bgImg {
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.bg_SuperMarioWorldReal { background-image: url("../Assets/SuperMarioWorldReal.png"); }
+.bg_Paper512 { background-image: url("../Assets/GUI/bg_Paper.png"); }
+
+.bg_Button285x60 {
+    background-image: url("../Assets/GUI/bg_Button285x60.png");
+    width: 285px;
+    height: 60px;
+    padding: 10px;
+}
+
+.bg_Button285x60 > input[type="button"] {
+    border: none;
+    background-color: transparent;
+    height: 100%;
+    width: 100%;
+    color: white;
+    font-size: 18pt;
+    text-align: center;
+}
+
+.bg_Button285x60.disabled {
+    opacity: 0.66;
+    cursor: default;
+    pointer-events: none;
+}
+
+.bg_Button80 {
+    background-image: url("../Assets/GUI/bg_Button80.png");
+    color: white;
+    height: 80px;
+    width: 80px;
+    padding: 5px;
+}
+
+.bg_Panel42 { 
+    background-image: url("../Assets/GUI/bg_Panel42.png");
+    color: white;
+    height: 42px;
+    width: 42px;
+    padding: 5px;
+}
+
+.frame_Wood250x50 {
+    background-image: url("../Assets/GUI/frame_Wood_250x50.png");
+    width: 250px;
+    height: 50px;
+    padding: 10px;
+}
+
+.frame_Wood250x50 > input[type="text"] {
+    border: none;
+    background-color: transparent;
+    height: 25px;
+    width: 200px;
+    color: black;
+    font-size: 18pt;
+    text-align: center;    
+}
+.frame_Wood250x50 > input[type="text"]::placeholder {
+    color: rgba(0, 0, 0, 0.66);
+    font-size: 18pt;
+}
+
+.frame_Wood205x38 {
+    background-image: url("../Assets/GUI/frame_Wood_205x38.png");
+    width: 205px;
+    height: 38px;
+    padding: 5px;
+}
+
+.frame_Wood205x38 > input[type="text"], .frame_Wood205x38 > input[type="password"]{
+    border: none;
+    background-color: transparent;
+    height: 20px;
+    width: 175px;
+    color: black;
+    font-size: 12pt;
+    text-align: center;    
+}
+.frame_Wood205x38 > input[type="text"]::placeholder, .frame_Wood205x38 > input[type="password"]::placeholder {
+    color: rgba(0, 0, 0, 0.66);
+    font-size: 12pt;
+}
+
+.bg_LightGrey {
+    background-color: #AAA;
+}
+
+body {
+    font-family: cursive;
+    font-size: large;
+}
+
+.forceFont {
+    font-family: cursive !important;
+    font-size: large !important;
 }
 
 button, input[type="button"] {
@@ -10,6 +111,25 @@ button, input[type="button"] {
 
 input[type="text"] {
     outline: none;
+}
+
+
+
+input[type="checkbox"] {
+    display: none;
+}
+input[type="checkbox"] + label {
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    display: inline-block;
+    padding: 0;
+    background-image: url("../Assets/GUI/checkboxUnchecked_20Square.png");
+}
+input[type="checkbox"]:checked + label {
+    width: 30px;
+    height: 30px;
+    background-image: url("../Assets/GUI/checkboxChecked_30Square.png");
 }
 
 .centered {
@@ -30,30 +150,60 @@ h4 {
     margin: 10px 0;
 }
 
+.centered {
+    text-align: center;
+    margin: 0 auto;
+}
+
+.centredBlock {
+    display: block;
+    text-align: center;
+    margin: 0 auto;
+}
+
 .margTop10 {
-    margin-top: 10px;;
+    margin-top: 10px;
 }
 
 .margTop25 {
-    margin-top: 25px;;
+    margin-top: 25px;
 }
 
-.flexFlowRight {
+.margLeft10 {
+    margin-left: 10px;
+}
+
+.flexFlowRightTop {
     display: flex;
     flex-flow: row nowrap;
     justify-content: space-around;
+    align-items: top;
+}
+
+.flexFlowRightCentre {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: center;
     align-items: center;
 }
 
-ul.tabbed {
+#OptionsMenuTabs {
+    flex-grow: 0;
+}
+
+ul {
     list-style: none;
     margin: 0;
     padding: 0;
-    overflow: hidden;
+}
+
+.tabButton.active {
+    background-color: rgba(0, 127, 255, 0.5);
 }
 
 .optionPanel {
     display: none;
+    flex-grow: 1;
 }
 .optionPanel.active {
     display: block;
@@ -104,8 +254,7 @@ canvas {
     vertical-align: middle;
 }
 
-.bg_Paper512 {
-    background-image: url("../Assets/GUI/bg_Paper.png");
+.menuPanel {
     width: 512px;
     height: 512px;
     padding: 15px;
@@ -122,63 +271,11 @@ canvas {
     align-items: center;
 }
 
-.frame_Wood {
-    background-image: url("../Assets/GUI/frame_Wood_250x50.png");
-    width: 250px;
-    height: 50px;
-    padding: 10px;
-}
-
-.frame_Wood > input[type="text"] {
-    border: none;
-    background-color: transparent;
-    height: 25px;
-    width: 200px;
-    color: white;
-    font-size: 18pt;
-    text-align: center;    
-}
-.frame_Wood > input[type="text"]::placeholder {
-    color: rgba(255, 255, 255, 0.66);
-    font-size: 18pt;
-}
-
-.bg_InputWide {
-    background-image: url("../Assets/GUI/bg_InputWide.png");
-    width: 285px;
-    height: 60px;
-    padding: 10px;
-}
-
-.bg_InputWide > input[type="button"] {
-    border: none;
-    background-color: transparent;
-    height: 100%;
-    width: 100%;
-    color: white;
-    font-size: 18pt;
-    text-align: center;
-}
-
-.bg_InputWide.disabled {
-    opacity: 0.66;
-    cursor: default;
-    pointer-events: none;
-}
-
-.bg_InputSquare {
-    background-image: url("../Assets/GUI/bg_InputSquare.png");
-    color: white;
-    height: 80px;
-    width: 80px;
-    padding: 5px;
-}
-
 #OptionsMenu {
     position: relative;
     display: block;
     text-align: center;
-    padding: 20px;
+    padding: 25px;
 
     /*Start off not displaying*/
     display:none;
@@ -210,10 +307,4 @@ button {
 #CloseOptionsBtn:hover {
     color: white;
     background-color: black;
-}
-
-.centredBlock {
-    display: block;
-    text-align: center;
-    margin: 0 auto;
 }
