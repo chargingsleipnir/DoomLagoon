@@ -1,22 +1,58 @@
 class Overworld extends Phaser.Scene {
     
+    player;
+
     constructor() {
         super("Overworld");
     }
 
     preload() {
         // SPRITES
-        this.load.image('navBoatLeft', 'Assets/Sprites/boatPH_Left.jpg');
-        this.load.image('navBoatRight', 'Assets/Sprites/boatPH_Right.jpg');
-        this.load.image('navBoatUp', 'Assets/Sprites/boatPH_Up.jpg');
-        this.load.image('navBoatDown', 'Assets/Sprites/boatPH_Down.jpg');
+        this.load.image('navBoatLeft', '../../Assets/Sprites/boatPH_Left.jpg');
+        this.load.image('navBoatRight', '../../Assets/Sprites/boatPH_Right.jpg');
+        this.load.image('navBoatUp', '../../Assets/Sprites/boatPH_Up.jpg');
+        this.load.image('navBoatDown', '../../Assets/Sprites/boatPH_Down.jpg');
 
         // MAP
-        this.load.tilemap('tilemap', 'DataFiles/mapPH.json', null, Phaser.Tilemap.TILED_JSON);
-        this.load.image('tileset', 'Assets/Map/tilesetPH.png');
+        this.load.tilemapTiledJSON('tilemap', 'DataFiles/mapPH.json');
+        this.load.image('tileset', '../../Assets/Map/tilesetPH.png');
     }
 
-    create() {
-        this.add.text(20, 20, "Playing Game", {font: "25px Arial", fill: "yellow"});
+    create(data) {
+        Main.activeScene = this;
+
+        var map = this.make.tilemap({ key: 'tilemap' });
+
+        // Params: Tiled name (found in json), Phaser name
+        var tileset = map.addTilesetImage('tilesetPH', 'tileset');
+
+        // TODO: Those string names "Tile Layer 1" are what I gave them when making them in Tiled, which have to match here.
+        //Background Layer
+        var staticLayer = map.createStaticLayer('Tile Layer 1', tileset, 0, 0);
+
+        //Foreground Layer
+        //var dynamicLayer = map.createDynamicLayer('Tile Layer 1', tileset, 0, 0);
+    
+        // TODO: Get the amount of tiles dynamically for this, instead of just putting 100.
+        //this.world.setBounds(0, 0, Constants.TILE_SIZE * 100, Constants.TILE_SIZE * 100);
+ 
+        /*
+        map.setCollision(1);
+
+        function testCallback() {
+            console.log('Colliding with the ground.');
+        }
+
+        map.setTileIndexCallback(1, testCallback, this);
+        */
+
+        this.player = new LocalPlayer(
+            { x: data.gridSpawn.x, y: data.gridSpawn.y }, 
+            'navBoatRight', 
+            MainMenu.GetDispName(),
+            Network.GetSocketID()
+        );
+
+        console.log("Player object: ", this.player);
     }
 }

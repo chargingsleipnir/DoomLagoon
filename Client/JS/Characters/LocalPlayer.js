@@ -2,11 +2,12 @@
 
 class LocalPlayer extends NetPlayer {
 
-    static elem_ChatTextInput;
     static elem_ChatSendBtn;
 
-    constructor() {
-        elem_ChatTextInput = document.getElementById("PlayerChatMsg");
+    constructor(initGridPos, image, name, id) {
+        super(initGridPos, image, name, id);
+
+        var elem_ChatTextInput = document.getElementById("PlayerChatMsg");
         document.getElementById("PlayerChatSendMsgBtn").addEventListener('click', (e) => {
             console.log("Chat from player: " + elem_ChatTextInput.value);
             // TODO: send elem_ChatTextInput.value to some sort of chat system. (Player speach bubbles!)

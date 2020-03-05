@@ -24,6 +24,8 @@ class Title extends Phaser.Scene {
 
     create ()
     {
+        Main.activeScene = this;
+
         this.add.text(20, 20, "Loading game...");
 
         this.add.image(400, 300, 'sky');
@@ -49,15 +51,17 @@ class Title extends Phaser.Scene {
 
             console.log("RecWorldInitData received:", data);
 
-            // TODO: transfer data forward as in old phaser
-            //game.state.start('play', true, false, data);
-
-            //this.scene.start("Overworld");
+            //Main.game.scene.stop("Title");
+            Main.activeScene.scene.transition({
+                target: "Overworld",
+                data: data,
+                duration: 1000,
+                sleep: false
+            });
+            //Main.game.scene.start("Overworld", data);
         });
         
         Network.Emit("ReqWorldInitData");
-
-        
     }
 
 }
