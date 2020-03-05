@@ -307,7 +307,7 @@ module.exports = {
 
         socket.on("ReqWorldInitData", function () {
             // Get a spawn point
-            var spawnIndex;
+            var spawnIndex = 0;
             for (var i = 0; i < spawnPoints.length; i++) {
                 if (map[spawnPoints[i].x][spawnPoints[i].y] == 0) {
                     spawnIndex = i;

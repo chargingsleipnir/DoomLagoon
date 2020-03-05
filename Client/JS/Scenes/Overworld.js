@@ -7,11 +7,7 @@ class Overworld extends Phaser.Scene {
     }
 
     preload() {
-        // SPRITES
-        this.load.image('navBoatLeft', '../../Assets/Sprites/boatPH_Left.jpg');
-        this.load.image('navBoatRight', '../../Assets/Sprites/boatPH_Right.jpg');
-        this.load.image('navBoatUp', '../../Assets/Sprites/boatPH_Up.jpg');
-        this.load.image('navBoatDown', '../../Assets/Sprites/boatPH_Down.jpg');
+        LocalPlayer.LoadImages(this);
 
         // MAP
         this.load.tilemapTiledJSON('tilemap', 'DataFiles/mapPH.json');
@@ -46,13 +42,6 @@ class Overworld extends Phaser.Scene {
         map.setTileIndexCallback(1, testCallback, this);
         */
 
-        this.player = new LocalPlayer(
-            { x: data.gridSpawn.x, y: data.gridSpawn.y }, 
-            'navBoatRight', 
-            MainMenu.GetDispName(),
-            Network.GetSocketID()
-        );
-
-        console.log("Player object: ", this.player);
+        this.player = new LocalPlayer(this, data.gridSpawn);
     }
 }
