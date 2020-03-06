@@ -1,17 +1,17 @@
 // Gameobjects
 
 var NetSprite = function (initPixelPos, image, name, id) {
-    var self = game.add.sprite(initPixelPos.x, initPixelPos.y, image);
+    // var self = game.add.sprite(initPixelPos.x, initPixelPos.y, image);
 
-    self.name = name || 'I am Error';
+    // self.name = name || 'I am Error';
 
-    // This location and anchor.set is specifically designed to place name centered above player.
-    var dispName = game.add.text(self.width / 2, -4, self.name, Constants.DISP_NAME_STYLE);
-    dispName.anchor.set(0.5, 1.0);
-    self.addChild(dispName);
+    // // This location and anchor.set is specifically designed to place name centered above player.
+    // var dispName = game.add.text(self.width / 2, -4, self.name, Constants.DISP_NAME_STYLE);
+    // dispName.anchor.set(0.5, 1.0);
+    // self.addChild(dispName);
 
-    self.id = id;
-    self.dir = 'r';
+    // self.id = id;
+    // self.dir = 'r';
     
     // TODO: Eliminate this?
     self.GetUpdatePack = function () {
@@ -21,25 +21,26 @@ var NetSprite = function (initPixelPos, image, name, id) {
         };
     }
     
-    self.ChangeDir = function (dir) {
-        self.dir = dir;
+    // self.ChangeDir = function (dir) {
+    //     self.dir = dir;
 
-        if (dir == 'l') {
-            self.loadTexture('navBoatLeft');
-        }
-        else if (dir == 'r') {
-            self.loadTexture('navBoatRight');
-        }
-        else if (dir == 'u') {
-            self.loadTexture('navBoatUp');
-        }
-        else {
-            self.loadTexture('navBoatDown');
-        }
-    };
+    //     if (dir == 'l') {
+    //         self.loadTexture('navBoatLeft');
+    //     }
+    //     else if (dir == 'r') {
+    //         self.loadTexture('navBoatRight');
+    //     }
+    //     else if (dir == 'u') {
+    //         self.loadTexture('navBoatUp');
+    //     }
+    //     else {
+    //         self.loadTexture('navBoatDown');
+    //     }
+    // };
     
     self.speed = 4;
     var netSpriteMoving = false;
+    
     var ns_moveDist = { x: 0, y: 0 };
     var ns_moveFracCovered = { x: 0, y: 0 };
     var ns_distToCover = { x: 0, y: 0 };

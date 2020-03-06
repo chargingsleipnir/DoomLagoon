@@ -44,4 +44,8 @@ class Overworld extends Phaser.Scene {
 
         this.player = new LocalPlayer(this, data.gridSpawn);
     }
+
+    update() {
+        this.player.Update();
+    }
 }

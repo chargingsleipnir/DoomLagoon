@@ -127,8 +127,8 @@ Player.prototype.SetupNetworkResponses = function (io, socket) {
     var that = this;
 
     // JUST FOR TESTING - TODO: EXPAND SERVER TESTING FUNCTIONS
-    socket.on("GetCellValue", function (cell) {
-        socket.emit("CellValueRes", map[cell.x][cell.y]);
+    socket.on("ReqCellValue", function (cell) {
+        socket.emit("RecCellValue", map[cell.x][cell.y]);
     });
     
     socket.on("MoveToCell", function (moveData) {
