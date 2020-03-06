@@ -5,9 +5,7 @@ class NPC {
     name;
     imageKeysArr;
 
-    prevDirectionImage;
-    directionImage;
-    directionMove;
+    dirImgIndex;
 
     //* imageKeysArr should be in order of left, right, up, and down, as consistent with constants.DIR_IMG
     constructor(scene, initGridPos, imageKeysArr, name) {
@@ -21,27 +19,20 @@ class NPC {
         this.gameObjCont = scene.add.container(initPixelPos.x, initPixelPos.y);
         
         // Start down just be default, could be anything
-        this.prevDirectionImage = Constants.DIR_IMG.DOWN;
-        this.directionImage = Constants.DIR_IMG.DOWN;
-        this.sprite = scene.add.sprite(0, 0, imageKeysArr[this.directionImage]);
+        this.dirImgIndex = Constants.DIR_IMG.DOWN;
+        this.sprite = scene.add.sprite(0, 0, imageKeysArr[this.dirImgIndex]);
         
         this.gameObjCont.add(this.sprite);
         this.name = name || 'I am Error';
     }
 
     ChangeDirection(dirCommonConstKey) {
-        this.ChangeDirectionMove(Constants.DIR_MOVE[dirCommonConstKey]);
-        this.ChangeDirectionImage(Constants.DIR_IMG[dirCommonConstKey]);
-    }
-    ChangeDirectionMove(constDirMove) {
-        this.directionMove = constDirMove;
-    }
-    ChangeDirectionImage(constDirImg) {
-        if(this.prevDirectionImage == constDirImg)
+        var imgIndex = Constants.DIR_IMG[dirCommonConstKey];
+
+        if(this.dirImgIndex == imgIndex)
             return;
 
-        this.prevDirectionImage = this.directionImage;
-        this.directionImage = constDirImg;
-        this.sprite.setTexture(this.imageKeysArr[constDirImg]);
+        this.dirImgIndex = imgIndex;
+        this.sprite.setTexture(this.imageKeysArr[imgIndex]);
     }
 }

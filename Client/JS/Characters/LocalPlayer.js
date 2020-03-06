@@ -18,15 +18,20 @@ class LocalPlayer extends NetPlayer {
     neighbors = { left: 0, right: 0, up: 0, down: 0 };
 
     moveSpeed = 4;
-    isMoving;
-    nextCell = { x: 0, y: 0 }
+    isMoving = false;
 
     moveDist = 0.0;
     moveFracCovered = 0.0;
-    moveCache = { 
-        start: { x: 0, y: 0 },
-        end: { x: 0, y: 0 }
-    };
+
+    // This will be used to allow the player to pre-select the next cell just a bit before landing at the cell they're actively moving towards.
+    MOVE_CACHE_SLOTS = {
+        from: 0,
+        to: 1,
+        next: 2
+    }
+    moveCache = [];
+    canCacheNext = false;
+    cacheNextAtPct = 0.9;
 
     constructor(scene, initGridPos) {
         super(scene, initGridPos, LocalPlayer.imageKeysArr, MainMenu.GetDispName(), Network.GetSocketID());
@@ -39,6 +44,13 @@ class LocalPlayer extends NetPlayer {
         });
 
         this.gridPos = { x: initGridPos.x, y: initGridPos.y };
+
+        // Populate the "from" slot with the initial position
+        this.moveCache.push({
+            x: this.gameObjCont.x,
+            y: this.gameObjCont.y,
+            dirKey: ""
+        });
 
         this.keys = {
             left: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A),
@@ -69,8 +81,6 @@ class LocalPlayer extends NetPlayer {
             Network.Emit("ReqCellValue", { x: this.gridPos.x, y: this.gridPos.y + 1 });
         });
         //* DEBUG ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-        this.isMoving = false;
     }
 
     static LoadImages(scene) {
@@ -80,21 +90,17 @@ class LocalPlayer extends NetPlayer {
         scene.load.image(LocalPlayer.imageKeysArr[Constants.DIR_IMG.DOWN], '../../Assets/Sprites/boatPH_Down.jpg');
     }
 
-    MoveToPoint (cell, dirCommonConstKey) {
-        this.ChangeDirection(dirCommonConstKey);
-        
-        this.isMoving = true;
-        // Set data for move
-        this.moveCache.start.x = this.gameObjCont.x;
-        this.moveCache.start.y = this.gameObjCont.y;
-        this.moveCache.end.x = cell.x * Constants.TILE_SIZE;
-        this.moveCache.end.y = cell.y * Constants.TILE_SIZE;
-    };
+    AddToMoveCache(dirCommonConstKey) {
+        var lastPosCached = this.moveCache[this.moveCache.length - 1];
+        var dirNorm = Constants.DIR_MOVE[dirCommonConstKey];
+        var nextPos = {
+            x: lastPosCached.x + dirNorm.x * Constants.TILE_SIZE,
+            y: lastPosCached.y + dirNorm.y * Constants.TILE_SIZE,
+            dirKey: dirCommonConstKey
+        };
 
-    MoveOnGrid (dirCommonConstKey) {
-        this.nextCell.x = this.gridPos.x + Constants.DIR_MOVE[dirCommonConstKey].x;
-        this.nextCell.y = this.gridPos.y + Constants.DIR_MOVE[dirCommonConstKey].y;
-        this.MoveToPoint(this.nextCell, dirCommonConstKey);
+        this.moveCache.push(nextPos);
+        this.isMoving = true;
     }
 
     UpdateGridPos(pixelPos) {
@@ -104,42 +110,55 @@ class LocalPlayer extends NetPlayer {
 
     Update() {
 
-        if(!this.isMoving) {
+        // Check if we can move "to" a new cell, or cache the "next" one ahead
+        if(this.moveCache.length <= this.MOVE_CACHE_SLOTS.to ||
+            this.moveCache.length <= this.MOVE_CACHE_SLOTS.next && this.canCacheNext) {
+            
             // TODO: Check neighbors as well for collisions
             if(this.keys.left.isDown) {
-                this.MoveOnGrid('LEFT');
+                this.AddToMoveCache('LEFT');
             }
             else if(this.keys.right.isDown) {
-                this.MoveOnGrid('RIGHT');
+                this.AddToMoveCache('RIGHT');
             }
             else if(this.keys.up.isDown) {
-                this.MoveOnGrid('UP');
+                this.AddToMoveCache('UP');
             }
             else if(this.keys.down.isDown) {
-                this.MoveOnGrid('DOWN');
+                this.AddToMoveCache('DOWN');
             }
         }
-        else {
+
+        if(this.isMoving) {
+
+            // Change image direction upon committing to moving to the next cell
+            if (this.moveFracCovered == 0.0)
+                this.ChangeDirection(this.moveCache[this.MOVE_CACHE_SLOTS.to].dirKey);
+
             this.moveDist += this.moveSpeed;
             this.moveFracCovered = this.moveDist / Constants.TILE_SIZE;
 
             // Still moving into cell, keep updating position
             if (this.moveFracCovered < 1.0) {
                 this.gameObjCont.setPosition(
-                    Phaser.Math.Linear(this.moveCache.start.x, this.moveCache.end.x, this.moveFracCovered),
-                    Phaser.Math.Linear(this.moveCache.start.y, this.moveCache.end.y, this.moveFracCovered)
+                    Phaser.Math.Linear(this.moveCache[this.MOVE_CACHE_SLOTS.from].x, this.moveCache[this.MOVE_CACHE_SLOTS.to].x, this.moveFracCovered),
+                    Phaser.Math.Linear(this.moveCache[this.MOVE_CACHE_SLOTS.from].y, this.moveCache[this.MOVE_CACHE_SLOTS.to].y, this.moveFracCovered)
                 );
+                this.canCacheNext = this.moveFracCovered > this.cacheNextAtPct;
                 //Network.Emit("UpdateMoveToServer", self.GetUpdatePack());
             }
             else {
-                this.isMoving = false;
-                this.gameObjCont.setPosition(this.moveCache.end.x, this.moveCache.end.y);
+                this.gameObjCont.setPosition(this.moveCache[this.MOVE_CACHE_SLOTS.to].x, this.moveCache[this.MOVE_CACHE_SLOTS.to].y);
                 
                 //Network.Emit("UpdateMoveToServer", self.GetUpdatePack());
-                this.UpdateGridPos(this.moveCache.end);
+                this.UpdateGridPos(this.moveCache[this.MOVE_CACHE_SLOTS.to]);
 
                 this.moveDist = 0.0;
                 this.moveFracCovered = 0.0;
+
+                // Keep moving seemlessly to next position if one is identified
+                this.moveCache.shift();
+                this.isMoving = this.moveCache.length > this.MOVE_CACHE_SLOTS.to;
             }
         }
     }
