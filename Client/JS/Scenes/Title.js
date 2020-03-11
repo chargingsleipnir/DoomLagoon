@@ -24,7 +24,6 @@ class Title extends Phaser.Scene {
 
     create ()
     {
-        Main.activeScene = this;
 
         this.add.text(20, 20, "Loading game...");
 
@@ -46,13 +45,15 @@ class Title extends Phaser.Scene {
 
         emitter.startFollow(logo);
 
+        var scene = this;
         // Check local storage, database info, etc. to pass to play state
         Network.CreateResponse("RecWorldInitData", function (data) {
 
-            console.log("RecWorldInitData received:", data);
+            //console.log("RecWorldInitData received:", data);
 
+            // TODO: Figure out why this does not do any sort of smooth transition
             //Main.game.scene.stop("Title");
-            Main.activeScene.scene.transition({
+            scene.scene.transition({
                 target: "Overworld",
                 data: data,
                 duration: 1000,

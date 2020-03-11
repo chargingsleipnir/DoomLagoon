@@ -37,17 +37,17 @@ var playState = (function() {
             map.setTileIndexCallback(1, testCallback, this);
             */
 
-            player = new LocalPlayer(
-                { x: data.gridSpawn.x, y: data.gridSpawn.y }, 
-                'navBoatRight', 
-                menuState.GetDispName(),
-                Network.GetSocketID()
-            );
+            // player = new LocalPlayer(
+            //     { x: data.gridSpawn.x, y: data.gridSpawn.y }, 
+            //     'navBoatRight', 
+            //     menuState.GetDispName(),
+            //     Network.GetSocketID()
+            // );
         },
         preload: function () {
             
             // For some very odd reason, this CANNOT be in init(), or it will not work. \_(O.o)_/
-            game.camera.follow(player);
+            //game.camera.follow(player);
             
             //------------------------ SETUP NETWORK CALLS
 

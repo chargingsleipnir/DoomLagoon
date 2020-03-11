@@ -13,14 +13,6 @@ var NetSprite = function (initPixelPos, image, name, id) {
     // self.id = id;
     // self.dir = 'r';
     
-    // TODO: Eliminate this?
-    self.GetUpdatePack = function () {
-        return {
-            pixelPos: { x: self.position.x, y: self.position.y },
-            dir: self.dir
-        };
-    }
-    
     // self.ChangeDir = function (dir) {
     //     self.dir = dir;
 

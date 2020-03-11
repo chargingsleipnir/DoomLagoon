@@ -5,6 +5,6 @@ class Battle extends Phaser.Scene {
     }
 
     create(data) {
-        Main.activeScene = this;
+
     }
 }

@@ -1,51 +1,147 @@
-class Overworld extends Phaser.Scene {
+class Overworld extends TiledMapScene {
     
     player;
 
+    sprites = {};
+
+    // Shared among all boats of course
+    boatImgKeysArr = [
+        'navBoatLeft',
+        'navBoatRight',
+        'navBoatUp',
+        'navBoatDown'
+    ];
+
     constructor() {
         super("Overworld");
+
+        this.sprites[Consts.spriteTypes.PLAYER] = {}
+        this.sprites[Consts.spriteTypes.ENEMY] = {}
+        this.sprites[Consts.spriteTypes.NPC] = {}
     }
 
     preload() {
-        LocalPlayer.LoadImages(this);
+        this.load.image(this.boatImgKeysArr[Consts.dirImg.LEFT], '../../Assets/Sprites/boatPH_Left.jpg');
+        this.load.image(this.boatImgKeysArr[Consts.dirImg.RIGHT], '../../Assets/Sprites/boatPH_Right.jpg');
+        this.load.image(this.boatImgKeysArr[Consts.dirImg.UP], '../../Assets/Sprites/boatPH_Up.jpg');
+        this.load.image(this.boatImgKeysArr[Consts.dirImg.DOWN], '../../Assets/Sprites/boatPH_Down.jpg');
 
-        // MAP
-        this.load.tilemapTiledJSON('tilemap', 'DataFiles/mapPH.json');
-        this.load.image('tileset', '../../Assets/Map/tilesetPH.png');
+        this.LoadMapFiles('DataFiles/mapPH.json', '../../Assets/Map/tilesetPH.png');
     }
 
     create(data) {
-        Main.activeScene = this;
+        super.create();
 
-        var map = this.make.tilemap({ key: 'tilemap' });
+        this.player = new LocalPlayer(this, data.gridSpawn, this.boatImgKeysArr);
+        this.cameras.main.startFollow(this.player.gameObjCont);
 
-        // Params: Tiled name (found in json), Phaser name
-        var tileset = map.addTilesetImage('tilesetPH', 'tileset');
+        //------------------------ SETUP NETWORK CALLS
 
-        // TODO: Those string names "Tile Layer 1" are what I gave them when making them in Tiled, which have to match here.
-        //Background Layer
-        var staticLayer = map.createStaticLayer('Tile Layer 1', tileset, 0, 0);
+        var self = this;
+        // First emission sent from server - assign proper id, setup map, etc.
+        Network.CreateResponse("GetServerGameData", function (data) {
+            for (let i = 0; i < data.sprites.length; i++) {
+                // TODO: Include direction
+                self.sprites[data.sprites[i].type][data.sprites[i].id] = new NetSprite(
+                    self, 
+                    data.sprites[i].gridPos, 
+                    self.boatImgKeysArr, 
+                    data.sprites[i].dir, 
+                    data.sprites[i].moveToggle, 
+                    data.sprites[i].name, 
+                    data.sprites[i].id, 
+                    data.sprites[i].type == Consts.spriteTypes.PLAYER
+                );
+            }
+        });
 
-        //Foreground Layer
-        //var dynamicLayer = map.createDynamicLayer('Tile Layer 1', tileset, 0, 0);
-    
-        // TODO: Get the amount of tiles dynamically for this, instead of just putting 100.
-        //this.world.setBounds(0, 0, Constants.TILE_SIZE * 100, Constants.TILE_SIZE * 100);
- 
-        /*
-        map.setCollision(1);
+        // and tell everyone else about player. Adding new players after this player has joined
+        // TODO: boatImgKeysArr only used for now until player have different visuals
+        Network.CreateResponse("AddNewPlayer", function (playerData) {
+            self.sprites[Consts.spriteTypes.PLAYER][playerData.id] = new NetSprite(
+                self, 
+                playerData.gridPos, 
+                self.boatImgKeysArr, 
+                playerData.dir, 
+                playerData.newMoveToggle, 
+                playerData.name, 
+                playerData.id, 
+                true
+            );
+        });
 
-        function testCallback() {
-            console.log('Colliding with the ground.');
+        // CHECK STORAGE INFO, databse info, etc. Send everything necessary to server to pass to others
+        Network.Emit("Play", {
+            id: this.player.id,
+            name: this.player.name,
+            gridPos: this.player.moveCache_Grid[Consts.moveCacheSlots.FROM],
+            dir: this.player.dirImgIndex,
+            newMoveToggle: false
+        });
+
+        //------------------------ ALL OTHER NETWORK CALLS
+
+        // Update all info (map, players, etc. as needed);
+        Network.CreateResponse("UpdateFromServer", function (serverSpriteUpdates) {
+            // Use this format to exclude player without needing additional checks
+            // TODO: Maybe make this safer? Make sure there is never a mismatch between sprite lists...
+            for (var type in self.sprites) {
+                for (var id in self.sprites[type]) {
+                    // Get their image info, tubb info, etc. Need to create the full object at least visually.
+                    if (serverSpriteUpdates[type][id])
+                        self.sprites[type][id].ServerUpdate(serverSpriteUpdates[type][id]);
+                    else
+                        console.log("Tried to update non-existant " + type + ", id: " + id);
+                }
+            }
+        });
+
+        // Remove any sprite, including players
+        function RemoveSpriteCallback(mapSprite) {
+            // TODO: Other removal things as needed (exit animation for players? Handle any world interactions/events/etc.)
+            if (self.sprites[mapSprite.spriteType][mapSprite.id]) {
+                self.sprites[mapSprite.spriteType][mapSprite.id].destroy();
+                delete self.sprites[mapSprite.spriteType][mapSprite.id];
+            }
+            else {
+                // Incase "GetServerGameData" has not yet been called and player with that id has not yet been added to this client,
+                // Recursively call this function until it is done.
+                setTimeout(function () {
+                    RemoveSpriteCallback(mapSprite);
+                } , 250);
+            }
         }
-
-        map.setTileIndexCallback(1, testCallback, this);
-        */
-
-        this.player = new LocalPlayer(this, data.gridSpawn);
+        Network.CreateResponse("RemoveSprite", RemoveSpriteCallback);
+        
+        function MoveSpriteCallback(moveData) {
+            // TODO: Other removal things as needed (exit animation for players? Handle any world interactions/events/etc.)
+            if (self.sprites[moveData.mapData.spriteType][moveData.mapData.id]) {
+                self.sprites[moveData.mapData.spriteType][moveData.mapData.id].MoveTo(moveData.cell, moveData.dir);
+            }
+            else {
+                // Incase "GetServerGameData" has not yet been called and player with that id has not yet been added to this client,
+                // Recursively call this function until it is done.
+                setTimeout(function () {
+                    MoveSpriteCallback(moveData);
+                } , 500);
+            }
+        }
+        Network.CreateResponse("MoveNetSprite", MoveSpriteCallback);
     }
 
     update() {
         this.player.Update();
+
+        for (var type in this.sprites)
+            for (var id in this.sprites[type])
+                this.sprites[type][id].Update();
+    }
+
+    get MapTileWidth() {
+        return this.map.tileWidth
+    }
+
+    get MapTileHeight() {
+        return this.map.tileHeight
     }
 }

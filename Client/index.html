@@ -12,22 +12,27 @@
     <script src="https://kit.fontawesome.com/ec9700dfbe.js" crossorigin="anonymous"></script>
     <script src="phaser.min.js"></script>
 
-    <script type="text/javascript" src="JS/Constants.js"></script>
+    <!-- Fed directly from server, setting of var name included -->
+    <script type="text/javascript" src="consts.js"></script>
+
     <script type="text/javascript" src="JS/Network.js"></script>
     <script type="text/javascript" src="JS/Utility.js"></script>
 
     <!-- For settings, preferences, meta info, etc. -->
     <script type="text/javascript" src="JS/User.js"></script>
 
-    <script type="text/javascript" src="JS/Characters/NPC.js"></script>
-    <script type="text/javascript" src="JS/Characters/NetPlayer.js"></script>
-    <script type="text/javascript" src="JS/Characters/LocalPlayer.js"></script>
+    <script type="text/javascript" src="JS/Sprites/Sprite.js"></script>
+    <script type="text/javascript" src="JS/Sprites/NetSprite.js"></script>
+    <script type="text/javascript" src="JS/Sprites/LocalPlayer.js"></script>
 
     <!-- Site flow, non-scenes -->
     <script type="text/javascript" src="JS/MainMenu.js"></script>
     <script type="text/javascript" src="JS/OptionsMenu.js"></script>
 
-    <!-- SCENES -->    
+    <!-- SCENES -->
+    <!-- "Abstract" classes -->
+    <script type="text/javascript" src="JS/Scenes/TiledMap.js"></script>
+    <!-- Regular object classes -->
     <script type="text/javascript" src="JS/Scenes/Title.js"></script>
     <script type="text/javascript" src="JS/Scenes/Overworld.js"></script>
     <script type="text/javascript" src="JS/Scenes/Battle.js"></script>

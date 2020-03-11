@@ -76,13 +76,13 @@ server.listen(port, ip, () => {
 });
 
 io.sockets.on("connection", function (socket) {
-  console.log('Socket connection established');
+  console.log(`Socket connection established: ${socket.id} `);
   dbHdlr.InitSocketCalls(socket);
   objHdlrs.InitSocketCalls(io, socket);
 });
 
 // Update function
-// var tick = 1000 / 10;
-// setInterval(function () {
-//   io.emit("UpdateFromServer", objHdlrs.GetUpdatePack());
-// }, tick);
+var tick = 1000 / 10;
+setInterval(function () {
+  io.emit("UpdateFromServer", objHdlrs.GetUpdatePack());
+}, tick);
