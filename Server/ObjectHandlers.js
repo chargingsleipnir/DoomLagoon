@@ -17,17 +17,12 @@ function Player(socket, playerData) {
     this.gridPos = playerData.gridPos;
     this.dir = playerData.dir;
     this.mapData = new MapSprite(Consts.spriteTypes.PLAYER, this.id);
-    this.newMoveToggle = playerData.newMoveToggle;
 
     map[playerData.gridPos.x][playerData.gridPos.y] = this.mapData;
     Map.ChangeCell(this.gridPos, this.mapData);
 
     this.neighbors = {};
     this.UpdateNeighbors();
-}
-Player.prototype.ToggleNewMove = function() {
-    this.newMoveToggle = !this.newMoveToggle;
-    return this.newMoveToggle;
 }
 Player.prototype.SetupNetworkResponses = function (io, socket) {
     
@@ -58,15 +53,12 @@ Player.prototype.SetupNetworkResponses = function (io, socket) {
         // Update own position
         player.UpdateMove(newX, newY, Consts.dirImg[dirData.key]);
 
-        sprites.updatePack[Consts.spriteTypes.PLAYER][socket.client.id] = {
-            x: newX,
-            y: newY,
-            dir: player.dir,
-            toggle: player.ToggleNewMove()
-        };
-
         player.UpdateNeighbors();
         socket.emit("RecMoveToCell", player.GetMoveData());
+    });
+
+    socket.on("UpdatePixelPos", function (updatePack) {
+        sprites.updatePack[Consts.spriteTypes.PLAYER][socket.client.id] = updatePack;
     });
 
     socket.on("MsgToServer", function (data) {
@@ -106,8 +98,7 @@ Player.prototype.GetInitPack = function () {
         id: this.id,
         name: this.name,
         gridPos: this.gridPos,
-        dir: this.dir,
-        moveToggle: this.newMoveToggle    
+        dir: this.dir  
     }
 }
 
@@ -223,8 +214,7 @@ module.exports = {
             });
         });
 
-        socket.on("Play", function (playerInitPack) {
-            
+        socket.on("Play", function (playerData) {
             // TODO: Maybe make this perpetually up-to-date with all sprites, and only packs grabbed when needed, so it doesn't need to be recreated each time.
             var spriteInitPack = []
 
@@ -237,32 +227,26 @@ module.exports = {
             socket.emit("GetServerGameData", { sprites: spriteInitPack });
             
             // Player's been created, update their neighbors list right away, as this will always determine what their next move can be locally.
-            var player = new Player(socket, playerInitPack);
+            var player = new Player(socket, playerData.initPack);
             player.UpdateNeighbors();
 
             // Add player to lists
             sprites.allData[Consts.spriteTypes.PLAYER][socket.client.id] = player;
-            sprites.updatePack[Consts.spriteTypes.PLAYER][socket.client.id] = {
-                x: player.gridPos.x,
-                y: player.gridPos.y,
-                dir: player.dir,
-                toggle: player.newMoveToggle
-            };
+            sprites.updatePack[Consts.spriteTypes.PLAYER][socket.client.id] = playerData.updatePack;
             
             // Set up all other network responses
             player.SetupNetworkResponses(io, socket);
 
             // Send new player data to all other players
-            socket.broadcast.emit("AddNewPlayer", playerInitPack);
+            socket.broadcast.emit("AddNewPlayer", playerData.initPack);
         });
 
         // Not a user-made function
         socket.on("disconnect", function () {
+            console.log(`Socket connection removed: ${socket.client.id} `);
+            
             var player = sprites.allData[Consts.spriteTypes.PLAYER][socket.client.id];
             if (player) {
-
-                console.log(`Socket connection removed: ${socket.client.id} `);
-
                 socket.broadcast.emit("RemoveSprite", player.mapData);
 
                 // Take player off the map

@@ -46,8 +46,7 @@ class Overworld extends TiledMapScene {
                     self, 
                     data.sprites[i].gridPos, 
                     self.boatImgKeysArr, 
-                    data.sprites[i].dir, 
-                    data.sprites[i].moveToggle, 
+                    data.sprites[i].dir,  
                     data.sprites[i].name, 
                     data.sprites[i].id, 
                     data.sprites[i].type == Consts.spriteTypes.PLAYER
@@ -62,8 +61,7 @@ class Overworld extends TiledMapScene {
                 self, 
                 playerData.gridPos, 
                 self.boatImgKeysArr, 
-                playerData.dir, 
-                playerData.newMoveToggle, 
+                playerData.dir,  
                 playerData.name, 
                 playerData.id, 
                 true
@@ -72,11 +70,17 @@ class Overworld extends TiledMapScene {
 
         // CHECK STORAGE INFO, databse info, etc. Send everything necessary to server to pass to others
         Network.Emit("Play", {
-            id: this.player.id,
-            name: this.player.name,
-            gridPos: this.player.moveCache_Grid[Consts.moveCacheSlots.FROM],
-            dir: this.player.dirImgIndex,
-            newMoveToggle: false
+            initPack: {
+                id: Network.GetSocketID(),
+                name: this.player.name,
+                gridPos: this.player.moveCache_Grid[Consts.moveCacheSlots.FROM],
+                dir: this.player.dirImgIndex
+            },
+            updatePack:{
+                x: this.player.gameObjCont.x,
+                y: this.player.gameObjCont.y,
+                dir: this.player.dirImgIndex
+            }
         });
 
         //------------------------ ALL OTHER NETWORK CALLS
@@ -100,7 +104,7 @@ class Overworld extends TiledMapScene {
         function RemoveSpriteCallback(mapSprite) {
             // TODO: Other removal things as needed (exit animation for players? Handle any world interactions/events/etc.)
             if (self.sprites[mapSprite.spriteType][mapSprite.id]) {
-                self.sprites[mapSprite.spriteType][mapSprite.id].destroy();
+                self.sprites[mapSprite.spriteType][mapSprite.id].gameObjCont.destroy();
                 delete self.sprites[mapSprite.spriteType][mapSprite.id];
             }
             else {

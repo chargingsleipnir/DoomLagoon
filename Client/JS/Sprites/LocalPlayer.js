@@ -2,7 +2,15 @@
 
 // TODO: Include some sort of scene state or type check: Tiled versus battle, different controls.
 // Infact controls schemes should maybe be in different files, loaded to the player as the scene changes
-class LocalPlayer extends NetSprite {
+
+// TODO: This no longer extends from NetSprite because they had so little in common. That being said,
+// they do still have a few things in common, and should proably both extend from one class that extends from Sprite directly.
+// "CharSprite" perhaps?
+
+class LocalPlayer extends Sprite {
+
+    moveSpeed = 4;
+    isMoving = false;
 
     keys = null;
     neighbors = { left: 0, right: 0, up: 0, down: 0 };
@@ -10,8 +18,31 @@ class LocalPlayer extends NetSprite {
     canCacheNext = false;
     cacheNextAtPct = 0.9;
 
+    moveCache_Grid = [];
+    moveCache_Pixel = [];
+
+    moveDist = 0.0;
+    moveFracCovered = 0.0;
+
     constructor(scene, initGridPos, imageKeysArr) {
-        super(scene, initGridPos, imageKeysArr, Consts.dirImg.DOWN, false, MainMenu.GetDispName(), Network.GetSocketID(), true);
+        super(scene, initGridPos, imageKeysArr, Consts.dirImg.DOWN, MainMenu.GetDispName());
+
+        // Anchor display name overhead
+        var dispName = scene.add.text((this.sprite.width * 0.5), -(this.sprite.height * 0.5), MainMenu.GetDispName(), Consts.DISP_NAME_STYLE);
+        dispName.setOrigin(0.5);
+        this.gameObjCont.add(dispName);
+
+        this.moveCache_Grid.push({
+            x: initGridPos.x,
+            y: initGridPos.y,
+            dir: this.dirImgIndex
+        });
+
+        this.moveCache_Pixel.push({
+            x: this.gameObjCont.x,
+            y: this.gameObjCont.y,
+            dir: this.dirImgIndex
+        });
 
         var elem_ChatTextInput = document.getElementById("PlayerChatMsg");
         document.getElementById("PlayerChatSendMsgBtn").addEventListener('click', (e) => {
@@ -104,6 +135,41 @@ class LocalPlayer extends NetSprite {
             }
         }
 
-        super.Update();
+        if(!this.isMoving)
+            return;
+
+        // Change image direction upon committing to moving to the next cell
+        if (this.moveFracCovered == 0.0)
+            this.ChangeDirection(this.moveCache_Pixel[Consts.moveCacheSlots.TO].dir);
+
+        this.moveDist += this.moveSpeed;
+        // Presuming sqaure tiles of course
+        this.moveFracCovered = this.moveDist / this.scene.MapTileWidth;
+
+        // Still moving into cell, keep updating position
+        if (this.moveFracCovered < 1.0) {
+            this.gameObjCont.setPosition(
+                Phaser.Math.Linear(this.moveCache_Pixel[Consts.moveCacheSlots.FROM].x, this.moveCache_Pixel[Consts.moveCacheSlots.TO].x, this.moveFracCovered),
+                Phaser.Math.Linear(this.moveCache_Pixel[Consts.moveCacheSlots.FROM].y, this.moveCache_Pixel[Consts.moveCacheSlots.TO].y, this.moveFracCovered)
+            );
+            this.canCacheNext = this.moveFracCovered > this.cacheNextAtPct;
+        }
+        else {
+            this.gameObjCont.setPosition(this.moveCache_Pixel[Consts.moveCacheSlots.TO].x, this.moveCache_Pixel[Consts.moveCacheSlots.TO].y);
+
+            this.moveDist = 0.0;
+            this.moveFracCovered = 0.0;
+
+            // Keep moving seemlessly to next position if one is identified
+            this.moveCache_Grid.shift();
+            this.moveCache_Pixel.shift();
+
+            this.isMoving = this.moveCache_Pixel.length > Consts.moveCacheSlots.TO;
+        }
+        Network.Emit("UpdatePixelPos", {
+            x: this.gameObjCont.x,
+            y: this.gameObjCont.y,
+            dir: this.dirImgIndex
+        });
     }
 }

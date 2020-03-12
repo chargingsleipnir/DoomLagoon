@@ -1,5 +1,7 @@
 class Sprite {
 
+    scene;
+
     gameObjCont;
     sprite;
     name;
@@ -9,6 +11,8 @@ class Sprite {
 
     //* imageKeysArr should be in order of left, right, up, and down, as consistent with Consts.dirImg
     constructor(scene, initGridPos, imageKeysArr, dirImgIndex, name) {
+        this.scene = scene;
+        
         this.imageKeysArr = imageKeysArr;
 
         this.gameObjCont = scene.add.container(

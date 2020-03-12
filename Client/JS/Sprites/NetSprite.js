@@ -6,35 +6,28 @@ class NetSprite extends Sprite {
     moveSpeed = 4;
     isMoving = false;
 
-    moveDist = 0.0;
-    moveFracCovered = 0.0;
+    // Purely pixel based
+    moveCache = [];
 
-    // This will be used to allow the player to pre-select the next cell just a bit before landing at the cell they're actively moving towards.
-    moveCache_Grid = [];
-    moveCache_Pixel = [];
-    newMoveToggle;
+    moveDist = { x: 0, y: 0 };
+    moveFracCovered = { x: 0, y: 0 };
+    distToCover = { x: 0, y: 0 };
 
-    scene;
-
-    constructor(scene, initGridPos, imageKeysArr, dirImgIndex, newMoveToggle, name, id, doDispName) {
+    constructor(scene, initGridPos, imageKeysArr, dirImgIndex, name, id, doDispName) {
         super(scene, initGridPos, imageKeysArr, dirImgIndex, name);
 
-        this.newMoveToggle = newMoveToggle;
-
         this.id = id;
-        this.scene = scene;
 
         // Populate the "from" slot with the initial position
-        this.moveCache_Grid.push({
-            x: initGridPos.x,
-            y: initGridPos.y,
-            dir: dirImgIndex
-        });
-        this.moveCache_Pixel.push({
+        var initPixelPosPackage = {
             x: this.gameObjCont.x,
             y: this.gameObjCont.y,
             dir: dirImgIndex
-        });
+        };
+
+        this.moveCache[Consts.moveCacheSlots.FROM] = initPixelPosPackage;
+        this.moveCache[Consts.moveCacheSlots.TO] = initPixelPosPackage;
+        this.moveCache[Consts.moveCacheSlots.NEXT] = initPixelPosPackage;
 
         //* Until there would seem to be greater differences between a net "sprite" and net "player", just leave as one object with different toggles for now.
         if(doDispName) {
@@ -46,55 +39,49 @@ class NetSprite extends Sprite {
     }
 
     ServerUpdate(updatePack) {
-        if(updatePack.toggle == this.newMoveToggle)
-            return;
-
-        this.newMoveToggle = updatePack.toggle
 
         this.isMoving = false;
 
-        // For straight-made NetSprites, there's no real need to track the grid positions, just convert straight to pixel positions
-        updatePack.x *= this.scene.MapTileWidth;
-        updatePack.y *= this.scene.MapTileHeight;
+        this.moveCache[Consts.moveCacheSlots.FROM] = this.moveCache[Consts.moveCacheSlots.TO];
+        this.moveCache[Consts.moveCacheSlots.TO] = this.moveCache[Consts.moveCacheSlots.NEXT];
+        this.moveCache[Consts.moveCacheSlots.NEXT] = updatePack;
 
-        // Toggle check is no longer needed.
-        delete updatePack.toggle;
-        this.moveCache_Pixel.push(updatePack);
+        this.distToCover.x = Math.abs(this.moveCache[Consts.moveCacheSlots.TO].x - this.moveCache[Consts.moveCacheSlots.FROM].x);
+        this.distToCover.y = Math.abs(this.moveCache[Consts.moveCacheSlots.TO].y - this.moveCache[Consts.moveCacheSlots.FROM].y);
+        
+        this.moveDist.x = 0;
+        this.moveDist.y = 0;
+        this.moveFracCovered.x = 0;
+        this.moveFracCovered.y = 0;
 
-        this.isMoving = this.moveCache_Pixel.length > Consts.moveCacheSlots.TO;
+        this.isMoving = true;
+
+        this.ChangeDirection(this.moveCache[Consts.moveCacheSlots.TO].dir)
     }
 
     Update() {
-        if(!this.isMoving)
+        if(!this.isMoving) {
+            this.gameObjCont.x = this.moveCache[Consts.moveCacheSlots.TO].x;
+            this.gameObjCont.y = this.moveCache[Consts.moveCacheSlots.TO].y;
             return;
-
-        // Change image direction upon committing to moving to the next cell
-        if (this.moveFracCovered == 0.0)
-            this.ChangeDirection(this.moveCache_Pixel[Consts.moveCacheSlots.TO].dir);
-
-        this.moveDist += this.moveSpeed;
-        // Presuming sqaure tiles of course
-        this.moveFracCovered = this.moveDist / this.scene.MapTileWidth;
-
-        // Still moving into cell, keep updating position
-        if (this.moveFracCovered < 1.0) {
-            this.gameObjCont.setPosition(
-                Phaser.Math.Linear(this.moveCache_Pixel[Consts.moveCacheSlots.FROM].x, this.moveCache_Pixel[Consts.moveCacheSlots.TO].x, this.moveFracCovered),
-                Phaser.Math.Linear(this.moveCache_Pixel[Consts.moveCacheSlots.FROM].y, this.moveCache_Pixel[Consts.moveCacheSlots.TO].y, this.moveFracCovered)
-            );
-            this.canCacheNext = this.moveFracCovered > this.cacheNextAtPct;
+        }
+        
+        if (this.distToCover.x > 0 && this.moveFracCovered.x < 1.0) {
+            this.moveDist.x += this.moveSpeed;
+            this.moveFracCovered.x = this.moveDist.x / this.distToCover.x;
+            this.gameObjCont.x = Phaser.Math.Linear(this.moveCache[Consts.moveCacheSlots.FROM].x, this.moveCache[Consts.moveCacheSlots.TO].x, this.moveFracCovered.x);
         }
         else {
-            this.gameObjCont.setPosition(this.moveCache_Pixel[Consts.moveCacheSlots.TO].x, this.moveCache_Pixel[Consts.moveCacheSlots.TO].y);
+            this.gameObjCont.x = this.moveCache[Consts.moveCacheSlots.TO].x;
+        }
 
-            this.moveDist = 0.0;
-            this.moveFracCovered = 0.0;
-
-            // Keep moving seemlessly to next position if one is identified
-            this.moveCache_Grid.shift();
-            this.moveCache_Pixel.shift();
-
-            this.isMoving = this.moveCache_Pixel.length > Consts.moveCacheSlots.TO;
+        if (this.distToCover.y > 0 && this.moveFracCovered.y < 1.0) {
+            this.moveDist.y += this.moveSpeed;
+            this.moveFracCovered.y = this.moveDist.y / this.distToCover.y;
+            this.gameObjCont.y = Phaser.Math.Linear(this.moveCache[Consts.moveCacheSlots.FROM].y, this.moveCache[Consts.moveCacheSlots.TO].y, this.moveFracCovered.y);
+        }
+        else {
+            this.gameObjCont.y = this.moveCache[Consts.moveCacheSlots.TO].y;
         }
     }
 }

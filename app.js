@@ -82,7 +82,7 @@ io.sockets.on("connection", function (socket) {
 });
 
 // Update function
-var tick = 1000 / 10;
+var tick = 1000 / 24;
 setInterval(function () {
   io.emit("UpdateFromServer", objHdlrs.GetUpdatePack());
 }, tick);
