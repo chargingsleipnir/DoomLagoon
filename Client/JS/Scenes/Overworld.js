@@ -32,8 +32,10 @@ class Overworld extends TiledMapScene {
     create(data) {
         super.create();
 
+        
         this.player = new LocalPlayer(this, data.gridSpawn, this.boatImgKeysArr);
         this.cameras.main.startFollow(this.player.gameObjCont);
+
 
         //------------------------ SETUP NETWORK CALLS
 
@@ -112,7 +114,7 @@ class Overworld extends TiledMapScene {
                 // Recursively call this function until it is done.
                 setTimeout(function () {
                     RemoveSpriteCallback(mapSprite);
-                } , 250);
+                }, 250);
             }
         }
         Network.CreateResponse("RemoveSprite", RemoveSpriteCallback);

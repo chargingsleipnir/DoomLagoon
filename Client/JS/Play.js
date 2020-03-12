@@ -117,19 +117,19 @@ var playState = (function() {
             Network.CreateResponse("MoveNetSprite", MoveSpriteCallback);
         },
         create: function () { // PRELOAD SERVER FUNCTIONS STILL RUNNING WHILE CREATE AND UPDATE ARE CALLED
-            game.input.onDown.add(function (pointer) {
-                var worldX = game.camera.x + pointer.x,
-                    worldY = game.camera.y + pointer.y;
+            // game.input.onDown.add(function (pointer) {
+            //     var worldX = game.camera.x + pointer.x,
+            //         worldY = game.camera.y + pointer.y;
                 
-                var cellX = (worldX - (worldX % Constants.TILE_SIZE)) / Constants.TILE_SIZE,
-                    cellY = (worldY - (worldY % Constants.TILE_SIZE)) / Constants.TILE_SIZE;
+            //     var cellX = (worldX - (worldX % Constants.TILE_SIZE)) / Constants.TILE_SIZE,
+            //         cellY = (worldY - (worldY % Constants.TILE_SIZE)) / Constants.TILE_SIZE;
                 
-                // Response is in Gameobjects.js
-                Network.Emit("GetCellValue", { x: cellX, y: cellY });
-                console.log("Click pixelPos x: " + worldX + ", y: " + worldY);
-                console.log("Click gridPos x: " + cellX + ", y: " + cellY);
-                console.log("Click tile: " + map.getTile(cellX, cellY, layer).index);
-            });
+            //     // Response is in Gameobjects.js
+            //     Network.Emit("GetCellValue", { x: cellX, y: cellY });
+            //     console.log("Click pixelPos x: " + worldX + ", y: " + worldY);
+            //     console.log("Click gridPos x: " + cellX + ", y: " + cellY);
+            //     console.log("Click tile: " + map.getTile(cellX, cellY, layer).index);
+            // });
             
             /*
             function PseudoUpdate() {

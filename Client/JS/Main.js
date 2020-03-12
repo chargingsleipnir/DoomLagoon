@@ -4,7 +4,6 @@ var Main = (() => {
 
     return {
         game: null,
-        activeScene: null,
         phaserConfig: {
             title: "Doom Lagoon",
             type: Phaser.AUTO,

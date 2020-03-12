@@ -62,25 +62,50 @@ class LocalPlayer extends Sprite {
 
         //* DEBUG vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
         Network.CreateResponse("RecCellValue", function (data) {
-            console.log(`From server, data at cell x: ${data.gridX}, y: ${data.gridY} is: ${data.cellValue}`);
+            if(isNaN(data.cellValue)) {
+                var value = JSON.parse(JSON.stringify(data.cellValue));
+                console.log(`From server, data at cell x: ${data.gridX}, y: ${data.gridY} is: `, value);
+            }
+            else {
+                console.log(`From server, data at cell x: ${data.gridX}, y: ${data.gridY} is: ${data.cellValue} (${self.scene.mapTileNames[data.cellValue]})`);
+            }
         });
 
         scene.input.keyboard.on('keydown_J', () => {
             console.log("cell value from client: " + self.neighbors.left);
-            Network.Emit("ReqCellValue", { x: -1, y: 0 });
+            Network.Emit("ReqNeighborValue", { x: -1, y: 0 });
         });
         scene.input.keyboard.on('keydown_L', () => {
             console.log("cell value from client: " + self.neighbors.right);
-            Network.Emit("ReqCellValue", { x: 1, y: 0 });
+            Network.Emit("ReqNeighborValue", { x: 1, y: 0 });
         });
         scene.input.keyboard.on('keydown_I', () => {
             console.log("cell value from client: " + self.neighbors.up);
-            Network.Emit("ReqCellValue", { x: 0, y: -1 });
+            Network.Emit("ReqNeighborValue", { x: 0, y: -1 });
         });
         scene.input.keyboard.on('keydown_K', () => {
             console.log("cell value from client: " + self.neighbors.down);
-            Network.Emit("ReqCellValue", { x: 0, y: 1 });
+            Network.Emit("ReqNeighborValue", { x: 0, y: 1 });
         });
+
+        // TODO: Expand beyond debug, as game is more fully implemented.
+        Main.game.canvas.addEventListener("click", (event) => {
+            var posParent = Utility.html.ElemPos(event.currentTarget);
+            var posX = event.clientX - posParent.x;
+            var posY = event.clientY - posParent.y;
+
+            var worldX = self.scene.cameras.main.worldView.x + posX,
+            worldY = self.scene.cameras.main.worldView.y + posY;
+
+            var cellX = (worldX - (worldX % self.scene.MapTileWidth)) / self.scene.MapTileWidth,
+            cellY = (worldY - (worldY % self.scene.MapTileHeight)) / self.scene.MapTileHeight;
+
+            //console.log(`canvas click event, mouse pos - x: ${posX}, y: ${posY}`);
+            //console.log(`canvas click event, camera to world - x: ${worldX}, y: ${worldY}`);
+            //console.log(`canvas click event, as cells - x: ${cellX}, y: ${cellY}`);
+
+            Network.Emit("ReqCellValue", { x: cellX, y: cellY });
+        }, false);
         //* DEBUG ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 
@@ -109,25 +134,25 @@ class LocalPlayer extends Sprite {
         if(this.moveCache_Grid.length <= Consts.moveCacheSlots.TO ||
             this.moveCache_Grid.length <= Consts.moveCacheSlots.NEXT && this.canCacheNext) {
             
-            if(this.keys.left.isDown && this.neighbors.left == 0) {
+            if(this.keys.left.isDown && this.neighbors.left == this.scene.mapTileIndicies['water']) {
                 Network.Emit("ReqMoveToCell", {
                     key: 'LEFT',
                     cellDiff: { x: -1, y: 0 }
                 });
             }
-            else if(this.keys.right.isDown && this.neighbors.right == 0) {
+            else if(this.keys.right.isDown && this.neighbors.right == this.scene.mapTileIndicies['water']) {
                 Network.Emit("ReqMoveToCell", {
                     key: 'RIGHT',
                     cellDiff: { x: 1, y: 0 }
                 });
             }
-            else if(this.keys.up.isDown && this.neighbors.up == 0) {
+            else if(this.keys.up.isDown && this.neighbors.up == this.scene.mapTileIndicies['water']) {
                 Network.Emit("ReqMoveToCell", {
                     key: 'UP',
                     cellDiff: { x: 0, y: -1 }
                 });
             }
-            else if(this.keys.down.isDown && this.neighbors.down == 0) {
+            else if(this.keys.down.isDown && this.neighbors.down == this.scene.mapTileIndicies['water']) {
                 Network.Emit("ReqMoveToCell", {
                     key: 'DOWN',
                     cellDiff: { x: 0, y: 1 }

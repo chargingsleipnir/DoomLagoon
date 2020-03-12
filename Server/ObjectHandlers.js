@@ -3,6 +3,13 @@
  // Automatic proper parsing!
 var mapJSONData = require('../Shared/DataFiles/mapPH.json');
 var Consts = require('../Shared/Consts.js');
+
+// TODO: Some of these indicies are very hard-coded for now, will need to be made dynamic when tilset is expanded.
+var mapTileIndicies = {};
+var tilesArr = mapJSONData.tilesets[0].tiles;
+for(var i = 0; i < tilesArr.length; i++) {
+    mapTileIndicies[tilesArr[i].properties[0].value] = tilesArr[i].id + 1;
+}
  
 var MapSprite = function (spriteType, id) {
     this.spriteType = spriteType;
@@ -29,7 +36,16 @@ Player.prototype.SetupNetworkResponses = function (io, socket) {
     var player = this;
 
     // JUST FOR TESTING - TODO: EXPAND SERVER TESTING FUNCTIONS
-    socket.on("ReqCellValue", function (cellDiff) {
+    socket.on("ReqCellValue", function (cell) {
+        socket.emit("RecCellValue", {
+            gridX: cell.x,
+            gridY: cell.y,
+            cellValue: map[cell.x][cell.y]
+        });
+    });
+
+    // TODO: For everything related to neighbors, account for reaching the edge of the screen and being out of bounds!!
+    socket.on("ReqNeighborValue", function (cellDiff) {
         socket.emit("RecCellValue", {
             gridX: player.gridPos.x + cellDiff.x,
             gridY: player.gridPos.y + cellDiff.y,
@@ -38,16 +54,15 @@ Player.prototype.SetupNetworkResponses = function (io, socket) {
     });
 
     socket.on("ReqMoveToCell", function (dirData) {
-        // TODO: This DOES NOT handle the edges off the map (outside of the array)
         var newX = player.gridPos.x + dirData.cellDiff.x;
         var newY = player.gridPos.y + dirData.cellDiff.y;
 
-        if (map[newX][newY] != 0) {  
-            return;  
+        if (map[newX][newY] != mapTileIndicies['water']) {  
+            return;
         }        
 
         // Tell old neighbors about move out
-        Map.ChangeCell(player.gridPos, 0);
+        Map.ChangeCell(player.gridPos, mapTileIndicies['water']);
         // Tell new neighbors about move in
         Map.ChangeCell({ x: newX, y: newY }, player.mapData);
         // Update own position
@@ -158,10 +173,7 @@ for (var i = 0; i < mapJSONData.layers[0].width; i++) {
     map[i] = [];
     for (var j = 0; j < mapJSONData.layers[0].height; j++) {
         var col = j * mapJSONData.layers[0].width;
-        if (mapJSONData.layers[0].data[col + i] == 1)
-            map[i][j] = 1;
-        else
-            map[i][j] = 0;
+        map[i][j] = mapJSONData.layers[0].data[col + i];
     }
 }
 
@@ -196,14 +208,14 @@ module.exports = {
             // Get a spawn point
             var spawnIndex = 0;
             for (var i = 0; i < spawnPoints.length; i++) {
-                if (map[spawnPoints[i].x][spawnPoints[i].y] == 0) {
+                if (map[spawnPoints[i].x][spawnPoints[i].y] == mapTileIndicies['water']) {
                     spawnIndex = i;
-                    map[spawnPoints[i].x][spawnPoints[i].y] = 1;
+                    // The player has not yet been created, so just set to -1 for now.
+                    map[spawnPoints[i].x][spawnPoints[i].y] = -1;
                     break;
                 }
                 // TODO: If none are available? Keep checking? Have way more? Overlap players? Hmmm....
             }
-            
             // TODO: Get and send all other word init data
 
             socket.emit("RecWorldInitData", {
@@ -250,7 +262,7 @@ module.exports = {
                 socket.broadcast.emit("RemoveSprite", player.mapData);
 
                 // Take player off the map
-                map[player.gridPos.x][player.gridPos.y] = 0;
+                map[player.gridPos.x][player.gridPos.y] = mapTileIndicies['water'];
                 
                 // Remove player from server
                 delete sprites.allData[Consts.spriteTypes.PLAYER][socket.client.id];

@@ -35,45 +35,6 @@ var MainMenu = (() => {
             });
 
             document.getElementById('MainMenuOptionsBtn').addEventListener("click", OptionsMenu.Open);
-
-            
-
-            // TODO: This was old and left commented, not sure if it's still required, especially here. Perhaps in "init" of "Overworld"?
-            //* Just always sending click coordinates to the server
-            // Send canvas click position to the server
-            // function GetPosition(event) {
-            //     var posParent = ElemPosition(event.currentTarget);
-            //     var posX = event.clientX - posParent.x;
-            //     var posY = event.clientY - posParent.y;
-            //     socket.emit("CanvasClick", { x: posX, y: posY });
-            // }
-
-            // function ElemPosition(elem) {
-            //     var posX = 0;
-            //     var posY = 0;
-            
-            //     while (elem) {
-            //         if (elem.tagName == "BODY") {
-            //             // deal with browser quirks with body/window/document and page scroll
-            //             var xScrollPos = elem.scrollLeft || document.documentElement.scrollLeft;
-            //             var yScrollPos = elem.scrollTop || document.documentElement.scrollTop;
-                    
-            //             posX += (elem.offsetLeft - xScrollPos + elem.clientLeft);
-            //             posY += (elem.offsetTop - yScrollPos + elem.clientTop);
-            //         }
-            //         else {
-            //             posX += (elem.offsetLeft - elem.scrollLeft + elem.clientLeft);
-            //             posY += (elem.offsetTop - elem.scrollTop + elem.clientTop);
-            //         }
-                
-            //         elem = elem.offsetParent;
-            //     }
-            //     return {
-            //         x: posX,
-            //         y: posY
-            //     };
-            // }
-            // game.canvas.addEventListener("click", GetPosition, false);
         },
         GetDispName: () => {
             return dispName || "I am Error";

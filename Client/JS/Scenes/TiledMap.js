@@ -1,6 +1,8 @@
 class TiledMapScene extends Phaser.Scene {
     
     map;
+    mapTileIndicies = {};
+    mapTileNames = {};
 
     constructor(sceneName) {
         super(sceneName);
@@ -18,6 +20,14 @@ class TiledMapScene extends Phaser.Scene {
         // Params: Tiled name (found in json), Phaser name
         var tileset = this.map.addTilesetImage('tilesetPH', 'tileset');
 
+        // Adding 1 to the index because Tiled does it on export, despite being different in the editor... not sure why exactly
+        for(var index in tileset.tileProperties) {
+            this.mapTileIndicies[tileset.tileProperties[index]["Name"]] = parseInt(index) + 1;
+            this.mapTileNames[parseInt(index) + 1] = tileset.tileProperties[index]["Name"];
+        }
+        //console.log(tileset);
+        //console.log(this.mapTileIndicies);
+
          // TODO: Those string names "Tile Layer 1" are what I gave them when making them in Tiled, which have to match here.
         //Background Layer
         var staticLayer = this.map.createStaticLayer('Tile Layer 1', tileset, 0, 0);
@@ -25,7 +35,14 @@ class TiledMapScene extends Phaser.Scene {
         //Foreground Layer
         //var dynamicLayer = this.map.createDynamicLayer('Tile Layer 1', tileset, 0, 0);
     
-        //this.world.setBounds(0, 0, this.map.tileWidth * this.map.width, this.map.tileHeight * this.map.height);
+        // Keeps the camera from scrolling once we've reached the edges of the map
+        // Tile width and height used to account for 1 tile of dead space surrounding the entire map, hence subtracting 2 units off the ends
+        this.cameras.main.setBounds(
+            this.map.tileWidth, 
+            this.map.tileHeight, 
+            this.map.tileWidth * (this.map.width - 2), 
+            this.map.tileHeight * (this.map.height - 2)
+        );
     
         /*
         this.map.setCollision(1);
