@@ -60,7 +60,9 @@ var OptionsMenu = (() => {
 
             Network.CreateResponse("SignInResponse", (success) => { });
             Network.CreateResponse("SignUpResponse", (success) => { });
-            Network.CreateResponse("RemoveAccountResponse", (success) => { });
+            Network.CreateResponse("RecRemoveAccount", (success) => {
+                console.log("Account deleted: ", success);
+            });
 
             document.getElementById('SignInBtn').addEventListener('click', (e) => {
                 Network.Emit("SignIn", {
@@ -75,7 +77,7 @@ var OptionsMenu = (() => {
                 });
             });
             document.getElementById('RemoveAccountBtn').addEventListener('click', (e) => {
-                Network.Emit("RemoveAccount", {
+                Network.Emit("ReqRemoveAccount", {
                     username: input_Username.value,
                     password: input_Password.value
                 });

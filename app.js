@@ -4,7 +4,7 @@ var server = require('http').createServer(app);
 var io = require('socket.io').listen(server);
 var fs = require('fs');
 
-var dbHdlr = require('./Server/DatabaseHandler.js');
+var dbHdlr = require('./Server/DatabaseHandler.js')();
 var objHdlrs = require('./Server/ObjectHandlers.js');
 
 // VARIABLES -----
