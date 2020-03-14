@@ -201,76 +201,92 @@ var Map = {
     }
 }
 
-module.exports = {
-    InitSocketCalls: function (io, socket) {
+module.exports = function(dbHdlr) {
 
-        socket.on("ReqWorldInitData", function () {
-            // Get a spawn point
-            var spawnIndex = 0;
-            for (var i = 0; i < spawnPoints.length; i++) {
-                if (map[spawnPoints[i].x][spawnPoints[i].y] == mapTileIndicies['water']) {
-                    spawnIndex = i;
-                    // The player has not yet been created, so just set to -1 for now.
-                    map[spawnPoints[i].x][spawnPoints[i].y] = -1;
-                    break;
+    return {
+        InitSocketCalls: function (io, socket) {
+
+            socket.on("ReqWorldInitData", function () {
+
+                // Check database first, and only use a random spawn point if they don't have save data to use.
+                // Sign-in ahead of this call will populate socketID field in db, allowing check here to work.
+                var dbPlayer = dbHdlr.GetPlayerData(socket.client.id);
+                console.log(dbPlayer);
+
+                // Get a spawn point
+                var spawnIndex = 0;
+                for (var i = 0; i < spawnPoints.length; i++) {
+                    if (map[spawnPoints[i].x][spawnPoints[i].y] == mapTileIndicies['water']) {
+                        spawnIndex = i;
+                        // The player has not yet been created, so just set to -1 for now.
+                        map[spawnPoints[i].x][spawnPoints[i].y] = -1;
+                        break;
+                    }
+                    // TODO: If none are available? Keep checking? Have way more? Overlap players? Hmmm....
                 }
-                // TODO: If none are available? Keep checking? Have way more? Overlap players? Hmmm....
-            }
-            // TODO: Get and send all other word init data
+                // TODO: Get and send all other word init data
 
-            socket.emit("RecWorldInitData", {
-                gridSpawn: {
-                    x: spawnPoints[spawnIndex].x, 
+                dbHdlr.SavePosition(socket.client.id, {
+                    x: spawnPoints[spawnIndex].x,
                     y: spawnPoints[spawnIndex].y
+                });
+
+                socket.emit("RecWorldInitData", {
+                    gridSpawn: {
+                        x: spawnPoints[spawnIndex].x, 
+                        y: spawnPoints[spawnIndex].y
+                    }
+                });
+            });
+
+            socket.on("Play", function (playerData) {
+                // TODO: Maybe make this perpetually up-to-date with all sprites, and only packs grabbed when needed, so it doesn't need to be recreated each time.
+                var spriteInitPack = []
+
+                for (var type in sprites.allData) {
+                    for (var id in sprites.allData[type]) {
+                        spriteInitPack.push(sprites.allData[type][id].GetInitPack());
+                    }
+                }
+                
+                socket.emit("GetServerGameData", { sprites: spriteInitPack });
+                
+                // Player's been created, update their neighbors list right away, as this will always determine what their next move can be locally.
+                var player = new Player(socket, playerData.initPack);
+                player.UpdateNeighbors();
+
+                // Add player to lists
+                sprites.allData[Consts.spriteTypes.PLAYER][socket.client.id] = player;
+                sprites.updatePack[Consts.spriteTypes.PLAYER][socket.client.id] = playerData.updatePack;
+                
+                // Set up all other network responses
+                player.SetupNetworkResponses(io, socket);
+
+                // Send new player data to all other players
+                socket.broadcast.emit("AddNewPlayer", playerData.initPack);
+            });
+
+            // Not a user-made function
+            socket.on("disconnect", function () {
+                console.log(`Socket connection removed: ${socket.client.id} `);
+                
+                var player = sprites.allData[Consts.spriteTypes.PLAYER][socket.client.id];
+                dbHdlr.SaveAndExit(socket.client.id, player ? player.gridPos : null);
+                
+                if (player) {
+                    socket.broadcast.emit("RemoveSprite", player.mapData);
+
+                    // Take player off the map
+                    map[player.gridPos.x][player.gridPos.y] = mapTileIndicies['water'];
+                    
+                    // Remove player from server
+                    delete sprites.allData[Consts.spriteTypes.PLAYER][socket.client.id];
+                    delete sprites.updatePack[Consts.spriteTypes.PLAYER][socket.client.id];
                 }
             });
-        });
-
-        socket.on("Play", function (playerData) {
-            // TODO: Maybe make this perpetually up-to-date with all sprites, and only packs grabbed when needed, so it doesn't need to be recreated each time.
-            var spriteInitPack = []
-
-            for (var type in sprites.allData) {
-                for (var id in sprites.allData[type]) {
-                    spriteInitPack.push(sprites.allData[type][id].GetInitPack());
-                }
-            }
-            
-            socket.emit("GetServerGameData", { sprites: spriteInitPack });
-            
-            // Player's been created, update their neighbors list right away, as this will always determine what their next move can be locally.
-            var player = new Player(socket, playerData.initPack);
-            player.UpdateNeighbors();
-
-            // Add player to lists
-            sprites.allData[Consts.spriteTypes.PLAYER][socket.client.id] = player;
-            sprites.updatePack[Consts.spriteTypes.PLAYER][socket.client.id] = playerData.updatePack;
-            
-            // Set up all other network responses
-            player.SetupNetworkResponses(io, socket);
-
-            // Send new player data to all other players
-            socket.broadcast.emit("AddNewPlayer", playerData.initPack);
-        });
-
-        // Not a user-made function
-        socket.on("disconnect", function () {
-            console.log(`Socket connection removed: ${socket.client.id} `);
-            
-            var player = sprites.allData[Consts.spriteTypes.PLAYER][socket.client.id];
-            if (player) {
-                socket.broadcast.emit("RemoveSprite", player.mapData);
-
-                // Take player off the map
-                map[player.gridPos.x][player.gridPos.y] = mapTileIndicies['water'];
-                
-                // Remove player from server
-                delete sprites.allData[Consts.spriteTypes.PLAYER][socket.client.id];
-                delete sprites.updatePack[Consts.spriteTypes.PLAYER][socket.client.id];
-            }
-        });
-    },
-    GetUpdatePack: function () {
-        return sprites.updatePack;
-    },
+        },
+        GetUpdatePack: function () {
+            return sprites.updatePack;
+        }
+    }
 }

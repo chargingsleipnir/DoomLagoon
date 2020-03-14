@@ -29,13 +29,11 @@ class Overworld extends TiledMapScene {
         this.LoadMapFiles('DataFiles/mapPH.json', '../../Assets/Map/tilesetPH.png');
     }
 
-    create(data) {
+    create(initData) {
         super.create();
 
-        
-        this.player = new LocalPlayer(this, data.gridSpawn, this.boatImgKeysArr);
+        this.player = new LocalPlayer(this, initData.gridSpawn, this.boatImgKeysArr);
         this.cameras.main.startFollow(this.player.gameObjCont);
-
 
         //------------------------ SETUP NETWORK CALLS
 

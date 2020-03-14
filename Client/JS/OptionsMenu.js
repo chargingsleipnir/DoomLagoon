@@ -58,20 +58,26 @@ var OptionsMenu = (() => {
             input_Username = document.getElementById("Username"),
             input_Password = document.getElementById("Password");
 
-            Network.CreateResponse("SignInResponse", (success) => { });
-            Network.CreateResponse("SignUpResponse", (success) => { });
+            // TODO: If they do this during gameplay, the player/game needs to be updated to match database information
+            Network.CreateResponse("RecSignIn", (success) => {
+                console.log("Sign-in successful: ", success);
+            });
+            Network.CreateResponse("RecSignUp", (success) => {
+                console.log("Sign-up successful: ", success);
+            });
             Network.CreateResponse("RecRemoveAccount", (success) => {
                 console.log("Account deleted: ", success);
+                // TODO: The whole browser window should probably be rest to reflect lack of save state
             });
 
             document.getElementById('SignInBtn').addEventListener('click', (e) => {
-                Network.Emit("SignIn", {
+                Network.Emit("ReqSignIn", {
                     username: input_Username.value,
                     password: input_Password.value
                 });
             });
             document.getElementById('SignUpBtn').addEventListener('click', (e) => {
-                Network.Emit("SignUp", {
+                Network.Emit("ReqSignUp", {
                     username: input_Username.value,
                     password: input_Password.value
                 });

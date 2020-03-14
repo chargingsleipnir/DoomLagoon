@@ -23,6 +23,17 @@ Connect();
 
 module.exports = function() {
 
+    async function CheckSingleRow(column, data) {
+        try {
+            const {rows} = await client.query(`SELECT FROM players WHERE ${column} = $1`, [data]);
+            if(rows.length == 1)
+                return true;
+        }
+        catch(e) {
+            console.error(`Exception thrown in CheckUsername: ${e}`);
+        }
+        return false;
+    }
     async function CheckLoginCreds(data) {
         try {
             const {rows} = await client.query("SELECT FROM players WHERE username = $1 AND passhash = $2", [data.username, data.password]);
@@ -38,37 +49,97 @@ module.exports = function() {
     }
 
     return {
-        InitSocketCalls: function (socket) {
-            socket.on("SignIn", function (data) {
-                // IsValidPassword(data, function (result) {
-                //     if (result) {
-                //         socket.emit("SignInResponse", { success: true });
-                //     }
-                //     else
-                //         socket.emit("SignInResponse", { success: false });
-                // });
+        InitSocketCalls: socket => {
+
+            // TODO: If they do this during gameplay, the player needs to be updated to match database information
+            // Reset whole game?
+            socket.on("ReqSignIn", async function (data) {
+                var success = await CheckLoginCreds(data);
+                if (success) {
+                    try {
+                        await client.query("UPDATE players SET socketID = $1 WHERE username = $2", [socket.client.id, data.username]);
+                    }
+                    catch(e) {
+                        console.error(`Exception thrown in ReqRemoveAccount socket call: ${e}`);
+                        success = false;
+                    }
+                }
+                socket.emit("RecSignIn", success);
             });
 
-            socket.on("SignUp", function (data) {
-                // IsUsernameTaken(data, function (result) {
-                //     if (result) {
-                //         socket.emit("SignUpResponse", { success: false });
-                //     }
-                //     else {
-                //         AddUser(data, function () {
-                //             socket.emit("SignUpResponse", { success: true });
-                //         });
-                //     }
-                // });
+            socket.on("ReqSignUp", async function (data) {
+                // If username is successfully found, that's a fail - as usernames cannot be duplicated
+                var signUpSuccess = !(await CheckSingleRow("username", data.username));
+
+                if (signUpSuccess) {
+                    try {
+                        await client.query("INSERT INTO players VALUES (DEFAULT, $1, $2, $3, $4)", [
+                            socket.client.id,
+                            data.username,
+                            data.password,
+                            {"x": -1, "y": -1}
+                        ]);
+                    }
+                    catch(e) {
+                        console.error(`Exception thrown in ReqSignUp socket call: ${e}`);
+                        signUpSuccess = false;
+                    }
+                }
+                socket.emit("RecSignUp", signUpSuccess);
             });
 
             socket.on("ReqRemoveAccount", async function (data) {
                 var success = await CheckLoginCreds(data);
                 if (success) {
-                    await client.query("DELETE FROM players WHERE username = $1 AND passhash = $2", [data.username, data.password]);
+                    try {
+                        await client.query("DELETE FROM players WHERE username = $1 AND passhash = $2", [data.username, data.password]);
+                    }
+                    catch(e) {
+                        console.error(`Exception thrown in ReqRemoveAccount socket call: ${e}`);
+                        success = false;
+                    }
                 }
                 socket.emit("RecRemoveAccount", success);
             });
+        },
+        GetPlayerData: async (socketID) => {
+            try {
+                const {rows} = await client.query(`SELECT FROM players WHERE socketID = $1`, [socketID]);
+                if(rows.length == 1)
+                    return rows[0];
+
+                return null;
+            }
+            catch(e) {
+                console.error(`Exception thrown in GetPlayerData: ${e}`);
+                return null;
+            }
+        },
+        // TODO: Save direction - low priority
+        SavePosition: async (socketID, gridpos) => {
+            var entryFound = await CheckSingleRow("socketID", socketID);
+            if(entryFound) {
+                try {
+                    await client.query("UPDATE players SET gridpos = $1", [gridpos]);
+                }
+                catch(e) {
+                    console.error(`Exception thrown in SavePosition: ${e}`);
+                }
+            }
+        },
+        SaveAndExit: async (socketID, gridpos) => {
+            var entryFound = await CheckSingleRow("socketID", socketID);
+            if(entryFound) {
+                try {
+                    if(gridpos)
+                        await client.query("UPDATE players SET socketID = null, gridpos = $1 WHERE socketid = $2", [gridpos, socketID]);
+                    else
+                        await client.query("UPDATE players SET socketID = null WHERE socketid = $1", [socketID]);
+                }
+                catch(e) {
+                    console.error(`Exception thrown in SaveAndExit: ${e}`);
+                }
+            }
         }
     }
 }
