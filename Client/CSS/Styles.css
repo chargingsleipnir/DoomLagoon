@@ -150,7 +150,14 @@ input[type="range"]::-moz-range-track {
 
 
 .bg_LightGrey {
-    background-color: #AAA;
+    background-color: rgba(200, 200, 200, 0.5)
+}
+
+.colBySuccess {
+    color: darkred;
+}
+.colBySuccess.success {
+    color: darkgreen;
 }
 
 body {
@@ -203,6 +210,22 @@ h4 {
     margin: 0 auto;
 }
 
+.pad10 {
+    padding: 10px;
+}
+
+.pad15 {
+    padding: 15px;
+}
+
+.pad20 {
+    padding: 20px;
+}
+
+.margTop5 {
+    margin-top: 5px;
+}
+
 .margTop10 {
     margin-top: 10px;
 }
@@ -213,6 +236,11 @@ h4 {
 
 .margLeft10 {
     margin-left: 10px;
+}
+
+.flexFlowRight {
+    display: flex;
+    flex-flow: row nowrap;
 }
 
 .flexFlowRightTop {
@@ -226,6 +254,20 @@ h4 {
     display: flex;
     flex-flow: row nowrap;
     justify-content: center;
+    align-items: center;
+}
+
+.flexFlowDownLeft {
+    display: flex;
+    flex-flow: column;
+    justify-content: start;
+    align-items: flex-start;
+}
+
+.flexFlowDownCentre {
+    display: flex;
+    flex-flow: column;
+    justify-content: start;
     align-items: center;
 }
 
@@ -304,10 +346,6 @@ canvas {
     box-shadow: 3px 3px 10px 0 black;
 }
 
-#MainMenu > * {
-    margin: 20px auto;
-}
-
 .flexCentreChild {
     display: flex;
     justify-content: center;
@@ -357,4 +395,14 @@ button {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+}
+
+
+#SaveSlotData.hide {
+    display: none;
+}
+
+#SaveSlotMessage {
+    min-height: 1.25em;
+    line-height: 1.25;
 }

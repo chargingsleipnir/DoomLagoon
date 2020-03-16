@@ -47,64 +47,90 @@ module.exports = function() {
             return false;
         }
     }
+    async function DeactivateSlots(socketID) {
+        try {
+            await client.query("UPDATE players SET socketID = null WHERE socketid = $1", [socketID]);
+        }
+        catch(e) {
+            console.error(`Exception thrown in DeactivateSlots: ${e}`);
+        }
+    }
 
     return {
         InitSocketCalls: socket => {
 
             // TODO: If they do this during gameplay, the player needs to be updated to match database information
             // Reset whole game?
-            socket.on("ReqSignIn", async function (data) {
+            socket.on("ReqLoadSlot", async function (data) {
                 var success = await CheckLoginCreds(data);
+                var orient = null;
                 if (success) {
                     try {
+                        DeactivateSlots(socket.client.id);
                         await client.query("UPDATE players SET socketID = $1 WHERE username = $2", [socket.client.id, data.username]);
+                        const {rows} = await client.query(`SELECT orientation FROM players WHERE username = $1`, [data.username]);
+                        if(rows.length == 1)
+                            orient = rows[0]["orientation"];
                     }
                     catch(e) {
-                        console.error(`Exception thrown in ReqRemoveAccount socket call: ${e}`);
+                        console.error(`Exception thrown in ReqEraseSlot socket call: ${e}`);
                         success = false;
                     }
                 }
-                socket.emit("RecSignIn", success);
+                socket.emit("RecLoadSlot", {
+                    success: success,
+                    gridPos: orient ? { x: orient.x, y: orient.y } : orient
+                });
             });
 
-            socket.on("ReqSignUp", async function (data) {
+            socket.on("ReqCreateSlot", async function (data) {
                 // If username is successfully found, that's a fail - as usernames cannot be duplicated
                 var signUpSuccess = !(await CheckSingleRow("username", data.username));
 
                 if (signUpSuccess) {
                     try {
+                        // First, see if this user is already signed into another slot
+                        DeactivateSlots(socket.client.id);
                         await client.query("INSERT INTO players VALUES (DEFAULT, $1, $2, $3, $4)", [
                             socket.client.id,
                             data.username,
                             data.password,
-                            {"x": -1, "y": -1}
+                            null
                         ]);
                     }
                     catch(e) {
-                        console.error(`Exception thrown in ReqSignUp socket call: ${e}`);
+                        console.error(`Exception thrown in ReqCreateSlot socket call: ${e}`);
                         signUpSuccess = false;
                     }
                 }
-                socket.emit("RecSignUp", signUpSuccess);
+                socket.emit("RecCreateSlot", signUpSuccess);
             });
 
-            socket.on("ReqRemoveAccount", async function (data) {
+            socket.on("ReqEraseSlot", async function (data) {
                 var success = await CheckLoginCreds(data);
+                var activeSlot = false;
                 if (success) {
                     try {
+                        // Check to see whether the slot being erased is even the one that is currently being used.
+                        const {rows} = await client.query("SELECT socketid FROM players WHERE username = $1 AND passhash = $2", [data.username, data.password]);
+                        activeSlot = rows[0]['socketid'] == socket.client.id;
+
                         await client.query("DELETE FROM players WHERE username = $1 AND passhash = $2", [data.username, data.password]);
                     }
                     catch(e) {
-                        console.error(`Exception thrown in ReqRemoveAccount socket call: ${e}`);
+                        console.error(`Exception thrown in ReqEraseSlot socket call: ${e}`);
                         success = false;
                     }
                 }
-                socket.emit("RecRemoveAccount", success);
+                socket.emit("RecEraseSlot", {
+                    success: success,
+                    activeSlot: activeSlot
+                });
             });
         },
         GetPlayerData: async (socketID) => {
             try {
-                const {rows} = await client.query(`SELECT FROM players WHERE socketID = $1`, [socketID]);
+                const {rows} = await client.query(`SELECT orientation FROM players WHERE socketID = $1`, [socketID]);
                 if(rows.length == 1)
                     return rows[0];
 
@@ -115,24 +141,23 @@ module.exports = function() {
                 return null;
             }
         },
-        // TODO: Save direction - low priority
-        SavePosition: async (socketID, gridpos) => {
+        SaveOrientation: async (socketID, orientObj) => {
             var entryFound = await CheckSingleRow("socketID", socketID);
             if(entryFound) {
                 try {
-                    await client.query("UPDATE players SET gridpos = $1", [gridpos]);
+                    await client.query("UPDATE players SET orientation = $1", [orientObj]);
                 }
                 catch(e) {
-                    console.error(`Exception thrown in SavePosition: ${e}`);
+                    console.error(`Exception thrown in SaveOrientation: ${e}`);
                 }
             }
         },
-        SaveAndExit: async (socketID, gridpos) => {
+        SaveAndExit: async (socketID, orientObj) => {
             var entryFound = await CheckSingleRow("socketID", socketID);
             if(entryFound) {
                 try {
-                    if(gridpos)
-                        await client.query("UPDATE players SET socketID = null, gridpos = $1 WHERE socketid = $2", [gridpos, socketID]);
+                    if(orientObj)
+                        await client.query("UPDATE players SET socketID = null, orientation = $1 WHERE socketid = $2", [orientObj, socketID]);
                     else
                         await client.query("UPDATE players SET socketID = null WHERE socketid = $1", [socketID]);
                 }

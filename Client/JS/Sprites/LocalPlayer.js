@@ -1,4 +1,4 @@
-//* This class more about the actual Phaser player-character. See "User" for game prefs & meta info.
+//* This class more about the actual Phaser player-character.
 
 // TODO: Include some sort of scene state or type check: Tiled versus battle, different controls.
 // Infact controls schemes should maybe be in different files, loaded to the player as the scene changes
@@ -24,8 +24,8 @@ class LocalPlayer extends Sprite {
     moveDist = 0.0;
     moveFracCovered = 0.0;
 
-    constructor(scene, initGridPos, imageKeysArr) {
-        super(scene, initGridPos, imageKeysArr, Consts.dirImg.DOWN, MainMenu.GetDispName());
+    constructor(scene, initOrientation, imageKeysArr) {
+        super(scene, { x: initOrientation.x, y: initOrientation.y }, imageKeysArr, initOrientation.dir, MainMenu.GetDispName());
 
         // Anchor display name overhead
         var dispName = scene.add.text((this.sprite.width * 0.5), -(this.sprite.height * 0.5), MainMenu.GetDispName(), Consts.DISP_NAME_STYLE);
@@ -33,8 +33,8 @@ class LocalPlayer extends Sprite {
         this.gameObjCont.add(dispName);
 
         this.moveCache_Grid.push({
-            x: initGridPos.x,
-            y: initGridPos.y,
+            x: initOrientation.x,
+            y: initOrientation.y,
             dir: this.dirImgIndex
         });
 

@@ -10,19 +10,17 @@ class Sprite {
     dirImgIndex;
 
     //* imageKeysArr should be in order of left, right, up, and down, as consistent with Consts.dirImg
-    constructor(scene, initGridPos, imageKeysArr, dirImgIndex, name) {
+    constructor(scene, initGridSpawn, imageKeysArr, dirImgIndex, name) {
         this.scene = scene;
         
         this.imageKeysArr = imageKeysArr;
 
         this.gameObjCont = scene.add.container(
-            initGridPos.x * scene.MapTileWidth, 
-            initGridPos.y * scene.MapTileHeight
+            initGridSpawn.x * scene.MapTileWidth, 
+            initGridSpawn.y * scene.MapTileHeight
         );
         
-        // Start down just be default, could be anything
-
-        this.dirImgIndex = dirImgIndex || Consts.dirImg.DOWN;
+        this.dirImgIndex = dirImgIndex;
         this.sprite = scene.add.sprite(16, 16, imageKeysArr[this.dirImgIndex]);
         
         this.gameObjCont.add(this.sprite);

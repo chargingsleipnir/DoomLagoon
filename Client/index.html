@@ -18,9 +18,6 @@
     <script type="text/javascript" src="JS/Network.js"></script>
     <script type="text/javascript" src="JS/Utility.js"></script>
 
-    <!-- For settings, preferences, meta info, etc. -->
-    <script type="text/javascript" src="JS/User.js"></script>
-
     <script type="text/javascript" src="JS/Sprites/Sprite.js"></script>
     <script type="text/javascript" src="JS/Sprites/NetSprite.js"></script>
     <script type="text/javascript" src="JS/Sprites/LocalPlayer.js"></script>
@@ -43,47 +40,66 @@
     <img src="Assets/Title.png" alt="Doom Lagoon" class="centered margTop25" />
     
     <div id="MainMenu" class="menuPanel bg_Paper512 deadCentreOfScreen">
-        <div class="frame_Wood250x50 flexCentreChild bg_LightGrey"><input id="DispNameField" type="text" placeholder="Display Name" maxlength="10"/></div>
-        <div class="bg_Button285x60 flexCentreChild disabled"><input id="StartBtn" type="button" value="Play" disabled /></div>
-        <div class="bg_Button285x60 flexCentreChild"><input id="MainMenuOptionsBtn" type="button" value="Options" /></div>
+        <div class="flexFlowRightTop">
+            <div class="flexFlowDownCentre">
+                <div class="frame_Wood250x50 flexCentreChild bg_LightGrey"><input id="DispNameField" type="text" placeholder="Display Name" maxlength="10"/></div>
+                <div class="bg_Button285x60 flexCentreChild disabled"><input id="StartBtn" type="button" value="Play" disabled /></div>
+            </div>
+            <div class="flexCentreChild"><button id="MainMenuOptionsBtn" class="bg_Button80"><i class="fas fa-cog fa-2x"></i></button></div>
+        </div>
+        <div id="SaveOptions" class="margTop25">
+            <div class="flexFlowRight">
+                <span>Browser Saving: </span>
+                <em id="LocalSaveUnavailText">Unavailable</em>
+                <span id="LocalSaveAvailCheckbox"><input type="checkbox" id="LocalSaveCheck" /><label for="LocalSaveCheck" class="bgImg"></label></span>
+            </div>
+            <div>Database Saving:</div>
+            <div class="flexFlowRightCentre">
+                <div class="frame_Wood205x38 bgImg margTop10 bg_LightGrey"><input id="SlotName" type="text" placeholder="Slot name" /></div>
+                <div class="frame_Wood205x38 bgImg margTop10 bg_LightGrey margLeft10"><input id="Password" type="password" placeholder="Password" /></div>
+            </div>
+            <div class="pad10">
+                <div class="flexFlowRightTop">
+                    <div class="flexFlowDownLeft">
+                        <button id="LoadSlotBtn" class="flexFlowRightCentre">
+                            <div class="bg_Panel42 bgImg flexCentreChild"><i class="fas fa-sign-in-alt"></i></div>
+                            <span class="margLeft10 forceFont">Load slot</span>
+                        </button>
+                        <button id="CreateSlotBtn" class="flexFlowRightCentre margTop10">
+                            <div class="bg_Panel42 bgImg flexCentreChild"><i class="fas fa-user-plus"></i></div>
+                            <span class="margLeft10 forceFont">Create slot</span>
+                        </button>
+                    </div>
+                    <div class="flexFlowDownLeft">
+                        <button id="EraseSlotBtn" class="flexFlowRightCentre">
+                            <div class="bg_Panel42 bgImg flexCentreChild"><i class="fas fa-user-minus"></i></div>
+                            <span class="margLeft10 forceFont">Erase slot</span>
+                        </button>
+                    </div>
+                </div>
+                <div id="SaveSlotMessage" class="colBySuccess centered margTop5 success"></div>
+            </div>
+            <!-- Save slot info -->
+            <div class="pad10">
+                <div id="SaveSlotData" class="flexFlowDownLeft hide">
+                    <em>Position</em>
+                    <div><span>x: </span><span id="SaveSlotGridX"></span></div>
+                    <div><span>y: </span><span id="SaveSlotGridY"></span></div>
+                </div>
+            </div>
+        </div>
     </div>
-
-    <!-- TODO: Use for in-game options button: <i class="fas fa-cog fa-2x"></i> -->
 
     <div id="OptionsMenu" class="menuPanel bg_Paper512 deadCentreOfScreen">
         <button alt="close" id="CloseOptionsBtn"><i class="fas fa-window-close fa-2x"></i></button>
         <div class="flexFlowRightTop">
             <ul id="OptionsMenuTabs">
-                <li><button class="bg_Button80 tabButton active" data-panel-Id="SaveOptions"><i class="fas fa-save fa-3x"></i></button></li>
-                <li><button class="bg_Button80 tabButton margTop10" data-panel-Id="AudioOptions"><i class="fas fa-headphones fa-3x"></i></button></li>
+                <!-- TODO: Direct SAVE command, Reset game? --> 
+                <li><button class="bg_Button80 tabButton active" data-panel-Id="AudioOptions"><i class="fas fa-headphones fa-3x"></i></button></li>
                 <li><button class="bg_Button80 tabButton margTop10" data-panel-Id="ControlOptions"><i class="fas fa-gamepad fa-3x"></i></button></li>
-                <!-- TODO: Controls, just a display of what they are --> 
             </ul>
 
-            <div id="SaveOptions" class="optionPanel active">
-                <div><h3>Browser Saving: <em><span id="LocalSaveAvailText"></span></em></h3></div>
-                <div id="UseLocalSavingOption" class="flexFlowRightCentre">
-                    <span>Save to browser?&nbsp;</span>
-                    <span><input type="checkbox" id="LocalSaveCheck" /><label for="LocalSaveCheck" class="bgImg"></label></span>
-                </div>
-                <br />
-                <h4>Database Saving</h4>
-                <div class="frame_Wood205x38 bgImg margTop10 bg_LightGrey centredBlock"><input id="Username" type="text" placeholder="Username" /></div>
-                <div class="frame_Wood205x38 bgImg margTop10 bg_LightGrey centredBlock"><input id="Password" type="password" placeholder="Password" /></div>
-                <button id="SignInBtn" class="flexFlowRightCentre margTop10 centered">
-                    <div class="bg_Panel42 bgImg flexCentreChild"><i class="fas fa-sign-in-alt"></i></div>
-                    <span class="margLeft10 forceFont">Log in</span>
-                </button>
-                <button id="SignUpBtn" class="flexFlowRightCentre margTop10 centered">
-                    <div class="bg_Panel42 bgImg flexCentreChild"><i class="fas fa-user-plus"></i></div>
-                    <span class="margLeft10 forceFont">Sign up</span>
-                </button>
-                <button id="RemoveAccountBtn" class="flexFlowRightCentre margTop10 centered">
-                    <div class="bg_Panel42 bgImg flexCentreChild"><i class="fas fa-user-minus"></i></div>
-                    <span class="margLeft10 forceFont">Delete</span>
-                </button>
-            </div>
-            <div id="AudioOptions" class="optionPanel">
+            <div id="AudioOptions" class="optionPanel active">
                 <label for="VolumeSlider" class="centredBlock">Volume</label>
                 <input id="VolumeSlider" class="centredBlock margTop10" type="range" />
                 <!-- TODO: Implement more options
@@ -91,6 +107,7 @@
                 <div class="centredBlock"><label for="soundFXToggle">Sound FX: </label><input id="soundFXToggle" type="checkbox" /></div>
                 -->
             </div>
+            <!-- TODO: Controls, just a display of what they are --> 
             <div id="ControlOptions" class="optionPanel">
                 <span class="margLeft10 forceFont">To complete</span>
             </div>

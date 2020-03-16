@@ -28,8 +28,6 @@ var Network = (() => {
         GetSocketID: function () {
             return socket.id;
         },
-        CanSaveLocal: () => {
-            return (typeof (Storage) !== undefined);
-        }
+        LOCAL_STORAGE_KEY: "LocalSaveSlot"
     };
 })();

@@ -31,6 +31,11 @@ var Main = (() => {
                 game.scene.start('Title');
             }}
         },
+        userPrefs: {
+            useLocalStorage: false,
+            useDBStorage: false,
+            volumePct: 50
+        },
         Init: () => {
             // Establish socket connection
             Network.InitSocketConnection(() => {
@@ -38,6 +43,19 @@ var Main = (() => {
                 MainMenu.Init();
                 OptionsMenu.Init();
             }); 
+        },
+        StartAutoSaveTimer: () => {
+            // Attempt to save every 30 seconds
+            setInterval(Main.Save, 30000);
+        },
+        Save: (saveData) => {
+            if(Main.userPrefs.useLocalStorage) {
+                localStorage.setItem(Network.LOCAL_STORAGE_KEY, JSON.stringify(saveData));
+            }
+    
+            if(Main.userPrefs.useDBStorage) {
+                // TODO: Network call
+            }
         }
     }
 })();

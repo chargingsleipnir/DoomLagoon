@@ -206,36 +206,42 @@ module.exports = function(dbHdlr) {
     return {
         InitSocketCalls: function (io, socket) {
 
-            socket.on("ReqWorldInitData", function () {
+            socket.on("ReqWorldInitData", async function () {
+
+                var orientObj = {};
 
                 // Check database first, and only use a random spawn point if they don't have save data to use.
                 // Sign-in ahead of this call will populate socketID field in db, allowing check here to work.
-                var dbPlayer = dbHdlr.GetPlayerData(socket.client.id);
-                console.log(dbPlayer);
-
-                // Get a spawn point
-                var spawnIndex = 0;
-                for (var i = 0; i < spawnPoints.length; i++) {
-                    if (map[spawnPoints[i].x][spawnPoints[i].y] == mapTileIndicies['water']) {
-                        spawnIndex = i;
-                        // The player has not yet been created, so just set to -1 for now.
-                        map[spawnPoints[i].x][spawnPoints[i].y] = -1;
-                        break;
-                    }
-                    // TODO: If none are available? Keep checking? Have way more? Overlap players? Hmmm....
+                var dbPlayer = await dbHdlr.GetPlayerData(socket.client.id);
+                if(dbPlayer && dbPlayer["orientation"]) {
+                    orientObj = dbPlayer["orientation"];
                 }
-                // TODO: Get and send all other word init data
-
-                dbHdlr.SavePosition(socket.client.id, {
-                    x: spawnPoints[spawnIndex].x,
-                    y: spawnPoints[spawnIndex].y
-                });
-
-                socket.emit("RecWorldInitData", {
-                    gridSpawn: {
-                        x: spawnPoints[spawnIndex].x, 
-                        y: spawnPoints[spawnIndex].y
+                else {
+                    // Get a spawn point
+                    var spawnIndex = 0;
+                    for (var i = 0; i < spawnPoints.length; i++) {
+                        if (map[spawnPoints[i].x][spawnPoints[i].y] == mapTileIndicies['water']) {
+                            spawnIndex = i;
+                            // The player has not yet been created, so just set to -1 for now.
+                            map[spawnPoints[i].x][spawnPoints[i].y] = -1;
+                            break;
+                        }
+                        // TODO: If none are available? Keep checking? Have way more? Overlap players? Hmmm....
                     }
+
+                    orientObj =  {
+                        x: spawnPoints[spawnIndex].x,
+                        y: spawnPoints[spawnIndex].y,
+                        dir: Consts.dirImg.DOWN
+                    };
+
+                    dbHdlr.SaveOrientation(socket.client.id, orientObj);
+                }
+
+
+                // TODO: Get and send all other word init data
+                socket.emit("RecWorldInitData", {
+                    initOrientation: orientObj
                 });
             });
 
@@ -271,7 +277,11 @@ module.exports = function(dbHdlr) {
                 console.log(`Socket connection removed: ${socket.client.id} `);
                 
                 var player = sprites.allData[Consts.spriteTypes.PLAYER][socket.client.id];
-                dbHdlr.SaveAndExit(socket.client.id, player ? player.gridPos : null);
+                dbHdlr.SaveAndExit(socket.client.id, player ? {
+                    x: player.gridPos.x,
+                    y: player.gridPos.y,
+                    dir: player.dir
+                } : null);
                 
                 if (player) {
                     socket.broadcast.emit("RemoveSprite", player.mapData);

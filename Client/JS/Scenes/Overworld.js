@@ -32,7 +32,7 @@ class Overworld extends TiledMapScene {
     create(initData) {
         super.create();
 
-        this.player = new LocalPlayer(this, initData.gridSpawn, this.boatImgKeysArr);
+        this.player = new LocalPlayer(this, initData.initOrientation, this.boatImgKeysArr);
         this.cameras.main.startFollow(this.player.gameObjCont);
 
         //------------------------ SETUP NETWORK CALLS
@@ -73,7 +73,10 @@ class Overworld extends TiledMapScene {
             initPack: {
                 id: Network.GetSocketID(),
                 name: this.player.name,
-                gridPos: this.player.moveCache_Grid[Consts.moveCacheSlots.FROM],
+                gridPos: {
+                    x: this.player.moveCache_Grid[Consts.moveCacheSlots.FROM].x,
+                    y: this.player.moveCache_Grid[Consts.moveCacheSlots.FROM].y
+                },
                 dir: this.player.dirImgIndex
             },
             updatePack:{
