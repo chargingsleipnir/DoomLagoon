@@ -146,6 +146,13 @@ class Overworld extends TiledMapScene {
                 this.sprites[type][id].Update();
     }
 
+    // TODO: Leftover from old code. Implement?
+    /*
+    render() {
+        game.debug.cameraInfo(game.camera, 32, 32);
+        game.debug.spriteCoords(player, 320, 32);
+    }*/
+
     get MapTileWidth() {
         return this.map.tileWidth
     }

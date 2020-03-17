@@ -7,4 +7,6 @@
     // TODO: ? Map keys here? WATER: 0, BEACH: 1... PORT: 4, etc?
     // If both server and client read the same map data independently, perhaps nothing needs to be noted here?
 
+    exports.SALT_ROUNDS = 10;
+
 })(typeof exports === 'undefined' ? this['Consts'] = {} : exports);

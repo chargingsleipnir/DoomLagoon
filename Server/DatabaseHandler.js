@@ -1,5 +1,4 @@
-// TODO const bcrypt = require('bcrypt');
-
+const bcrypt = require('bcrypt');
 const {Client} = require('pg');
 const client = new Client({
     user: "postgres",
@@ -8,6 +7,8 @@ const client = new Client({
     port: 5432,
     database: "doomLagoonDB"
 });
+
+var Consts = require('../Shared/Consts.js');
 
 //* DB TEST -> in terminal, "npm run printFullTable"
 
@@ -36,11 +37,11 @@ module.exports = function() {
     }
     async function CheckLoginCreds(data) {
         try {
-            const {rows} = await client.query("SELECT FROM players WHERE username = $1 AND passhash = $2", [data.username, data.password]);
+            const {rows} = await client.query("SELECT passhash FROM players WHERE username = $1", [data.username]);
             if(rows.length != 1)
-                throw "Either 0 or 2+ matches for username & password."
+               throw "Either 0 or 2+ matches for username & password."
             
-            return true;
+            return bcrypt.compareSync(data.password, rows[0]['passhash']);
         }
         catch(e) {
             console.error(`Exception thrown in CheckLoginCreds: ${e}`);
@@ -91,7 +92,7 @@ module.exports = function() {
                         await client.query("INSERT INTO players VALUES (DEFAULT, $1, $2, $3, $4)", [
                             socket.client.id,
                             data.username,
-                            data.password,
+                            bcrypt.hashSync(data.password, Consts.SALT_ROUNDS),
                             null
                         ]);
                     }
@@ -109,10 +110,10 @@ module.exports = function() {
                 if (success) {
                     try {
                         // Check to see whether the slot being erased is even the one that is currently being used.
-                        const {rows} = await client.query("SELECT socketid FROM players WHERE username = $1 AND passhash = $2", [data.username, data.password]);
+                        const {rows} = await client.query("SELECT socketid FROM players WHERE username = $1", [data.username]);
                         activeSlot = rows[0]['socketid'] == socket.client.id;
 
-                        await client.query("DELETE FROM players WHERE username = $1 AND passhash = $2", [data.username, data.password]);
+                        await client.query("DELETE FROM players WHERE username = $1", [data.username]);
                     }
                     catch(e) {
                         console.error(`Exception thrown in ReqEraseSlot socket call: ${e}`);
