@@ -1,4 +1,4 @@
-class TiledMapScene extends Phaser.Scene {
+class TiledMapScene extends SceneTransition {
     
     map;
     mapTileIndicies = {};
@@ -15,6 +15,9 @@ class TiledMapScene extends Phaser.Scene {
     }
 
     create() {
+        super.create();
+        
+
         this.map = this.make.tilemap({ key: 'tilemap'});
 
         // Params: Tiled name (found in json), Phaser name

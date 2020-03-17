@@ -1,3 +1,4 @@
+// TODO: Only ever put this scene to sleep, so it does not repeat the init and create calls.
 class Overworld extends TiledMapScene {
 
     sprites = {};
@@ -18,6 +19,10 @@ class Overworld extends TiledMapScene {
         this.sprites[Consts.spriteTypes.NPC] = {}
     }
 
+    init() {
+        console.log("Overworld init");
+    }
+
     preload() {
         this.load.image(this.boatImgKeysArr[Consts.dirImg.LEFT], '../../Assets/Sprites/boatPH_Left.jpg');
         this.load.image(this.boatImgKeysArr[Consts.dirImg.RIGHT], '../../Assets/Sprites/boatPH_Right.jpg');
@@ -30,6 +35,8 @@ class Overworld extends TiledMapScene {
     create(initData) {
         //console.log("Startup save data: " , initData);
         super.create();
+
+        console.log("Overworld create");
 
         Main.player = new LocalPlayer(this, initData.orientation, this.boatImgKeysArr);
         this.cameras.main.startFollow(Main.player.gameObjCont);

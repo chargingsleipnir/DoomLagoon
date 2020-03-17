@@ -1,7 +1,8 @@
-class Title extends Phaser.Scene {
-    
+class Title extends SceneTransition {
+
     constructor() {
         super("Title");
+        this.transitionOpen = false;
     }
 
     // TODO: This is only for showing initial loading taking place, thus, have it fade in slowly just so if the
@@ -24,10 +25,13 @@ class Title extends Phaser.Scene {
 
     create ()
     {
+        super.create();
+        // Increase the size just for this openner.
+        this.mask.setScale(this.MASK_MAX_SCALE);
+
+        this.add.image(500, 300, 'sky');
 
         this.add.text(20, 20, "Loading game...");
-
-        this.add.image(400, 300, 'sky');
 
         var particles = this.add.particles('red');
 
@@ -58,17 +62,15 @@ class Title extends Phaser.Scene {
                     data = JSON.parse(storeData);
             }
 
-            // TODO: Figure out why this does not do any sort of smooth transition
-            //Main.game.scene.stop("Title");
-            scene.scene.transition({
-                target: "Overworld",
-                data: data,
-                duration: 1000,
-                sleep: false
+            scene.input.on('pointerdown', () => {
+                scene.scene.transition({
+                    duration: scene.TRANSITION_TIME,
+                    target: 'Overworld',
+                    data: data
+                });
             });
-            //Main.game.scene.start("Overworld", data);
+            
         });
-        
         Network.Emit("ReqWorldInitData");
     }
 
