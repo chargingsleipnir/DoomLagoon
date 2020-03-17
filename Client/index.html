@@ -94,12 +94,24 @@
         <button alt="close" id="CloseOptionsBtn"><i class="fas fa-window-close fa-2x"></i></button>
         <div class="flexFlowRightTop">
             <ul id="OptionsMenuTabs">
-                <!-- TODO: Direct SAVE command, Reset game? --> 
-                <li><button class="bg_Button80 tabButton active" data-panel-Id="AudioOptions"><i class="fas fa-headphones fa-3x"></i></button></li>
-                <li><button class="bg_Button80 tabButton margTop10" data-panel-Id="ControlOptions"><i class="fas fa-gamepad fa-3x"></i></button></li>
+                <li id="OptionsTab_General" class="hide"><button class="bg_Button80 tabButton" data-panel-Id="GeneralOptions"><i class="fas fa-folder-open fa-3x"></i></button></li>
+                <li><button class="bg_Button80 tabButton margTop10 active" data-panel-Id="ControlOptions"><i class="fas fa-gamepad fa-3x"></i></button></li>
+                <li><button class="bg_Button80 tabButton margTop10" data-panel-Id="AudioOptions"><i class="fas fa-headphones fa-3x"></i></button></li>
             </ul>
 
-            <div id="AudioOptions" class="optionPanel active">
+            <div id="GeneralOptions" class="optionPanel hide">
+                <div class="flexFlowDownCentre centredBlock">
+                    <button id="SaveBtn" class="flexFlowRightCentre">
+                        <div class="bg_Panel42 bgImg flexCentreChild"><i class="fas fa-save"></i></div>
+                        <span class="margLeft10 forceFont">Save game</span>
+                    </button>
+                </div>
+            </div>
+            <!-- TODO: Controls, just a display of what they are --> 
+            <div id="ControlOptions" class="optionPanel active">
+                <span class="margLeft10 forceFont">To complete</span>
+            </div>
+            <div id="AudioOptions" class="optionPanel">
                 <label for="VolumeSlider" class="centredBlock">Volume</label>
                 <input id="VolumeSlider" class="centredBlock margTop10" type="range" />
                 <!-- TODO: Implement more options
@@ -107,14 +119,11 @@
                 <div class="centredBlock"><label for="soundFXToggle">Sound FX: </label><input id="soundFXToggle" type="checkbox" /></div>
                 -->
             </div>
-            <!-- TODO: Controls, just a display of what they are --> 
-            <div id="ControlOptions" class="optionPanel">
-                <span class="margLeft10 forceFont">To complete</span>
-            </div>
         </div>
     </div>
 
     <div id="FullGameContainer">
+        <div id="GameMessageBox" class="centredBlock">This is a potential message from game to player.</div>
         <div id="CanvasContainer"></div>
         <!-- TODO: Make this menu actually sitting within the game, overlapping some of the canvas graphical elements, like a true GUI. -->
         <div id="InGameBarMenu" class=".bgImg">
@@ -123,12 +132,5 @@
             <button id="PlayerChatSendMsgBtn"><i class="fas fa-paper-plane fa-2x"></i></button>
         </div>
     </div>
-
-    <script>
-        // TEST AREA
-
-
-    </script>
-
 </body>
 </html>

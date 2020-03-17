@@ -1,9 +1,33 @@
 var Main = (() => {
 
     var scenes = [Title, Overworld, Battle];
+    var gameMsgBox;
+    var msgQueue = [];
+    var timeoutHdlr;
+    var seconds;
+            
+    function ResetDispMessage() {
+        if(!gameMsgBox.classList.contains("fadeIn"))
+            return;
+
+        gameMsgBox.innerHTML = msgQueue[0].msg;
+        seconds = msgQueue[0].seconds;
+        msgQueue.shift();
+
+        clearTimeout(timeoutHdlr);
+        timeoutHdlr = setTimeout(() => {
+            if(msgQueue.length > 0) {
+                ResetDispMessage();
+            }
+            else {
+                gameMsgBox.classList.remove("fadeIn");
+            }
+        }, seconds * 1000);
+    }
 
     return {
         game: null,
+        player: null,
         phaserConfig: {
             title: "Doom Lagoon",
             type: Phaser.AUTO,
@@ -42,20 +66,47 @@ var Main = (() => {
                 // Phaser Game starts in MainMenu on Play button
                 MainMenu.Init();
                 OptionsMenu.Init();
-            }); 
+
+                Network.CreateResponse("RecSave", (success) => {
+                    if(success) {
+                        Main.DispMessage("Game saved to database.", 2);
+                    }
+                });
+
+                gameMsgBox = document.getElementById("GameMessageBox");
+                gameMsgBox.addEventListener("webkitTransitionEnd", ResetDispMessage);
+                gameMsgBox.addEventListener("transitionend", ResetDispMessage);
+            });
         },
+        // TODO: Call/implement these
         StartAutoSaveTimer: () => {
             // Attempt to save every 30 seconds
-            setInterval(Main.Save, 30000);
+            setInterval(Main.Save, 20000);
         },
-        Save: (saveData) => {
+        Save: () => {
+            if(!Main.player)
+                return;
+
             if(Main.userPrefs.useLocalStorage) {
-                localStorage.setItem(Network.LOCAL_STORAGE_KEY, JSON.stringify(saveData));
+                localStorage.setItem(Network.LOCAL_STORAGE_KEY, JSON.stringify(Main.player.GetSavePack()));
+                Main.DispMessage("Game saved locally.", 2);
             }
     
             if(Main.userPrefs.useDBStorage) {
-                // TODO: Network call
+                Network.Emit("ReqSave", Main.player.GetSavePack());
             }
+        },
+        DispMessage: (msg, seconds) => {
+            if(msgQueue.length == 0) {
+                gameMsgBox.innerHTML = msg;
+            }
+
+            msgQueue.push({
+                msg: msg,
+                seconds: seconds
+            });
+            
+            gameMsgBox.classList.add("fadeIn");
         }
     }
 })();

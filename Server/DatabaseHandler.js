@@ -58,9 +58,6 @@ module.exports = function() {
 
     return {
         InitSocketCalls: socket => {
-
-            // TODO: If they do this during gameplay, the player needs to be updated to match database information
-            // Reset whole game?
             socket.on("ReqLoadSlot", async function (data) {
                 var success = await CheckLoginCreds(data);
                 var orient = null;
@@ -125,6 +122,20 @@ module.exports = function() {
                 socket.emit("RecEraseSlot", {
                     success: success,
                     activeSlot: activeSlot
+                });
+            });
+
+            socket.on("ReqSave", async function (data) {
+                var success = true;
+                try {
+                    await client.query("UPDATE players SET orientation = $1 WHERE socketID = $2", [data.orientation, socket.client.id]);
+                }
+                catch(e) {
+                    console.error(`Exception thrown in ReqSave socket call: ${e}`);
+                    success = false;
+                }
+                socket.emit("RecSave", {
+                    success: success
                 });
             });
         },

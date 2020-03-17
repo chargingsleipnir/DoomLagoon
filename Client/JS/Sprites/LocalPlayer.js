@@ -197,4 +197,14 @@ class LocalPlayer extends Sprite {
             dir: this.dirImgIndex
         });
     }
+
+    GetSavePack() {
+        return {
+            orientation: {
+                x: this.moveCache_Grid[Consts.moveCacheSlots.FROM].x,
+                y: this.moveCache_Grid[Consts.moveCacheSlots.FROM].y,
+                dir: this.dirImgIndex
+            }
+        }
+    }
 }

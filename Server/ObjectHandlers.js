@@ -241,7 +241,7 @@ module.exports = function(dbHdlr) {
 
                 // TODO: Get and send all other word init data
                 socket.emit("RecWorldInitData", {
-                    initOrientation: orientObj
+                    orientation: orientObj
                 });
             });
 
@@ -277,6 +277,7 @@ module.exports = function(dbHdlr) {
                 console.log(`Socket connection removed: ${socket.client.id} `);
                 
                 var player = sprites.allData[Consts.spriteTypes.PLAYER][socket.client.id];
+                
                 dbHdlr.SaveAndExit(socket.client.id, player ? {
                     x: player.gridPos.x,
                     y: player.gridPos.y,

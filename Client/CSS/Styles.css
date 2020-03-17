@@ -310,6 +310,24 @@ ul {
     z-index: -1;
 }
 
+#GameMessageBox {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1;
+    background-color: rgba(200, 200, 200, 0.66);
+    padding: 2px 5px;
+    border: 1px solid rgba(200, 200, 200, 0.66);
+    box-shadow: 0 0 5px 5px rgba(200, 200, 200, 0.66);
+    opacity: 0;
+    transition: all 0.5s ease-out;
+}
+#GameMessageBox.fadeIn {
+    opacity: 1;
+}
+
+
 #CanvasContainer {
     position: absolute;
     width: 960px;
@@ -398,7 +416,7 @@ button {
 }
 
 
-#SaveSlotData.hide {
+.hide {
     display: none;
 }
 

@@ -51,6 +51,13 @@ class Title extends Phaser.Scene {
 
             //console.log("RecWorldInitData received:", data);
 
+            if(!Main.userPrefs.useDBStorage && Main.userPrefs.useLocalStorage) {
+                // local storage can be selected, but still empty if it wasn't saved into yet.
+                var storeData = localStorage.getItem(Network.LOCAL_STORAGE_KEY);
+                if(storeData)
+                    data = JSON.parse(storeData);
+            }
+
             // TODO: Figure out why this does not do any sort of smooth transition
             //Main.game.scene.stop("Title");
             scene.scene.transition({

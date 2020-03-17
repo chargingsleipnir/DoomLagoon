@@ -34,8 +34,10 @@ var OptionsMenu = (() => {
                     OpenOptionFromSet(e.currentTarget, e.currentTarget.dataset.panelId);
                 });
             }
-
             elems_panel = elem_Container.getElementsByClassName("optionPanel");
+
+            // Save button
+            document.getElementById("SaveBtn").addEventListener('click', Main.Save);
 
             // AUDIO OPTIONS
             document.getElementById('VolumeSlider').addEventListener('change', (e) => {
@@ -45,6 +47,15 @@ var OptionsMenu = (() => {
         },
         Open: () => {
             Utility.html.ElemShowFront(elem_Container, 2);
+        },
+        ShowSaveBtn: () => {
+            // References the "list item", not the "button"
+            var genTab = document.getElementById("OptionsTab_General");
+            genTab.classList.remove("hide");
+            var buttonElem = genTab.getElementsByTagName("button")[0];
+
+            document.getElementById("GeneralOptions").classList.remove("hide");
+            OpenOptionFromSet(buttonElem, buttonElem.dataset.panelId);
         }
     }
 })();

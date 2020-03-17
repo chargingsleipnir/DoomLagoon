@@ -1,6 +1,4 @@
 class Overworld extends TiledMapScene {
-    
-    player;
 
     sprites = {};
 
@@ -30,10 +28,14 @@ class Overworld extends TiledMapScene {
     }
 
     create(initData) {
+        //console.log("Startup save data: " , initData);
         super.create();
 
-        this.player = new LocalPlayer(this, initData.initOrientation, this.boatImgKeysArr);
-        this.cameras.main.startFollow(this.player.gameObjCont);
+        Main.player = new LocalPlayer(this, initData.orientation, this.boatImgKeysArr);
+        this.cameras.main.startFollow(Main.player.gameObjCont);
+
+        // TODO: Institute a "HideSaveBtn" if there should ever be a "reset" functionality beyond rereshing the browser.
+        OptionsMenu.ShowSaveBtn();
 
         //------------------------ SETUP NETWORK CALLS
 
@@ -72,17 +74,17 @@ class Overworld extends TiledMapScene {
         Network.Emit("Play", {
             initPack: {
                 id: Network.GetSocketID(),
-                name: this.player.name,
+                name: Main.player.name,
                 gridPos: {
-                    x: this.player.moveCache_Grid[Consts.moveCacheSlots.FROM].x,
-                    y: this.player.moveCache_Grid[Consts.moveCacheSlots.FROM].y
+                    x: Main.player.moveCache_Grid[Consts.moveCacheSlots.FROM].x,
+                    y: Main.player.moveCache_Grid[Consts.moveCacheSlots.FROM].y
                 },
-                dir: this.player.dirImgIndex
+                dir: Main.player.dirImgIndex
             },
             updatePack:{
-                x: this.player.gameObjCont.x,
-                y: this.player.gameObjCont.y,
-                dir: this.player.dirImgIndex
+                x: Main.player.gameObjCont.x,
+                y: Main.player.gameObjCont.y,
+                dir: Main.player.dirImgIndex
             }
         });
 
@@ -137,7 +139,7 @@ class Overworld extends TiledMapScene {
     }
 
     update() {
-        this.player.Update();
+        Main.player.Update();
 
         for (var type in this.sprites)
             for (var id in this.sprites[type])
