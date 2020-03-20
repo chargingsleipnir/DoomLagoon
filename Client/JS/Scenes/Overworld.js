@@ -12,7 +12,12 @@ class Overworld extends TiledMapScene {
     }
 
     preload() {
-        this.load.spritesheet('knightRedAxe_Walk', '../../Assets/Sprites/KnightAxeRed_Walking.png', { frameWidth: 32, frameHeight: 32 });
+        this.load.spritesheet('knightRedAxe_Walk', '../../Assets/Sprites/KnightAxeRed_Walking.png', { 
+            frameWidth: 32,
+            frameHeight: 32,
+            margin: 1,
+            spacing: 1
+        });
 
         this.LoadMapFiles('DataFiles/mapPH.json', '../../Assets/Map/tilesetPH.png');
     }
@@ -39,7 +44,8 @@ class Overworld extends TiledMapScene {
         Main.player = new LocalPlayer(this, initData.orientation, 'knightRedAxe_Walk');
         
         this.cameras.main.startFollow(Main.player.gameObjCont);
-        //this.cameras.main.setZoom(2);
+        this.cameras.main.setZoom(1.5);
+        this.cameras.main.setRoundPixels(true);
 
         // TODO: Institute a "HideSaveBtn" if there should ever be a "reset" functionality beyond rereshing the browser.
         OptionsMenu.ShowSaveBtn();

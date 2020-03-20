@@ -30,7 +30,7 @@ class LocalPlayer extends Sprite {
         super(scene, { x: initOrientation.x, y: initOrientation.y }, spritesheetKey, initOrientation.dir, MainMenu.GetDispName());
 
         // Anchor display name overhead
-        var dispName = scene.add.text((this.sprite.width * 0.5), -(this.sprite.height * 0.5), MainMenu.GetDispName(), Consts.DISP_NAME_STYLE);
+        var dispName = scene.add.text((this.sprite.width * 0.5), -(this.sprite.height) - 2, MainMenu.GetDispName(), Consts.DISP_NAME_STYLE);
         dispName.setOrigin(0.5);
         this.gameObjCont.add(dispName);
 
@@ -98,21 +98,19 @@ class LocalPlayer extends Sprite {
             var posX = event.clientX - posParent.x;
             var posY = event.clientY - posParent.y;
 
-            var worldX = self.scene.cameras.main.worldView.x + posX,
-            worldY = self.scene.cameras.main.worldView.y + posY;
+            var worldX = (self.scene.cameras.main.worldView.x * self.scene.cameras.main.zoom) + posX,
+            worldY = (self.scene.cameras.main.worldView.y * self.scene.cameras.main.zoom) + posY;
 
-            var cellX = (worldX - (worldX % self.scene.MapTileWidth)) / self.scene.MapTileWidth,
-            cellY = (worldY - (worldY % self.scene.MapTileHeight)) / self.scene.MapTileHeight;
+            var cellX = (worldX - (worldX % self.scene.MapTileWidth_Zoomed)) / self.scene.MapTileWidth_Zoomed,
+            cellY = (worldY - (worldY % self.scene.MapTileHeight_Zoomed)) / self.scene.MapTileHeight_Zoomed;
 
-            console.log(`canvas click event, posParent - x: ${posParent.x}, y: ${posParent.y}`);
-            console.log(`canvas click event, event.client - x: ${event.clientX}, y: ${event.clientY}`);
-            console.log(`canvas click event, camera worldView - x: ${self.scene.cameras.main.worldView.x}, y: ${self.scene.cameras.main.worldView.y}`);
-            console.log(`canvas click event, mouse pos - x: ${posX}, y: ${posY}`);
-            console.log(`canvas click event, camera to world - x: ${worldX}, y: ${worldY}`);
-
-            console.log(`canvas click event, worldX % self.scene.MapTile - x: ${worldX % self.scene.MapTileWidth}, y: ${worldY % self.scene.MapTileHeight}`);
-            console.log(`canvas click event, worldX - (worldX % self.scene.MapTile) - x: ${worldX - (worldX % self.scene.MapTileWidth)}, y: ${worldY - (worldY % self.scene.MapTileHeight)}`);
-
+            // console.log(`canvas click event, posParent - x: ${posParent.x}, y: ${posParent.y}`);
+            // console.log(`canvas click event, event.client - x: ${event.clientX}, y: ${event.clientY}`);
+            // console.log(`canvas click event, camera worldView - x: ${self.scene.cameras.main.worldView.x * self.scene.cameras.main.zoom}, y: ${self.scene.cameras.main.worldView.y * self.scene.cameras.main.zoom}`);
+            // console.log(`canvas click event, mouse pos - x: ${posX}, y: ${posY}`);
+            // console.log(`canvas click event, camera to world - x: ${worldX}, y: ${worldY}`);
+            // console.log(`canvas click event, worldX % self.scene.MapTile - x: ${worldX % self.scene.MapTileWidth_Zoomed}, y: ${worldY % self.scene.MapTileHeight_Zoomed}`);
+            // console.log(`canvas click event, worldX - (worldX % self.scene.MapTile) - x: ${worldX - (worldX % self.scene.MapTileWidth_Zoomed)}, y: ${worldY - (worldY % self.scene.MapTileHeight_Zoomed)}`);
             console.log(`canvas click event, as cells - x: ${cellX}, y: ${cellY}`);
 
             Network.Emit("ReqCellValue", { x: cellX, y: cellY });
