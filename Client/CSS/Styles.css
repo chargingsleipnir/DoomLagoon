@@ -311,6 +311,7 @@ ul {
 }
 
 #GameMessageBox {
+    pointer-events: none;
     position: absolute;
     top: 10px;
     left: 50%;

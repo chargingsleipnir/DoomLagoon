@@ -5,33 +5,31 @@ class Sprite {
     gameObjCont;
     sprite;
     name;
-    imageKeysArr;
 
-    dirImgIndex;
+    dirIndex;
 
-    //* imageKeysArr should be in order of left, right, up, and down, as consistent with Consts.dirImg
-    constructor(scene, initGridSpawn, imageKeysArr, dirImgIndex, name) {
+    constructor(scene, initGridSpawn, spritesheetKey, dirIndex, name) {
         this.scene = scene;
-        
-        this.imageKeysArr = imageKeysArr;
 
         this.gameObjCont = scene.add.container(
             initGridSpawn.x * scene.MapTileWidth, 
             initGridSpawn.y * scene.MapTileHeight
         );
         
-        this.dirImgIndex = dirImgIndex;
-        this.sprite = scene.add.sprite(16, 16, imageKeysArr[this.dirImgIndex]);
-        
+        this.dirIndex = dirIndex;
+        this.sprite = scene.add.sprite(16, 16, spritesheetKey, 0);
+        //this.sprite.setScale(1, 1.25);
+        this.sprite.anims.play('walk_' + dirIndex);
+
         this.gameObjCont.add(this.sprite);
         this.name = name || 'I am Error';
     }
 
-    ChangeDirection(imgIndex) {
-        if(this.dirImgIndex == imgIndex)
+    ChangeDirection(dirIndex) {
+        if(this.dirIndex == dirIndex)
             return;
 
-        this.dirImgIndex = imgIndex;
-        this.sprite.setTexture(this.imageKeysArr[imgIndex]);
+        this.dirIndex = dirIndex;
+        this.sprite.anims.play('walk_' + dirIndex);
     }
 }

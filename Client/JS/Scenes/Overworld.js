@@ -3,31 +3,16 @@ class Overworld extends TiledMapScene {
 
     sprites = {};
 
-    // Shared among all boats of course
-    boatImgKeysArr = [
-        'navBoatLeft',
-        'navBoatRight',
-        'navBoatUp',
-        'navBoatDown'
-    ];
-
     constructor() {
         super("Overworld");
 
-        this.sprites[Consts.spriteTypes.PLAYER] = {}
-        this.sprites[Consts.spriteTypes.ENEMY] = {}
-        this.sprites[Consts.spriteTypes.NPC] = {}
-    }
-
-    init() {
-        console.log("Overworld init");
+        this.sprites[Consts.spriteTypes.PLAYER] = {};
+        this.sprites[Consts.spriteTypes.ENEMY] = {};
+        this.sprites[Consts.spriteTypes.NPC] = {};
     }
 
     preload() {
-        this.load.image(this.boatImgKeysArr[Consts.dirImg.LEFT], '../../Assets/Sprites/boatPH_Left.jpg');
-        this.load.image(this.boatImgKeysArr[Consts.dirImg.RIGHT], '../../Assets/Sprites/boatPH_Right.jpg');
-        this.load.image(this.boatImgKeysArr[Consts.dirImg.UP], '../../Assets/Sprites/boatPH_Up.jpg');
-        this.load.image(this.boatImgKeysArr[Consts.dirImg.DOWN], '../../Assets/Sprites/boatPH_Down.jpg');
+        this.load.spritesheet('knightRedAxe_Walk', '../../Assets/Sprites/KnightAxeRed_Walking.png', { frameWidth: 32, frameHeight: 32 });
 
         this.LoadMapFiles('DataFiles/mapPH.json', '../../Assets/Map/tilesetPH.png');
     }
@@ -36,17 +21,31 @@ class Overworld extends TiledMapScene {
         //console.log("Startup save data: " , initData);
         super.create();
 
-        console.log("Overworld create");
+        var self = this;
+        function CreateAnim(dirKey, spritesheetKey, startFrame, endFrame) {
+            self.anims.create({
+                key: 'walk_' + dirKey,
+                repeat: -1,
+                frameRate: 12,
+                frames: self.anims.generateFrameNames(spritesheetKey, { start: startFrame, end: endFrame })
+            });
+        }
 
-        Main.player = new LocalPlayer(this, initData.orientation, this.boatImgKeysArr);
+        CreateAnim(Consts.dirImg.LEFT, 'knightRedAxe_Walk', 0, 5);
+        CreateAnim(Consts.dirImg.RIGHT, 'knightRedAxe_Walk', 6, 11);
+        CreateAnim(Consts.dirImg.UP, 'knightRedAxe_Walk', 12, 17);
+        CreateAnim(Consts.dirImg.DOWN, 'knightRedAxe_Walk', 18, 23);
+
+        Main.player = new LocalPlayer(this, initData.orientation, 'knightRedAxe_Walk');
+        
         this.cameras.main.startFollow(Main.player.gameObjCont);
+        //this.cameras.main.setZoom(2);
 
         // TODO: Institute a "HideSaveBtn" if there should ever be a "reset" functionality beyond rereshing the browser.
         OptionsMenu.ShowSaveBtn();
 
         //------------------------ SETUP NETWORK CALLS
 
-        var self = this;
         // First emission sent from server - assign proper id, setup map, etc.
         Network.CreateResponse("GetServerGameData", function (data) {
             for (let i = 0; i < data.sprites.length; i++) {
@@ -54,7 +53,7 @@ class Overworld extends TiledMapScene {
                 self.sprites[data.sprites[i].type][data.sprites[i].id] = new NetSprite(
                     self, 
                     data.sprites[i].gridPos, 
-                    self.boatImgKeysArr, 
+                    'knightRedAxe_Walk', 
                     data.sprites[i].dir,  
                     data.sprites[i].name, 
                     data.sprites[i].id, 
@@ -64,12 +63,11 @@ class Overworld extends TiledMapScene {
         });
 
         // and tell everyone else about player. Adding new players after this player has joined
-        // TODO: boatImgKeysArr only used for now until player have different visuals
         Network.CreateResponse("AddNewPlayer", function (playerData) {
             self.sprites[Consts.spriteTypes.PLAYER][playerData.id] = new NetSprite(
                 self, 
                 playerData.gridPos, 
-                self.boatImgKeysArr, 
+                'knightRedAxe_Walk', 
                 playerData.dir,  
                 playerData.name, 
                 playerData.id, 
@@ -86,12 +84,12 @@ class Overworld extends TiledMapScene {
                     x: Main.player.moveCache_Grid[Consts.moveCacheSlots.FROM].x,
                     y: Main.player.moveCache_Grid[Consts.moveCacheSlots.FROM].y
                 },
-                dir: Main.player.dirImgIndex
+                dir: Main.player.dirIndex
             },
             updatePack:{
                 x: Main.player.gameObjCont.x,
                 y: Main.player.gameObjCont.y,
-                dir: Main.player.dirImgIndex
+                dir: Main.player.dirIndex
             }
         });
 
@@ -159,12 +157,4 @@ class Overworld extends TiledMapScene {
         game.debug.cameraInfo(game.camera, 32, 32);
         game.debug.spriteCoords(player, 320, 32);
     }*/
-
-    get MapTileWidth() {
-        return this.map.tileWidth
-    }
-
-    get MapTileHeight() {
-        return this.map.tileHeight
-    }
 }

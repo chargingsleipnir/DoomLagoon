@@ -13,8 +13,8 @@ class NetSprite extends Sprite {
     moveFracCovered = { x: 0, y: 0 };
     distToCover = { x: 0, y: 0 };
 
-    constructor(scene, initGridPos, imageKeysArr, dirImgIndex, name, id, doDispName) {
-        super(scene, initGridPos, imageKeysArr, dirImgIndex, name);
+    constructor(scene, initGridPos, spritesheetKey, dirIndex, name, id, doDispName) {
+        super(scene, initGridPos, spritesheetKey, dirIndex, name);
 
         this.id = id;
 
@@ -22,7 +22,7 @@ class NetSprite extends Sprite {
         var initPixelPosPackage = {
             x: this.gameObjCont.x,
             y: this.gameObjCont.y,
-            dir: dirImgIndex
+            dir: dirIndex
         };
 
         this.moveCache[Consts.moveCacheSlots.FROM] = initPixelPosPackage;

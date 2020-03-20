@@ -24,8 +24,10 @@ class LocalPlayer extends Sprite {
     moveDist = 0.0;
     moveFracCovered = 0.0;
 
-    constructor(scene, initOrientation, imageKeysArr) {
-        super(scene, { x: initOrientation.x, y: initOrientation.y }, imageKeysArr, initOrientation.dir, MainMenu.GetDispName());
+    moveRequestConfrmed;
+
+    constructor(scene, initOrientation, spritesheetKey) {
+        super(scene, { x: initOrientation.x, y: initOrientation.y }, spritesheetKey, initOrientation.dir, MainMenu.GetDispName());
 
         // Anchor display name overhead
         var dispName = scene.add.text((this.sprite.width * 0.5), -(this.sprite.height * 0.5), MainMenu.GetDispName(), Consts.DISP_NAME_STYLE);
@@ -35,14 +37,16 @@ class LocalPlayer extends Sprite {
         this.moveCache_Grid.push({
             x: initOrientation.x,
             y: initOrientation.y,
-            dir: this.dirImgIndex
+            dir: this.dirIndex
         });
 
         this.moveCache_Pixel.push({
             x: this.gameObjCont.x,
             y: this.gameObjCont.y,
-            dir: this.dirImgIndex
+            dir: this.dirIndex
         });
+
+        this.moveRequestConfrmed = true;
 
         var elem_ChatTextInput = document.getElementById("PlayerChatMsg");
         document.getElementById("PlayerChatSendMsgBtn").addEventListener('click', (e) => {
@@ -100,9 +104,16 @@ class LocalPlayer extends Sprite {
             var cellX = (worldX - (worldX % self.scene.MapTileWidth)) / self.scene.MapTileWidth,
             cellY = (worldY - (worldY % self.scene.MapTileHeight)) / self.scene.MapTileHeight;
 
-            //console.log(`canvas click event, mouse pos - x: ${posX}, y: ${posY}`);
-            //console.log(`canvas click event, camera to world - x: ${worldX}, y: ${worldY}`);
-            //console.log(`canvas click event, as cells - x: ${cellX}, y: ${cellY}`);
+            console.log(`canvas click event, posParent - x: ${posParent.x}, y: ${posParent.y}`);
+            console.log(`canvas click event, event.client - x: ${event.clientX}, y: ${event.clientY}`);
+            console.log(`canvas click event, camera worldView - x: ${self.scene.cameras.main.worldView.x}, y: ${self.scene.cameras.main.worldView.y}`);
+            console.log(`canvas click event, mouse pos - x: ${posX}, y: ${posY}`);
+            console.log(`canvas click event, camera to world - x: ${worldX}, y: ${worldY}`);
+
+            console.log(`canvas click event, worldX % self.scene.MapTile - x: ${worldX % self.scene.MapTileWidth}, y: ${worldY % self.scene.MapTileHeight}`);
+            console.log(`canvas click event, worldX - (worldX % self.scene.MapTile) - x: ${worldX - (worldX % self.scene.MapTileWidth)}, y: ${worldY - (worldY % self.scene.MapTileHeight)}`);
+
+            console.log(`canvas click event, as cells - x: ${cellX}, y: ${cellY}`);
 
             Network.Emit("ReqCellValue", { x: cellX, y: cellY });
         }, false);
@@ -124,39 +135,47 @@ class LocalPlayer extends Sprite {
                 y: newMoveData.y * self.scene.MapTileHeight,
                 dir: newMoveData.dir
             });
-    
+
+            //console.log(self.moveCache_Pixel[self.moveCache_Pixel.length - 1]);
+            self.moveRequestConfrmed = true;
             self.isMoving = true;
         });
     }
 
     Update() {
-        // Check if we can move "to" a new cell, or cache the "next" one ahead
-        if(this.moveCache_Grid.length <= Consts.moveCacheSlots.TO ||
-            this.moveCache_Grid.length <= Consts.moveCacheSlots.NEXT && this.canCacheNext) {
-            
-            if(this.keys.left.isDown && this.neighbors.left == this.scene.mapTileIndicies['water']) {
-                Network.Emit("ReqMoveToCell", {
-                    key: 'LEFT',
-                    cellDiff: { x: -1, y: 0 }
-                });
-            }
-            else if(this.keys.right.isDown && this.neighbors.right == this.scene.mapTileIndicies['water']) {
-                Network.Emit("ReqMoveToCell", {
-                    key: 'RIGHT',
-                    cellDiff: { x: 1, y: 0 }
-                });
-            }
-            else if(this.keys.up.isDown && this.neighbors.up == this.scene.mapTileIndicies['water']) {
-                Network.Emit("ReqMoveToCell", {
-                    key: 'UP',
-                    cellDiff: { x: 0, y: -1 }
-                });
-            }
-            else if(this.keys.down.isDown && this.neighbors.down == this.scene.mapTileIndicies['water']) {
-                Network.Emit("ReqMoveToCell", {
-                    key: 'DOWN',
-                    cellDiff: { x: 0, y: 1 }
-                });
+        if(this.moveRequestConfrmed) {
+            // Check if we can move "to" a new cell, or cache the "next" one ahead
+            if(this.moveCache_Grid.length <= Consts.moveCacheSlots.TO ||
+                this.moveCache_Grid.length <= Consts.moveCacheSlots.NEXT && this.canCacheNext) {
+                
+                if(this.keys.left.isDown && this.neighbors.left == this.scene.mapTileIndicies['water']) {
+                    this.moveRequestConfrmed = false;
+                    Network.Emit("ReqMoveToCell", {
+                        key: 'LEFT',
+                        cellDiff: { x: -1, y: 0 }
+                    });
+                }
+                else if(this.keys.right.isDown && this.neighbors.right == this.scene.mapTileIndicies['water']) {
+                    this.moveRequestConfrmed = false;
+                    Network.Emit("ReqMoveToCell", {
+                        key: 'RIGHT',
+                        cellDiff: { x: 1, y: 0 }
+                    });
+                }
+                else if(this.keys.up.isDown && this.neighbors.up == this.scene.mapTileIndicies['water']) {
+                    this.moveRequestConfrmed = false;
+                    Network.Emit("ReqMoveToCell", {
+                        key: 'UP',
+                        cellDiff: { x: 0, y: -1 }
+                    });
+                }
+                else if(this.keys.down.isDown && this.neighbors.down == this.scene.mapTileIndicies['water']) {
+                    this.moveRequestConfrmed = false;
+                    Network.Emit("ReqMoveToCell", {
+                        key: 'DOWN',
+                        cellDiff: { x: 0, y: 1 }
+                    });
+                }
             }
         }
 
@@ -168,7 +187,7 @@ class LocalPlayer extends Sprite {
             this.ChangeDirection(this.moveCache_Pixel[Consts.moveCacheSlots.TO].dir);
 
         this.moveDist += this.moveSpeed;
-        // Presuming sqaure tiles of course
+        // Presuming square tiles of course
         this.moveFracCovered = this.moveDist / this.scene.MapTileWidth;
 
         // Still moving into cell, keep updating position
@@ -194,7 +213,7 @@ class LocalPlayer extends Sprite {
         Network.Emit("UpdatePixelPos", {
             x: this.gameObjCont.x,
             y: this.gameObjCont.y,
-            dir: this.dirImgIndex
+            dir: this.dirIndex
         });
     }
 
@@ -203,7 +222,7 @@ class LocalPlayer extends Sprite {
             orientation: {
                 x: this.moveCache_Grid[Consts.moveCacheSlots.FROM].x,
                 y: this.moveCache_Grid[Consts.moveCacheSlots.FROM].y,
-                dir: this.dirImgIndex
+                dir: this.dirIndex
             }
         }
     }

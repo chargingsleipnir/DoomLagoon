@@ -59,10 +59,10 @@ class TiledMapScene extends SceneTransition {
     }
 
     get MapTileWidth() {
-        return this.map.tileWidth
+        return this.map.tileWidth;// * this.cameras.main.zoom;
     }
 
     get MapTileHeight() {
-        return this.map.tileHeight
+        return this.map.tileHeight;// * this.cameras.main.zoom;
     }
 }
