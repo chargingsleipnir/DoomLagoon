@@ -1,6 +1,6 @@
 //var validator = require('validator');
 
- // Automatic proper parsing!
+var mapDataReader = require('./MapDataReader.js')();
 var mapJSONData = require('../Shared/DataFiles/mapPH.json');
 var Consts = require('../Shared/Consts.js');
 
@@ -59,7 +59,7 @@ Player.prototype.SetupNetworkResponses = function (io, socket) {
 
         if (map[newX][newY] != mapTileIndicies['water']) {  
             return;
-        }        
+        }
 
         // Tell old neighbors about move out
         Map.ChangeCell(player.gridPos, mapTileIndicies['water']);
@@ -140,6 +140,12 @@ sprites.updatePack[Consts.spriteTypes.NPC] = {};
  * { npc: id? name?
  * { enemy: id? name?
  */
+
+//console.log(mapDataReader.GetObjectDataByGridPos());
+//console.log(mapDataReader.GetPlayerSpawns());
+//console.log(mapDataReader.GetEnemySpawns());
+//console.log(mapDataReader.GetWalkableTileIndicies());
+
 
 var map = [];
 var spawnPoints = [
