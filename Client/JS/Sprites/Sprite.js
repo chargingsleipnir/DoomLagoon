@@ -17,8 +17,8 @@ class Sprite {
         );
         
         this.dirIndex = dirIndex;
-        this.sprite = scene.add.sprite(16, 0, spritesheetKey, 0);
-        this.sprite.setScale(1, 1.25);
+        this.sprite = scene.add.sprite(16, 8, spritesheetKey, 0);
+        //this.sprite.setScale(1, 1.25);
         this.sprite.anims.play('walk_' + dirIndex);
 
         this.gameObjCont.add(this.sprite);

@@ -30,7 +30,7 @@ class LocalPlayer extends Sprite {
         super(scene, { x: initOrientation.x, y: initOrientation.y }, spritesheetKey, initOrientation.dir, MainMenu.GetDispName());
 
         // Anchor display name overhead
-        var dispName = scene.add.text((this.sprite.width * 0.5), -(this.sprite.height) - 2, MainMenu.GetDispName(), Consts.DISP_NAME_STYLE);
+        var dispName = scene.add.text((this.sprite.width * 0.5), -(this.sprite.height), MainMenu.GetDispName(), Consts.DISP_NAME_STYLE);
         dispName.setOrigin(0.5);
         this.gameObjCont.add(dispName);
 
@@ -71,7 +71,7 @@ class LocalPlayer extends Sprite {
                 console.log(`From server, data at cell x: ${data.gridX}, y: ${data.gridY} is: `, value);
             }
             else {
-                console.log(`From server, data at cell x: ${data.gridX}, y: ${data.gridY} is: ${data.cellValue} (${self.scene.mapTileNames[data.cellValue]})`);
+                console.log(`From server, data at cell x: ${data.gridX}, y: ${data.gridY} is: ${data.cellValue}`);
             }
         });
 
@@ -146,28 +146,28 @@ class LocalPlayer extends Sprite {
             if(this.moveCache_Grid.length <= Consts.moveCacheSlots.TO ||
                 this.moveCache_Grid.length <= Consts.moveCacheSlots.NEXT && this.canCacheNext) {
                 
-                if(this.keys.left.isDown && this.neighbors.left == this.scene.mapTileIndicies['water']) {
+                if(this.keys.left.isDown && this.neighbors.left == Consts.tileTypes.WALK) {
                     this.moveRequestConfrmed = false;
                     Network.Emit("ReqMoveToCell", {
                         key: 'LEFT',
                         cellDiff: { x: -1, y: 0 }
                     });
                 }
-                else if(this.keys.right.isDown && this.neighbors.right == this.scene.mapTileIndicies['water']) {
+                else if(this.keys.right.isDown && this.neighbors.right == Consts.tileTypes.WALK) {
                     this.moveRequestConfrmed = false;
                     Network.Emit("ReqMoveToCell", {
                         key: 'RIGHT',
                         cellDiff: { x: 1, y: 0 }
                     });
                 }
-                else if(this.keys.up.isDown && this.neighbors.up == this.scene.mapTileIndicies['water']) {
+                else if(this.keys.up.isDown && this.neighbors.up == Consts.tileTypes.WALK) {
                     this.moveRequestConfrmed = false;
                     Network.Emit("ReqMoveToCell", {
                         key: 'UP',
                         cellDiff: { x: 0, y: -1 }
                     });
                 }
-                else if(this.keys.down.isDown && this.neighbors.down == this.scene.mapTileIndicies['water']) {
+                else if(this.keys.down.isDown && this.neighbors.down == Consts.tileTypes.WALK) {
                     this.moveRequestConfrmed = false;
                     Network.Emit("ReqMoveToCell", {
                         key: 'DOWN',

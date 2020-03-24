@@ -1,14 +1,11 @@
 
 var Consts = require('../Shared/Consts.js');
-var JSON_Overworld = require('../Shared/DataFiles/Overworld.json');
+var JSON_Overworld = require('../Shared/DataFiles/OverworldTilesetsEmbeded.json');
 
-var JSON_tilesetFiles = {};
+var JSON_tilesets = {};
 for(var i = 0; i < JSON_Overworld.tilesets.length; i++) {
-    var fileName = JSON_Overworld.tilesets[i].source;
-    JSON_tilesetFiles[fileName.split(".")[0]] = {
-        firstgid: JSON_Overworld.tilesets[i].firstgid,
-        source: require('../Shared/DataFiles/' + fileName)
-    };
+    var setName = JSON_Overworld.tilesets[i].name;
+    JSON_tilesets[setName] = JSON_Overworld.tilesets[i];
 }
 
 var playerSpawns = [];
@@ -19,10 +16,10 @@ var walkableMap = [];
 // Read the data directly, at least just to make the work required on the various layers nicely explicit.
 
 //* Terrain layer - Start by denoting every walkable cell here. (As the map currently is, just everything that isn't water.)
-var waterTiles = JSON_tilesetFiles["BaseWater"].source.tiles;
+var waterTiles = JSON_tilesets["BaseWater"].tiles;
 var waterTilesetIDs = [];
 for (var i = 0; i < waterTiles.length; i++) {
-    waterTilesetIDs.push(waterTiles[i].id + JSON_tilesetFiles["BaseWater"].firstgid);
+    waterTilesetIDs.push(waterTiles[i].id + JSON_tilesets["BaseWater"].firstgid);
 }
 //console.log(waterTilesetIDs);
 
@@ -46,14 +43,14 @@ for (var i = 0; i < layerObj.width; i++) {
 
 //* Transparent tiles - Overlap any non-walkable tiles from this layer over the existing map data from the terrain loop.
 // (Everything except the bridges, they need to convert an existing non-walkable cell into a walkable one)
-var bridgeTiles = JSON_tilesetFiles["Toppers"].source.tiles;
+var bridgeTiles = JSON_tilesets["Toppers"].tiles;
 var bridgeTilesetIDs = [];
 for (var i = 0; i < bridgeTiles.length; i++) {
     if(bridgeTiles[i].properties) {
         for (var j = 0; j < bridgeTiles[i].properties.length; j++) {
             if(bridgeTiles[i].properties[j].name == "Walkable") {
                 if(bridgeTiles[i].properties[j].value) {
-                    bridgeTilesetIDs.push(bridgeTiles[i].id + JSON_tilesetFiles["Toppers"].firstgid);
+                    bridgeTilesetIDs.push(bridgeTiles[i].id + JSON_tilesets["Toppers"].firstgid);
                 }
             }
             break;
@@ -88,7 +85,7 @@ for (var i = 0; i < layerObj.width; i++) {
 }
 
 //* Object layer - Get the coorinates occupied by every object, overlap the walkable cell data from previous loops, and set interactable object data (treasure chests, etc.) on map.
-var layerObj = JSON_Overworld.layers[2];
+var layerObj = JSON_Overworld.layers[3];
 for(var i = 0; i < layerObj.objects.length; i++) {
     var obj = layerObj.objects[i];
 
@@ -140,6 +137,10 @@ for(var i = 0; i < layerObj.objects.length; i++) {
 
 module.exports = function() {
 
+    function SetCellValue(cell, value) {
+        walkableMap[cell.x][cell.y] = value;
+    }
+
     return {
         GetObjectDataByGridPos: () => {
             return mapObjectsByGridPos;
@@ -150,8 +151,37 @@ module.exports = function() {
         GetEnemySpawns: () => {
             return enemySpawns;
         },
-        GetWalkableTileIndicies: () => {
+        GetWalkableTileMap: () => {
+            return walkableMap;
+        },
+        SetValue: (cell, value) => {
+            SetCellValue(cell, value);
+        },
+        SetValueAndUpdateSprites: (sprites, cell, value) => {
+            SetCellValue(cell, value);
 
+            // Update any potentially new neighbors of this map call that they also have a new neighbor.
+            var mapData = walkableMap[cell.x - 1][cell.y];
+            if (mapData.spriteType)
+                sprites.allData[mapData.spriteType][mapData.id].UpdateNeighbor('right', value);
+    
+            mapData = walkableMap[cell.x + 1][cell.y];
+            if (mapData.spriteType)
+                sprites.allData[mapData.spriteType][mapData.id].UpdateNeighbor('left', value);
+    
+            mapData = walkableMap[cell.x][cell.y - 1];
+            if (mapData.spriteType)
+                sprites.allData[mapData.spriteType][mapData.id].UpdateNeighbor('down', value);
+    
+            mapData = walkableMap[cell.x][cell.y + 1];
+            if (mapData.spriteType)
+                sprites.allData[mapData.spriteType][mapData.id].UpdateNeighbor('up', value);
+        },
+        GetValue: (cell) => {
+            return walkableMap[cell.x][cell.y];
+        },
+        GetValueOffset: (cell, offsetX, offsetY) => {
+            return walkableMap[cell.x + offsetX][cell.y + offsetY];
         }
     }
 }
