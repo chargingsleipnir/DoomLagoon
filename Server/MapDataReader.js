@@ -137,10 +137,6 @@ for(var i = 0; i < layerObj.objects.length; i++) {
 
 module.exports = function() {
 
-    function SetCellValue(cell, value) {
-        walkableMap[cell.x][cell.y] = value;
-    }
-
     return {
         GetObjectDataByGridPos: () => {
             return mapObjectsByGridPos;
@@ -155,30 +151,13 @@ module.exports = function() {
             return walkableMap;
         },
         SetValue: (cell, value) => {
-            SetCellValue(cell, value);
-        },
-        SetValueAndUpdateSprites: (sprites, cell, value) => {
-            SetCellValue(cell, value);
-
-            // Update any potentially new neighbors of this map call that they also have a new neighbor.
-            var mapData = walkableMap[cell.x - 1][cell.y];
-            if (mapData.spriteType)
-                sprites.allData[mapData.spriteType][mapData.id].UpdateNeighbor('right', value);
-    
-            mapData = walkableMap[cell.x + 1][cell.y];
-            if (mapData.spriteType)
-                sprites.allData[mapData.spriteType][mapData.id].UpdateNeighbor('left', value);
-    
-            mapData = walkableMap[cell.x][cell.y - 1];
-            if (mapData.spriteType)
-                sprites.allData[mapData.spriteType][mapData.id].UpdateNeighbor('down', value);
-    
-            mapData = walkableMap[cell.x][cell.y + 1];
-            if (mapData.spriteType)
-                sprites.allData[mapData.spriteType][mapData.id].UpdateNeighbor('up', value);
+            walkableMap[cell.x][cell.y] = value;
         },
         GetValue: (cell) => {
             return walkableMap[cell.x][cell.y];
+        },
+        GetValueXY: (cellX, cellY) => {
+            return walkableMap[cellX][cellY];
         },
         GetValueOffset: (cell, offsetX, offsetY) => {
             return walkableMap[cell.x + offsetX][cell.y + offsetY];

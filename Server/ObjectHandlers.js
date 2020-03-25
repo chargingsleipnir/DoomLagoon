@@ -32,7 +32,8 @@ function Player(socket, playerData) {
     this.dir = playerData.dir;
 
     this.mapSprite = new MapSprite(Consts.spriteTypes.PLAYER, this.id);
-    mapData.SetValueAndUpdateSprites(sprites, this.gridPos, this.mapSprite);
+    mapData.SetValue(this.gridPos, this.mapSprite);
+    this.LookForAndUpdateNeighbors(this.gridPos, this.mapSprite);
 
     this.neighbors = {};
     this.UpdateNeighbors();
@@ -62,25 +63,33 @@ Player.prototype.SetupNetworkResponses = function (io, socket) {
             cellValue: mapData.GetValue(newPos)
         });
     });
-
+    socket.on("ReqChangeDir", function (dirData) {
+        player.UpdateDir(Consts.dirImg[dirData.key]);
+        socket.emit("RecChangeDir", player.dir);
+    });
     socket.on("ReqMoveToCell", function (dirData) {
         var newPos = { 
             x: player.gridPos.x + dirData.cellDiff.x,
             y: player.gridPos.y + dirData.cellDiff.y
         };
 
-        if (mapData.GetValue(newPos) != Consts.tileTypes.WALK) {  
-            return;
+        if (mapData.GetValue(newPos) == Consts.tileTypes.WALK) {  
+            // Tell old neighbors about move out
+            mapData.SetValue(player.gridPos, Consts.tileTypes.WALK);
+            player.LookForAndUpdateNeighbors(player.gridPos, Consts.tileTypes.WALK);
+            // Tell new neighbors about move in
+            mapData.SetValue(newPos, player.mapSprite);
+            player.LookForAndUpdateNeighbors(newPos, player.mapSprite);
+            // Update own position
+            player.UpdateMove(newPos, Consts.dirImg[dirData.key]);
+            // Update who my own neighbors are
+            player.UpdateNeighbors();
+        }
+        // If all is working correctly, this should never actually come through here, as the client will have stopped the entire call from being made by checking it's neighbors ahead of time.
+        else {
+            player.UpdateDir(Consts.dirImg[dirData.key]);
         }
 
-        // Tell old neighbors about move out
-        mapData.SetValueAndUpdateSprites(sprites, player.gridPos, Consts.tileTypes.WALK);
-        // Tell new neighbors about move in
-        mapData.SetValueAndUpdateSprites(sprites, newPos, player.mapSprite);
-        // Update own position
-        player.UpdateMove(newPos, Consts.dirImg[dirData.key]);
-
-        player.UpdateNeighbors();
         socket.emit("RecMoveToCell", player.GetMoveData());
     });
 
@@ -98,12 +107,33 @@ Player.prototype.UpdateMove = function (newPos, dir) {
     this.gridPos.y = newPos.y;
     this.dir = dir;
 };
+Player.prototype.UpdateDir = function (dir) {
+    this.dir = dir;
+};
 Player.prototype.GetMoveData = function() {
     return {
         x: this.gridPos.x,
         y: this.gridPos.y,
         dir: this.dir
     };
+}
+Player.prototype.LookForAndUpdateNeighbors = function (cell, value) {
+    // Update any potentially new neighbors of this map call that they also have a new neighbor.
+    var cellValue = mapData.GetValueXY(cell.x - 1, cell.y);
+    if (cellValue.spriteType)
+        sprites.allData[cellValue.spriteType][cellValue.id].UpdateNeighbor('right', value);
+
+    cellValue = mapData.GetValueXY(cell.x + 1, cell.y);
+    if (cellValue.spriteType)
+        sprites.allData[cellValue.spriteType][cellValue.id].UpdateNeighbor('left', value);
+
+    cellValue = mapData.GetValueXY(cell.x, cell.y -1);
+    if (cellValue.spriteType)
+        sprites.allData[cellValue.spriteType][cellValue.id].UpdateNeighbor('down', value);
+
+    cellValue = mapData.GetValueXY(cell.x, cell.y + 1);
+    if (cellValue.spriteType)
+        sprites.allData[cellValue.spriteType][cellValue.id].UpdateNeighbor('up', value);
 }
 Player.prototype.UpdateNeighbors = function () {
     // Get new neighbors

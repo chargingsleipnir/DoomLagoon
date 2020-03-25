@@ -40,6 +40,10 @@ class TiledMapScene extends SceneTransition {
         // TODO: Change the "types" in Tiled into numbers that correspond with Consts.tileTypes
         // TODO: Likely server-side: Make my own objects out of these to imbue functionality.
         // TODO: The messages on the signs can be added as a custom property in Tiled!
+        // TODO: Use script that extrudes tiles to eliminate edge bleeding
+        // TODO: Player anim controls
+        // TODO: Site background - game map, blown up with faded-glass filter over it?
+        // TODO: Title page, game-map style with land formed to say "Doom Lagoon"
         for(var i = 0; i < this.map.objects[0].objects.length; i++) {
             var obj = this.map.objects[0].objects[i];
             if(obj.type == "Sign")

@@ -125,7 +125,6 @@ class LocalPlayer extends Sprite {
             self.neighbors = data.neighbors;
         });
 
-
         Network.CreateResponse("RecMoveToCell", function (newMoveData) {
             self.moveCache_Grid.push(newMoveData);
             self.moveCache_Pixel.push({
@@ -138,6 +137,13 @@ class LocalPlayer extends Sprite {
             self.moveRequestConfrmed = true;
             self.isMoving = true;
         });
+
+        Network.CreateResponse("RecChangeDir", function (newDir) {
+            self.moveRequestConfrmed = true;
+            // Only if not actively moving anywhere, allow this change in direction.
+            if(self.moveCache_Pixel.length == 1)
+                self.ChangeDirection(newDir);
+        });
     }
 
     Update() {
@@ -146,33 +152,41 @@ class LocalPlayer extends Sprite {
             if(this.moveCache_Grid.length <= Consts.moveCacheSlots.TO ||
                 this.moveCache_Grid.length <= Consts.moveCacheSlots.NEXT && this.canCacheNext) {
                 
-                if(this.keys.left.isDown && this.neighbors.left == Consts.tileTypes.WALK) {
+                if(this.keys.left.isDown) {
                     this.moveRequestConfrmed = false;
-                    Network.Emit("ReqMoveToCell", {
-                        key: 'LEFT',
-                        cellDiff: { x: -1, y: 0 }
-                    });
+                    if(this.neighbors.left == Consts.tileTypes.WALK) {
+                        Network.Emit("ReqMoveToCell", { key: 'LEFT', cellDiff: { x: -1, y: 0 } });
+                    }
+                    else {
+                        Network.Emit("ReqChangeDir", { key: 'LEFT' });
+                    }
                 }
-                else if(this.keys.right.isDown && this.neighbors.right == Consts.tileTypes.WALK) {
+                else if(this.keys.right.isDown) {
                     this.moveRequestConfrmed = false;
-                    Network.Emit("ReqMoveToCell", {
-                        key: 'RIGHT',
-                        cellDiff: { x: 1, y: 0 }
-                    });
+                    if(this.neighbors.right == Consts.tileTypes.WALK) {
+                        Network.Emit("ReqMoveToCell", { key: 'RIGHT', cellDiff: { x: 1, y: 0 } });
+                    }
+                    else {
+                        Network.Emit("ReqChangeDir", { key: 'RIGHT' });
+                    }
                 }
-                else if(this.keys.up.isDown && this.neighbors.up == Consts.tileTypes.WALK) {
+                else if(this.keys.up.isDown) {
                     this.moveRequestConfrmed = false;
-                    Network.Emit("ReqMoveToCell", {
-                        key: 'UP',
-                        cellDiff: { x: 0, y: -1 }
-                    });
+                    if(this.neighbors.up == Consts.tileTypes.WALK) {
+                        Network.Emit("ReqMoveToCell", { key: 'UP', cellDiff: { x: 0, y: -1 } });
+                    }
+                    else {
+                        Network.Emit("ReqChangeDir", { key: 'UP' });
+                    }   
                 }
-                else if(this.keys.down.isDown && this.neighbors.down == Consts.tileTypes.WALK) {
+                else if(this.keys.down.isDown) {
                     this.moveRequestConfrmed = false;
-                    Network.Emit("ReqMoveToCell", {
-                        key: 'DOWN',
-                        cellDiff: { x: 0, y: 1 }
-                    });
+                    if(this.neighbors.down == Consts.tileTypes.WALK) {
+                        Network.Emit("ReqMoveToCell", { key: 'DOWN', cellDiff: { x: 0, y: 1 } });
+                    }
+                    else {
+                        Network.Emit("ReqChangeDir", { key: 'DOWN' });
+                    }
                 }
             }
         }
