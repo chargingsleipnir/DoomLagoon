@@ -11,6 +11,12 @@ class Overworld extends TiledMapScene {
         this.sprites[Consts.spriteTypes.NPC] = {};
     }
 
+    // TODO: Player anim controls
+    // TODO: Title page, game-map style with land formed to say "Doom Lagoon"
+    // TODO: Player chat display - Make it a div below the canvas
+    // TODO: Show controls on options menu
+    // TODO: Audio
+
     preload() {
         this.load.spritesheet('knightRedAxe_Walk', '../../Assets/Sprites/KnightAxeRed_Walking.png', { 
             frameWidth: 32,
@@ -38,7 +44,6 @@ class Overworld extends TiledMapScene {
     }
 
     create(initData) {
-        //console.log("Startup save data: " , initData);
         super.create();
 
         var self = this;
@@ -64,6 +69,23 @@ class Overworld extends TiledMapScene {
 
         // TODO: Institute a "HideSaveBtn" if there should ever be a "reset" functionality beyond rereshing the browser.
         OptionsMenu.ShowSaveBtn();
+
+        Network.Emit("Play", {
+            initPack: {
+                id: Network.GetSocketID(),
+                name: Main.player.name,
+                gridPos: {
+                    x: Main.player.moveCache_Grid[Consts.moveCacheSlots.FROM].x,
+                    y: Main.player.moveCache_Grid[Consts.moveCacheSlots.FROM].y
+                },
+                dir: Main.player.dirIndex
+            },
+            updatePack:{
+                x: Main.player.gameObjCont.x,
+                y: Main.player.gameObjCont.y,
+                dir: Main.player.dirIndex
+            }
+        });
 
         //------------------------ SETUP NETWORK CALLS
 
@@ -94,24 +116,6 @@ class Overworld extends TiledMapScene {
                 playerData.id, 
                 true
             );
-        });
-
-        // CHECK STORAGE INFO, databse info, etc. Send everything necessary to server to pass to others
-        Network.Emit("Play", {
-            initPack: {
-                id: Network.GetSocketID(),
-                name: Main.player.name,
-                gridPos: {
-                    x: Main.player.moveCache_Grid[Consts.moveCacheSlots.FROM].x,
-                    y: Main.player.moveCache_Grid[Consts.moveCacheSlots.FROM].y
-                },
-                dir: Main.player.dirIndex
-            },
-            updatePack:{
-                x: Main.player.gameObjCont.x,
-                y: Main.player.gameObjCont.y,
-                dir: Main.player.dirIndex
-            }
         });
 
         //------------------------ ALL OTHER NETWORK CALLS

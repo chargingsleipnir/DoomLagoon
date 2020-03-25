@@ -10,5 +10,6 @@
     // If both server and client read the same map data independently, perhaps nothing needs to be noted here?
 
     exports.SALT_ROUNDS = 10;
+    exports.CHAT_LOG_SIZE = 50;
 
 })(typeof exports === 'undefined' ? this['Consts'] = {} : exports);

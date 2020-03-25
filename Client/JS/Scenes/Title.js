@@ -52,26 +52,25 @@ class Title extends SceneTransition {
         var scene = this;
         // Check local storage, database info, etc. to pass to play state
         Network.CreateResponse("RecWorldInitData", function (data) {
-
-            //console.log("RecWorldInitData received:", data);
-
-            if(!Main.userPrefs.useDBStorage && Main.userPrefs.useLocalStorage) {
-                // local storage can be selected, but still empty if it wasn't saved into yet.
-                var storeData = localStorage.getItem(Network.LOCAL_STORAGE_KEY);
-                if(storeData)
-                    data = JSON.parse(storeData);
-            }
-
-            scene.input.on('pointerdown', () => {
-                scene.scene.transition({
-                    duration: scene.TRANSITION_TIME,
-                    target: 'Overworld',
-                    data: data
-                });
-            });
-            
+            scene.scene.transition({
+                duration: scene.TRANSITION_TIME,
+                target: 'Overworld',
+                data: data
+            });            
         });
-        Network.Emit("ReqWorldInitData");
-    }
 
+        // Check for local storage, and if it's there, send it's orientation object to the server to check against database slot used.
+        var localStorageData = null;
+        if(!Main.userPrefs.useDBStorage && Main.userPrefs.useLocalStorage) {
+            // local storage can be selected, but still empty if it wasn't saved into yet.
+            var storeData = localStorage.getItem(Network.LOCAL_STORAGE_KEY);
+            if(storeData)
+                localStorageData = JSON.parse(storeData);
+        }
+
+        // TODO: I guess I'll have to adapt this to send all of the local storage data, not just orientation
+        scene.input.on('pointerdown', () => {
+            Network.Emit("ReqWorldInitData", localStorageData);
+        });
+    }
 }

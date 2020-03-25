@@ -36,11 +36,8 @@ class TiledMapScene extends SceneTransition {
         topLayer.depth = 1;
         
         // The only way to show object layer objects using Phaser, so keep them pretty unique wherever possible.
+        //* The client is merely displaying these objects, it's the server that's handling interaction.
         this.map.createFromObjects('Objects', 11, { key: "volcano", frame: 0 });
-        // TODO: Player anim controls
-        // TODO: Site background - game map, blown up with faded-glass filter over it?
-        // TODO: Title page, game-map style with land formed to say "Doom Lagoon"
-        // TODO: Player chat display - Make it a div below the canvas
         for(var i = 0; i < this.map.objects[0].objects.length; i++) {
             var obj = this.map.objects[0].objects[i];
             if(obj.type == Consts.tileTypes.SIGN)

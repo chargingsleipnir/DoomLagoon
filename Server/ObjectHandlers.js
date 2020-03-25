@@ -1,5 +1,5 @@
-//var validator = require('validator');
-
+// TODO: Run validator on pretty much everything.
+var validator = require('validator');
 var mapData = require('./MapDataReader.js')();
 var Consts = require('../Shared/Consts.js');
 
@@ -120,9 +120,9 @@ Player.prototype.SetupNetworkResponses = function (io, socket) {
         sprites.updatePack[Consts.spriteTypes.PLAYER][socket.client.id] = updatePack;
     });
 
-    socket.on("MsgToServer", function (data) {
-        var escapedMsg = validator.escape(data["msg"]);
-        io.emit("MsgToClient", { msg: escapedMsg });
+    socket.on("ReqChatLogUpdate", function (data) {
+        data["msg"] = validator.escape(data["msg"]);
+        io.emit("RecChatLogUpdate", data);
     });
 }
 Player.prototype.UpdateMove = function (newPos, dir) {
@@ -187,16 +187,22 @@ module.exports = function(dbHdlr) {
     return {
         InitSocketCalls: function (io, socket) {
 
-            socket.on("ReqWorldInitData", async function () {
+            socket.on("ReqWorldInitData", async function (localStorage) {
 
+                //* Set up this player first
                 var orientObj = {};
 
-                // Check database first, and only use a random spawn point if they don't have save data to use.
+                // Check database first
                 // Sign-in ahead of this call will populate socketID field in db, allowing check here to work.
                 var dbPlayer = await dbHdlr.GetPlayerData(socket.client.id);
                 if(dbPlayer && dbPlayer["orientation"]) {
                     orientObj = dbPlayer["orientation"];
                 }
+                // If database isn't being used, use local storage if an object was sent up.
+                else if(localStorage != null) {
+                    orientObj = localStorage.orientation;
+                }
+                // Otherwise, create spawn point
                 else {
                     // Get a spawn point
                     var spawnIndex = 0;
@@ -204,7 +210,7 @@ module.exports = function(dbHdlr) {
                     for (var i = 0; i < spawnPoints.length; i++) {
                         if (mapData.GetValue(spawnPoints[i]) == Consts.tileTypes.WALK) {
                             spawnIndex = i;
-                            // The player has not yet been created, so just set to -1 for now.
+                            // The player has not yet been created, so just set to -1 for now to reserve the spot.
                             mapData.SetValue(spawnPoints[i], -1);
                             break;
                         }
@@ -219,7 +225,6 @@ module.exports = function(dbHdlr) {
 
                     dbHdlr.SaveOrientation(socket.client.id, orientObj);
                 }
-
 
                 // TODO: Get and send all other word init data
                 socket.emit("RecWorldInitData", {

@@ -27,6 +27,8 @@ class LocalPlayer extends Sprite {
     moveRequestConfrmed;
     assessRequestConfirmed;
 
+    elemFocusString = "";
+
     constructor(scene, initOrientation, spritesheetKey) {
         super(scene, { x: initOrientation.x, y: initOrientation.y }, spritesheetKey, initOrientation.dir, MainMenu.GetDispName());
 
@@ -50,12 +52,7 @@ class LocalPlayer extends Sprite {
         this.moveRequestConfrmed = true;
         this.assessRequestConfirmed = true;
 
-        var elem_ChatTextInput = document.getElementById("PlayerChatMsg");
-        document.getElementById("PlayerChatSendMsgBtn").addEventListener('click', (e) => {
-            console.log("Chat from player: " + elem_ChatTextInput.value);
-            // TODO: send elem_ChatTextInput.value to some sort of chat system. (Player speach bubbles!)
-            //* Such implementation should exist on higher inheritance level
-        });
+        var self = this;
 
         this.keys = {
             left: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A),
@@ -64,8 +61,6 @@ class LocalPlayer extends Sprite {
             down: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S),
             enter: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER)
         };
-
-        var self = this;
 
         //* DEBUG vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
         Network.CreateResponse("RecCellValue", function (data) {
@@ -97,6 +92,10 @@ class LocalPlayer extends Sprite {
 
         // TODO: Expand beyond debug, as game is more fully implemented.
         Main.game.canvas.addEventListener("click", (event) => {
+            //* NOTE: Not debug, very important!
+            self.elemFocusString = event.currentTarget.tagName;
+            Main.game.input.keyboard.enabled = true;
+
             var posParent = Utility.html.ElemPos(event.currentTarget);
             var posX = event.clientX - posParent.x;
             var posY = event.clientY - posParent.y;
@@ -114,7 +113,7 @@ class LocalPlayer extends Sprite {
             // console.log(`canvas click event, camera to world - x: ${worldX}, y: ${worldY}`);
             // console.log(`canvas click event, worldX % self.scene.MapTile - x: ${worldX % self.scene.MapTileWidth_Zoomed}, y: ${worldY % self.scene.MapTileHeight_Zoomed}`);
             // console.log(`canvas click event, worldX - (worldX % self.scene.MapTile) - x: ${worldX - (worldX % self.scene.MapTileWidth_Zoomed)}, y: ${worldY - (worldY % self.scene.MapTileHeight_Zoomed)}`);
-            console.log(`canvas click event, as cells - x: ${cellX}, y: ${cellY}`);
+            // console.log(`canvas click event, as cells - x: ${cellX}, y: ${cellY}`);
 
             Network.Emit("ReqCellValue", { x: cellX, y: cellY });
         }, false);
@@ -157,16 +156,52 @@ class LocalPlayer extends Sprite {
             }
         });
 
+        var elem_ChatLog = document.getElementById("ChatLog");
+        Network.CreateResponse('RecChatLogUpdate', (data) => {
+            // self.chatLog.push(data);
+            // if(chatLog.length > Consts.CHAT_LOG_SIZE)
+            //     chatLog.shift();
+
+            elem_ChatLog.innerHTML = data.msg;
+
+            // TODO: Add latest message to the visible log
+            // Based on how it's built, I doubt I'll even need to how this chat log object
+            // Just get the HTML elem children, and use them as above. All that info is stored in the HTML elements
+
+            console.log(data);
+        });
+
+        // CHAT MESSAGES - Send if button clicked OR if enter pressed while text field is focused.
+
+        // TODO: Player speech bubbles would be cool, but overscoped for this right now.
+        var elem_ChatTextInput = document.getElementById("PlayerChatMsg");
+        elem_ChatTextInput.addEventListener('click', (event) => {
+            self.elemFocusString = event.currentTarget.tagName;
+            Main.game.input.keyboard.enabled = false;
+        });
+        // This is needed to compensate for the Phaser keyboard object being shut off when the input element is focused.
+        elem_ChatTextInput.addEventListener('keyup', (event) => {
+            if(event.keyCode === 13 && self.elemFocusString == "INPUT")
+                SendMsgToServer();
+        });
+        function SendMsgToServer() {
+            if(elem_ChatTextInput.value != "")
+                Network.Emit("ReqChatLogUpdate", { name: self.name, msg: elem_ChatTextInput.value });
+        }
+        document.getElementById("PlayerChatSendMsgBtn").addEventListener('click', SendMsgToServer);
+
         // Single-time key press, only repeats if held after about a second
         scene.input.keyboard.on('keydown_ENTER', () => {
-            if(self.assessRequestConfirmed)
-            self.assessRequestConfirmed = false;
-            Network.Emit("ReqCellInteraction", self.GetCellDiffByDir());
+            // Redundant check
+            if(self.elemFocusString != "INPUT") {
+                self.assessRequestConfirmed = false;
+                Network.Emit("ReqCellInteraction", self.GetCellDiffByDir());
+            }
         });
     }
 
     Update() {
-        if(this.moveRequestConfrmed) {
+        if(this.moveRequestConfrmed && this.elemFocusString != "INPUT") {
             // Check if we can move "to" a new cell, or cache the "next" one ahead
             if(this.moveCache_Grid.length <= Consts.moveCacheSlots.TO ||
                 this.moveCache_Grid.length <= Consts.moveCacheSlots.NEXT && this.canCacheNext) {

@@ -5,7 +5,16 @@
     background-repeat: no-repeat;
 }
 
-.bg_SuperMarioWorldReal { background-image: url("../Assets/SuperMarioWorldReal.png"); }
+html {
+    height: 100%;
+    width: 100%;
+}
+body {
+    background-image: url("../Assets/OverworldBlurredTinted.png");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
 .bg_Paper512 { background-image: url("../Assets/GUI/texture_Paper.png"); }
 
 .bg_Button285x60 {
@@ -303,11 +312,13 @@ ul {
     position: relative;
     
     margin: 50px auto 0px auto;
-    border: 2px solid darkorchid;
+    border: 5px solid darkorchid;
 
     /*Start off not displaying*/
     display: none;
     z-index: -1;
+
+    box-shadow: 3px 3px 5px 0 black;
 }
 
 #GameMessageBox {
@@ -326,6 +337,18 @@ ul {
 }
 #GameMessageBox.fadeIn {
     opacity: 1;
+}
+
+#ChatLog {
+    pointer-events: none;
+    position: absolute;
+    bottom: 40px;
+    z-index: 1;
+    padding: 5px 10px;
+    width: 960px;
+    height: 200px;
+    background-color: rgba(255, 255, 255, 0.25);
+    color: black;
 }
 
 
