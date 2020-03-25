@@ -51,6 +51,29 @@ Player.prototype.SetupNetworkResponses = function (io, socket) {
         });
     });
 
+    socket.on("ReqCellInteraction", function (cellDiff) {
+        var newPos = { 
+            x: player.gridPos.x + cellDiff.x,
+            y: player.gridPos.y + cellDiff.y
+        };
+        const value = mapData.GetValue(newPos);
+
+        var interactionObj;
+
+        if(value == Consts.tileTypes.SIGN) {
+            interactionObj = {
+                msg: mapData.GetSignMessage(newPos)
+            }
+        }
+
+        socket.emit("RecCellInteraction", {
+            gridX: newPos.x,
+            gridY: newPos.y,
+            cellValue: value,
+            interactionObj: interactionObj
+        });
+    });
+
     // TODO: For everything related to neighbors, account for reaching the edge of the screen and being out of bounds!!
     socket.on("ReqNeighborValue", function (cellDiff) {
         var newPos = { 

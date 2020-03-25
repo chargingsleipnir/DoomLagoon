@@ -25,6 +25,7 @@ class LocalPlayer extends Sprite {
     moveFracCovered = 0.0;
 
     moveRequestConfrmed;
+    assessRequestConfirmed;
 
     constructor(scene, initOrientation, spritesheetKey) {
         super(scene, { x: initOrientation.x, y: initOrientation.y }, spritesheetKey, initOrientation.dir, MainMenu.GetDispName());
@@ -47,6 +48,7 @@ class LocalPlayer extends Sprite {
         });
 
         this.moveRequestConfrmed = true;
+        this.assessRequestConfirmed = true;
 
         var elem_ChatTextInput = document.getElementById("PlayerChatMsg");
         document.getElementById("PlayerChatSendMsgBtn").addEventListener('click', (e) => {
@@ -60,6 +62,7 @@ class LocalPlayer extends Sprite {
             right: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D),
             up: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W),
             down: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S),
+            enter: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER)
         };
 
         var self = this;
@@ -144,6 +147,22 @@ class LocalPlayer extends Sprite {
             if(self.moveCache_Pixel.length == 1)
                 self.ChangeDirection(newDir);
         });
+
+        Network.CreateResponse("RecCellInteraction", function (data) {
+            self.assessRequestConfirmed = true;
+            //console.log(`From server, data at cell x: ${data.gridX}, y: ${data.gridY} is: `, data.cellValue);
+            if(data.cellValue == Consts.tileTypes.SIGN) {
+                //console.log(`Sign post reads: ${data.interactionObj.msg}`);
+                Main.DispMessage(data.interactionObj.msg, 3);                
+            }
+        });
+
+        // Single-time key press, only repeats if held after about a second
+        scene.input.keyboard.on('keydown_ENTER', () => {
+            if(self.assessRequestConfirmed)
+            self.assessRequestConfirmed = false;
+            Network.Emit("ReqCellInteraction", self.GetCellDiffByDir());
+        });
     }
 
     Update() {
@@ -227,6 +246,17 @@ class LocalPlayer extends Sprite {
             y: this.gameObjCont.y,
             dir: this.dirIndex
         });
+    }
+
+    GetCellDiffByDir() {
+        if(this.dirIndex == Consts.dirImg.LEFT)
+            return { x: -1, y: 0 };
+        else if(this.dirIndex == Consts.dirImg.RIGHT)
+            return { x: 1, y: 0 };
+        else if(this.dirIndex == Consts.dirImg.UP)
+            return { x: 0, y: -1 };
+        else if(this.dirIndex == Consts.dirImg.DOWN)
+            return { x: 0, y: 1 };
     }
 
     GetSavePack() {

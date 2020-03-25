@@ -11,6 +11,7 @@ for(var i = 0; i < JSON_Overworld.tilesets.length; i++) {
 var playerSpawns = [];
 var enemySpawns = [];
 var mapObjectsByGridPos = [];
+var signsByGridPos = [];
 var walkableMap = [];
 
 // Read the data directly, at least just to make the work required on the various layers nicely explicit.
@@ -94,7 +95,7 @@ for(var i = 0; i < layerObj.objects.length; i++) {
             x: obj.x / JSON_Overworld.tilewidth,
             y: obj.y / JSON_Overworld.tileheight
         }
-        if(obj.type == "PlayerSpawn") {
+        if(obj.type == Consts.spawnTypes.PLAYER) {
             playerSpawns.push(gridPos);
         }
         else {
@@ -115,9 +116,16 @@ for(var i = 0; i < layerObj.objects.length; i++) {
                 };
 
                 mapObjectsByGridPos.push(mapObj);
+                walkableMap[mapObj.gridX][mapObj.gridY] = obj.type;
 
-                // TODO: Just covering walkability her/now, needs to be flushed out to represent all interactable objects
-                walkableMap[mapObj.gridX][mapObj.gridY] = Consts.tileTypes.BLOCK;
+                // Individualize object types and include custom properties where relevant.
+                if(obj.type == Consts.tileTypes.SIGN) {
+                    mapObj["props"] = {};
+                    for(var z = 0; z < obj.properties.length; z++) {
+                        mapObj["props"][obj.properties[z].name] = obj.properties[z].value;
+                    }
+                    signsByGridPos.push(mapObj);
+                }
             }
         }
     }
@@ -140,6 +148,13 @@ module.exports = function() {
     return {
         GetObjectDataByGridPos: () => {
             return mapObjectsByGridPos;
+        },
+        GetSignMessage: (gridPos) => {
+            for (var i = 0; i < signsByGridPos.length; i++) {
+                if(signsByGridPos[i].gridX == gridPos.x && signsByGridPos[i].gridY == gridPos.y) {
+                    return signsByGridPos[i]["props"]["Message"];
+                }
+            }
         },
         GetPlayerSpawns: () => {
             return playerSpawns;

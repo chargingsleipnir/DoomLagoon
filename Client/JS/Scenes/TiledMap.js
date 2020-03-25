@@ -37,18 +37,15 @@ class TiledMapScene extends SceneTransition {
         
         // The only way to show object layer objects using Phaser, so keep them pretty unique wherever possible.
         this.map.createFromObjects('Objects', 11, { key: "volcano", frame: 0 });
-        // TODO: Change the "types" in Tiled into numbers that correspond with Consts.tileTypes
-        // TODO: Likely server-side: Make my own objects out of these to imbue functionality.
-        // TODO: The messages on the signs can be added as a custom property in Tiled!
-        // TODO: Use script that extrudes tiles to eliminate edge bleeding
         // TODO: Player anim controls
         // TODO: Site background - game map, blown up with faded-glass filter over it?
         // TODO: Title page, game-map style with land formed to say "Doom Lagoon"
+        // TODO: Player chat display - Make it a div below the canvas
         for(var i = 0; i < this.map.objects[0].objects.length; i++) {
             var obj = this.map.objects[0].objects[i];
-            if(obj.type == "Sign")
+            if(obj.type == Consts.tileTypes.SIGN)
                 this.map.createFromObjects('Objects', obj.id, { key: "sign", frame: 0 });
-            else if(obj.type == "Spring")
+            else if(obj.type == Consts.tileTypes.SPRING)
                 this.map.createFromObjects('Objects', obj.id, { key: "spring", frame: 0 });
         }
 

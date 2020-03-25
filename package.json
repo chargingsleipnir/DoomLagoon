@@ -17,6 +17,7 @@
     "bcrypt": "^4.0.1",
     "express": "^4.17.1",
     "pg": "^7.18.2",
-    "socket.io": "^2.3.0"
+    "socket.io": "^2.3.0",
+    "tile-extruder": "^2.0.3"
   }
 }

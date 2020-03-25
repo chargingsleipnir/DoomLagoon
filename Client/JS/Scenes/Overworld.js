@@ -21,7 +21,7 @@ class Overworld extends TiledMapScene {
 
         this.LoadMapData('DataFiles/OverworldTilesetsEmbeded.json');
         // Terrain
-        this.load.image('tileset_General', '../../Assets/Map/pipo-map001.png');
+        this.load.image('tileset_General', '../../Assets/Map/pipo-map001_Extruded.png');
         this.load.image('tileset_Grass', '../../Assets/Map/pipo-map001_at-kusa.png');
         this.load.image('tileset_Trees', '../../Assets/Map/pipo-map001_at-mori.png');
         this.load.image('tileset_Sand', '../../Assets/Map/pipo-map001_at-sabaku.png');
@@ -35,22 +35,6 @@ class Overworld extends TiledMapScene {
         this.load.image('sign', '../../Assets/Map/Sign.png');
         this.load.image('spring', '../../Assets/Map/Spring.png');
         this.load.image('volcano', '../../Assets/Map/VolcaonActive.png');
-
-        // Images larger than tile size
-        // this.load.image('imageColl_Castle01', '../../Assets/Map/TopperImageCollection/Castle01.png');
-        // this.load.image('imageColl_Castle02', '../../Assets/Map/TopperImageCollection/Castle02.png');
-        // this.load.image('imageColl_Castle03', '../../Assets/Map/TopperImageCollection/Castle03.png');
-        // this.load.image('imageColl_Castle04', '../../Assets/Map/TopperImageCollection/Castle04.png');
-        // this.load.image('imageColl_Castle05', '../../Assets/Map/TopperImageCollection/Castle05.png');
-        // this.load.image('imageColl_Castle06', '../../Assets/Map/TopperImageCollection/Castle06.png');
-        // this.load.image('imageColl_Mountain', '../../Assets/Map/TopperImageCollection/Mountain.png');
-        // this.load.image('imageColl_Rook', '../../Assets/Map/TopperImageCollection/Rook.png');
-        // this.load.image('imageColl_Tower', '../../Assets/Map/TopperImageCollection/Tower.png');
-        // this.load.image('imageColl_Town01', '../../Assets/Map/TopperImageCollection/Town01.png');
-        // this.load.image('imageColl_Town02', '../../Assets/Map/TopperImageCollection/Town02.png');
-        // this.load.image('imageColl_Town03', '../../Assets/Map/TopperImageCollection/Town03.png');
-        // this.load.image('imageColl_VolcaonActive', '../../Assets/Map/TopperImageCollection/VolcaonActive.png');
-        // this.load.image('imageColl_VolcaonInert', '../../Assets/Map/TopperImageCollection/VolcaonInert.png');
     }
 
     create(initData) {
