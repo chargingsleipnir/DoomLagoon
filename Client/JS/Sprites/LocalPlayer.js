@@ -13,6 +13,7 @@ class LocalPlayer extends Sprite {
     isMoving = false;
 
     keys = null;
+    keyHeld = 0;
     neighbors = { left: 0, right: 0, up: 0, down: 0 };
     
     canCacheNext = false;
@@ -61,6 +62,24 @@ class LocalPlayer extends Sprite {
             down: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S),
             enter: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER)
         };
+
+        this.keys.left.on('down', () => self.keyHeld++);
+        this.keys.left.on('up', StopMoveAnim);
+
+        this.keys.right.on('down', () => self.keyHeld++);
+        this.keys.right.on('up', StopMoveAnim);
+
+        this.keys.up.on('down', () => self.keyHeld++);
+        this.keys.up.on('up', StopMoveAnim);
+
+        this.keys.down.on('down', () => self.keyHeld++);
+        this.keys.down.on('up', StopMoveAnim);
+
+        function StopMoveAnim() {
+            self.keyHeld--;
+            if(self.keyHeld <= 0)
+                self.keyHeld = 0;
+        }
 
         //* DEBUG vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
         Network.CreateResponse("RecCellValue", function (data) {
@@ -244,12 +263,17 @@ class LocalPlayer extends Sprite {
             }
         }
 
-        if(!this.isMoving)
+        if(!this.isMoving) {
+            if(this.keyHeld == 0) {
+                this.Anim_Stop();
+            }
             return;
+        }
 
         // Change image direction upon committing to moving to the next cell
-        if (this.moveFracCovered == 0.0)
+        if (this.moveFracCovered == 0.0) {
             this.ChangeDirection(this.moveCache_Pixel[Consts.moveCacheSlots.TO].dir);
+        }
 
         this.moveDist += this.moveSpeed;
         // Presuming square tiles of course

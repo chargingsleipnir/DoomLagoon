@@ -7,6 +7,7 @@ class Sprite {
     name;
 
     dirIndex;
+    prevDirIndex;
 
     constructor(scene, initGridSpawn, spritesheetKey, dirIndex, name) {
         this.scene = scene;
@@ -17,19 +18,29 @@ class Sprite {
         );
         
         this.dirIndex = dirIndex;
-        this.sprite = scene.add.sprite(16, 8, spritesheetKey, 0);
-        //this.sprite.setScale(1, 1.25);
-        this.sprite.anims.play('walk_' + dirIndex);
+        // TODO: The zero here is having the character start off facing an incorrect direction.
+        // I think I need a single idle image/frame for each direction.
+        this.sprite = scene.add.sprite(16, 8, spritesheetKey, 0);        
 
         this.gameObjCont.add(this.sprite);
         this.name = name || 'I am Error';
     }
 
-    ChangeDirection(dirIndex) {
-        if(this.dirIndex == dirIndex)
+    Anim_Stop() {
+        if(!this.sprite.anims.isPlaying)
             return;
 
+        this.sprite.anims.stop();
+        this.prevDirIndex = -1;
+    }
+
+    ChangeDirection(dirIndex) {
         this.dirIndex = dirIndex;
-        this.sprite.anims.play('walk_' + dirIndex);
+
+        if(this.prevDirIndex == this.dirIndex)
+            return;
+
+        this.sprite.anims.play('overworld_walk_' + dirIndex);
+        this.prevDirIndex = this.dirIndex;
     }
 }

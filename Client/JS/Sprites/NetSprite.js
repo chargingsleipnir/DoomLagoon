@@ -63,6 +63,7 @@ class NetSprite extends Sprite {
         if(!this.isMoving) {
             this.gameObjCont.x = this.moveCache[Consts.moveCacheSlots.TO].x;
             this.gameObjCont.y = this.moveCache[Consts.moveCacheSlots.TO].y;
+            this.Anim_Stop();
             return;
         }
         

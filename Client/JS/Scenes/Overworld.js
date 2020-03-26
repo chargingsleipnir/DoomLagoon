@@ -13,12 +13,11 @@ class Overworld extends TiledMapScene {
 
     // TODO: Player anim controls
     // TODO: Title page, game-map style with land formed to say "Doom Lagoon"
-    // TODO: Player chat display - Make it a div below the canvas
     // TODO: Show controls on options menu
     // TODO: Audio
 
     preload() {
-        this.load.spritesheet('knightRedAxe_Walk', '../../Assets/Sprites/KnightAxeRed_Walking.png', { 
+        this.load.spritesheet('Overworld_FighterAxeBlue', '../../Assets/Sprites/Overworld_FighterAxeBlue.png', { 
             frameWidth: 32,
             frameHeight: 32,
             margin: 1,
@@ -49,19 +48,19 @@ class Overworld extends TiledMapScene {
         var self = this;
         function CreateAnim(dirKey, spritesheetKey, startFrame, endFrame) {
             self.anims.create({
-                key: 'walk_' + dirKey,
+                key: 'overworld_walk_' + dirKey,
                 repeat: -1,
                 frameRate: 12,
                 frames: self.anims.generateFrameNames(spritesheetKey, { start: startFrame, end: endFrame })
             });
         }
 
-        CreateAnim(Consts.dirImg.LEFT, 'knightRedAxe_Walk', 0, 5);
-        CreateAnim(Consts.dirImg.RIGHT, 'knightRedAxe_Walk', 6, 11);
-        CreateAnim(Consts.dirImg.UP, 'knightRedAxe_Walk', 12, 17);
-        CreateAnim(Consts.dirImg.DOWN, 'knightRedAxe_Walk', 18, 23);
+        CreateAnim(Consts.dirImg.LEFT, 'Overworld_FighterAxeBlue', 0, 5);
+        CreateAnim(Consts.dirImg.RIGHT, 'Overworld_FighterAxeBlue', 6, 11);
+        CreateAnim(Consts.dirImg.UP, 'Overworld_FighterAxeBlue', 12, 17);
+        CreateAnim(Consts.dirImg.DOWN, 'Overworld_FighterAxeBlue', 18, 23);
 
-        Main.player = new LocalPlayer(this, initData.orientation, 'knightRedAxe_Walk');
+        Main.player = new LocalPlayer(this, initData.orientation, 'Overworld_FighterAxeBlue');
         
         this.cameras.main.startFollow(Main.player.gameObjCont);
         this.cameras.main.setZoom(1.5);
@@ -96,7 +95,7 @@ class Overworld extends TiledMapScene {
                 self.sprites[data.sprites[i].type][data.sprites[i].id] = new NetSprite(
                     self, 
                     data.sprites[i].gridPos, 
-                    'knightRedAxe_Walk', 
+                    'Overworld_FighterAxeBlue', 
                     data.sprites[i].dir,  
                     data.sprites[i].name, 
                     data.sprites[i].id, 
@@ -110,7 +109,7 @@ class Overworld extends TiledMapScene {
             self.sprites[Consts.spriteTypes.PLAYER][playerData.id] = new NetSprite(
                 self, 
                 playerData.gridPos, 
-                'knightRedAxe_Walk', 
+                'Overworld_FighterAxeBlue', 
                 playerData.dir,  
                 playerData.name, 
                 playerData.id, 
