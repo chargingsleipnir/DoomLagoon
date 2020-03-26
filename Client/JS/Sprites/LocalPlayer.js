@@ -299,7 +299,7 @@ class LocalPlayer extends Sprite {
 
             this.isMoving = this.moveCache_Pixel.length > Consts.moveCacheSlots.TO;
         }
-        Network.Emit("UpdatePixelPos", {
+        Network.Emit("UpdateOrientation", {
             x: this.gameObjCont.x,
             y: this.gameObjCont.y,
             dir: this.dirIndex

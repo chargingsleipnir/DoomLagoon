@@ -11,7 +11,7 @@ class Overworld extends TiledMapScene {
         this.sprites[Consts.spriteTypes.NPC] = {};
     }
 
-    // TODO: Player anim controls
+    // TODO: All anims
     // TODO: Title page, game-map style with land formed to say "Doom Lagoon"
     // TODO: Show controls on options menu
     // TODO: Audio

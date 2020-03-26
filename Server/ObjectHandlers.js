@@ -88,6 +88,7 @@ Player.prototype.SetupNetworkResponses = function (io, socket) {
     });
     socket.on("ReqChangeDir", function (dirData) {
         player.UpdateDir(Consts.dirImg[dirData.key]);
+        sprites.updatePack[Consts.spriteTypes.PLAYER][socket.client.id].dir = player.dir;
         socket.emit("RecChangeDir", player.dir);
     });
     socket.on("ReqMoveToCell", function (dirData) {
@@ -116,7 +117,7 @@ Player.prototype.SetupNetworkResponses = function (io, socket) {
         socket.emit("RecMoveToCell", player.GetMoveData());
     });
 
-    socket.on("UpdatePixelPos", function (updatePack) {
+    socket.on("UpdateOrientation", function (updatePack) {
         sprites.updatePack[Consts.spriteTypes.PLAYER][socket.client.id] = updatePack;
     });
 

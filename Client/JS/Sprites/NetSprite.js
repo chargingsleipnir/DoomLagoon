@@ -54,9 +54,10 @@ class NetSprite extends Sprite {
         this.moveFracCovered.x = 0;
         this.moveFracCovered.y = 0;
 
-        this.isMoving = true;
-
-        this.ChangeDirection(this.moveCache[Consts.moveCacheSlots.TO].dir)
+        if (this.distToCover.x > 0 || this.distToCover.y > 0 || this.moveCache[Consts.moveCacheSlots.TO].dir != this.dirIndex) {
+            this.ChangeDirection(this.moveCache[Consts.moveCacheSlots.TO].dir)
+            this.isMoving = true;
+        }
     }
 
     Update() {

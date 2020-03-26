@@ -26,6 +26,7 @@ class Sprite {
         this.name = name || 'I am Error';
     }
 
+    // TODO: Clean this up. Yes, it works, but at what cost...
     Anim_Stop() {
         if(!this.sprite.anims.isPlaying)
             return;
