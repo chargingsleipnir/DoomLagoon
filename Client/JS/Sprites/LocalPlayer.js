@@ -158,17 +158,11 @@ class LocalPlayer extends Sprite {
 
         var elem_ChatLog = document.getElementById("ChatLog");
         Network.CreateResponse('RecChatLogUpdate', (data) => {
-            // self.chatLog.push(data);
-            // if(chatLog.length > Consts.CHAT_LOG_SIZE)
-            //     chatLog.shift();
-
-            elem_ChatLog.innerHTML = data.msg;
-
-            // TODO: Add latest message to the visible log
-            // Based on how it's built, I doubt I'll even need to how this chat log object
-            // Just get the HTML elem children, and use them as above. All that info is stored in the HTML elements
-
-            console.log(data);
+            var className = data.name == self.name ? "chatLogNameSelf" : "chatLogName";
+            var htmlString = `<li><span class="${className}">${data.name}:</span> ${data.msg}</li>`;
+            var node = Utility.html.FromString(htmlString);
+            elem_ChatLog.appendChild(node);
+            elem_ChatLog.scrollTop = elem_ChatLog.scrollHeight;
         });
 
         // CHAT MESSAGES - Send if button clicked OR if enter pressed while text field is focused.
@@ -185,10 +179,15 @@ class LocalPlayer extends Sprite {
                 SendMsgToServer();
         });
         function SendMsgToServer() {
-            if(elem_ChatTextInput.value != "")
+            if(elem_ChatTextInput.value != "") {
                 Network.Emit("ReqChatLogUpdate", { name: self.name, msg: elem_ChatTextInput.value });
+                elem_ChatTextInput.value = "";
+            }
         }
         document.getElementById("PlayerChatSendMsgBtn").addEventListener('click', SendMsgToServer);
+        document.getElementById("PlayerChatViewBtn").addEventListener('click', () => {
+            elem_ChatLog.classList.toggle('hide');
+        });
 
         // Single-time key press, only repeats if held after about a second
         scene.input.keyboard.on('keydown_ENTER', () => {

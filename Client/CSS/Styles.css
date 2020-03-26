@@ -340,17 +340,27 @@ ul {
 }
 
 #ChatLog {
-    pointer-events: none;
     position: absolute;
     bottom: 40px;
     z-index: 1;
     padding: 5px 10px;
-    width: 960px;
+    width: 940px; /* Compensate for padding */
     height: 200px;
-    background-color: rgba(255, 255, 255, 0.25);
+    background-color: rgba(255, 255, 255, 0.15);
     color: black;
+    overflow-y: scroll;
 }
 
+.chatLogName {
+    font-size: small;
+    font-weight: bold;
+    color: blue;
+}
+.chatLogNameSelf {
+    font-size: small;
+    font-weight: bold;
+    color: red;
+}
 
 #CanvasContainer {
     position: absolute;

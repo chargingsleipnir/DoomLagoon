@@ -38,6 +38,14 @@ var Utility = (() => {
                     x: posX,
                     y: posY
                 };
+            },
+            FromString: function(string, arrTrue) {
+                var template = document.createElement('template');
+                if(!arrTrue)
+                    string = string.trim();
+
+                template.innerHTML = string;
+                return arrTrue ? template.content.children : template.content.firstElementChild;
             }
         }
     }

@@ -44,7 +44,7 @@
     <div id="MainMenu" class="menuPanel bg_Paper512 deadCentreOfScreen">
         <div class="flexFlowRightTop">
             <div class="flexFlowDownCentre">
-                <div class="frame_Wood250x50 flexCentreChild bg_LightGrey"><input id="DispNameField" type="text" placeholder="Display Name" maxlength="10"/></div>
+                <div class="frame_Wood250x50 flexCentreChild bg_LightGrey"><input id="DispNameField" type="text" placeholder="Display Name" maxlength="10" autocomplete="off"/></div>
                 <div class="bg_Button285x60 flexCentreChild disabled"><input id="StartBtn" type="button" value="Play" disabled /></div>
             </div>
             <div class="flexCentreChild"><button id="MainMenuOptionsBtn" class="bg_Button80"><i class="fas fa-cog fa-2x"></i></button></div>
@@ -126,13 +126,19 @@
 
     <div id="FullGameContainer">
         <div id="GameMessageBox" class="centredBlock">This is a potential message from game to player.</div>
-        <div id="ChatLog"></div>
+        <ul id="ChatLog" class="hide"></ul>
         <div id="CanvasContainer"></div>
         <!-- TODO: Make this menu actually sitting within the game, overlapping some of the canvas graphical elements, like a true GUI. -->
         <div id="InGameBarMenu" class=".bgImg">
             <button id="InGameOptionsBtn"><i class="fas fa-cog fa-2x"></i></button>
-            <input type="text" id="PlayerChatMsg" />
+            <input type="text" id="PlayerChatMsg" size="50" autocomplete="off" />
             <button id="PlayerChatSendMsgBtn"><i class="fas fa-paper-plane fa-2x"></i></button>
+            <button id="PlayerChatViewBtn">
+                <span class="fa-layers">
+                    <i class="far fa-comment-dots fa-2x"></i>
+                    <i class="far fa-eye"></i>
+                </span>
+            </button>
         </div>
     </div>
 </body>
