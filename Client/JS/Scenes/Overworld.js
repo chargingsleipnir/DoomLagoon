@@ -17,14 +17,12 @@ class Overworld extends TiledMapScene {
     // TODO: Audio
 
     preload() {
-        this.load.spritesheet('Overworld_FighterAxeBlue', '../../Assets/Sprites/Overworld_FighterAxeBlue.png', { 
-            frameWidth: 32,
-            frameHeight: 32,
-            margin: 1,
-            spacing: 1
-        });
+        Main.animData.skins.forEach((skin) => {
+            this.load.spritesheet(Main.animData.skinPrefix + skin, '../../Assets/Sprites/' + Main.animData.skinPrefix + skin + '.png', { frameWidth: 32, frameHeight: 32, margin: 1, spacing: 1 });
+        }, this);
 
         this.LoadMapData('DataFiles/OverworldTilesetsEmbeded.json');
+
         // Terrain
         this.load.image('tileset_General', '../../Assets/Map/pipo-map001_Extruded.png');
         this.load.image('tileset_Grass', '../../Assets/Map/pipo-map001_at-kusa.png');
@@ -35,7 +33,6 @@ class Overworld extends TiledMapScene {
         this.load.image('tileset_MountainBrown', '../../Assets/Map/pipo-map001_at-yama2.png');
         this.load.image('tileset_MountainGrey', '../../Assets/Map/pipo-map001_at-yama3.png');
 
-
         // Single images for Tiled object layer items
         this.load.image('sign', '../../Assets/Map/Sign.png');
         this.load.image('spring', '../../Assets/Map/Spring.png');
@@ -45,22 +42,18 @@ class Overworld extends TiledMapScene {
     create(initData) {
         super.create();
 
-        var self = this;
-        function CreateAnim(dirKey, spritesheetKey, startFrame, endFrame) {
-            self.anims.create({
-                key: 'overworld_walk_' + dirKey,
-                repeat: -1,
-                frameRate: 12,
-                frames: self.anims.generateFrameNames(spritesheetKey, { start: startFrame, end: endFrame })
-            });
-        }
+        Main.animData.skins.forEach((skin) => {
+            Main.animData.keys.forEach((key) => {
+                this.anims.create({
+                    key	: skin + '-' + key,
+                    frames : this.anims.generateFrameNumbers(Main.animData.skinPrefix + skin, { start: Main.animData.frames[key].start, end: Main.animData.frames[key].end }),
+                    repeat : Main.animData.repeat,
+                    frameRate : Main.animData.frameRate
+                });
+            }, this);
+        }, this);
 
-        CreateAnim(Consts.dirImg.LEFT, 'Overworld_FighterAxeBlue', 0, 5);
-        CreateAnim(Consts.dirImg.RIGHT, 'Overworld_FighterAxeBlue', 6, 11);
-        CreateAnim(Consts.dirImg.UP, 'Overworld_FighterAxeBlue', 12, 17);
-        CreateAnim(Consts.dirImg.DOWN, 'Overworld_FighterAxeBlue', 18, 23);
-
-        Main.player = new LocalPlayer(this, initData.orientation, 'Overworld_FighterAxeBlue');
+        Main.player = new LocalPlayer(this, initData.orientation, Main.animData.skinPrefix + 'FighterAxeBlue');
         
         this.cameras.main.startFollow(Main.player.gameObjCont);
         this.cameras.main.setZoom(1.5);
@@ -86,6 +79,7 @@ class Overworld extends TiledMapScene {
             }
         });
 
+        var self = this;
         //------------------------ SETUP NETWORK CALLS
 
         // First emission sent from server - assign proper id, setup map, etc.
@@ -95,7 +89,7 @@ class Overworld extends TiledMapScene {
                 self.sprites[data.sprites[i].type][data.sprites[i].id] = new NetSprite(
                     self, 
                     data.sprites[i].gridPos, 
-                    'Overworld_FighterAxeBlue', 
+                    Main.animData.skinPrefix + 'FighterAxeBlue', 
                     data.sprites[i].dir,  
                     data.sprites[i].name, 
                     data.sprites[i].id, 
@@ -109,7 +103,7 @@ class Overworld extends TiledMapScene {
             self.sprites[Consts.spriteTypes.PLAYER][playerData.id] = new NetSprite(
                 self, 
                 playerData.gridPos, 
-                'Overworld_FighterAxeBlue', 
+                Main.animData.skinPrefix + 'FighterAxeBlue', 
                 playerData.dir,  
                 playerData.name, 
                 playerData.id, 

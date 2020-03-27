@@ -20,7 +20,9 @@ class Sprite {
         this.dirIndex = dirIndex;
         // TODO: The zero here is having the character start off facing an incorrect direction.
         // I think I need a single idle image/frame for each direction.
-        this.sprite = scene.add.sprite(16, 8, spritesheetKey, 0);        
+        this.sprite = scene.add.sprite(16, 8, spritesheetKey, 0);  
+        
+        console.log(this.sprite.anims);
 
         this.gameObjCont.add(this.sprite);
         this.name = name || 'I am Error';
@@ -41,7 +43,11 @@ class Sprite {
         if(this.prevDirIndex == this.dirIndex)
             return;
 
-        this.sprite.anims.play('overworld_walk_' + dirIndex);
+        this.sprite.anims.play("FighterAxeBlue-" + Main.animData.keys[dirIndex]);
         this.prevDirIndex = this.dirIndex;
+    }
+
+    SetSkin(skinID) {
+
     }
 }

@@ -28,6 +28,7 @@ var Main = (() => {
     return {
         game: null,
         player: null,
+        animData: null,
         phaserConfig: {
             title: "Doom Lagoon",
             type: Phaser.AUTO,

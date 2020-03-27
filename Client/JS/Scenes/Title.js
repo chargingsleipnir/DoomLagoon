@@ -1,3 +1,10 @@
+// This will essentially be the preloader, showing loading bars if necessary,
+// And only when that's done, allowing click/enter-to-play, etc.
+
+// TODO: What would probably make the most sense to achieve this, is:
+// a) A proper title scene to load the background/load bars, then
+// b) Another scene (Loader) within this one (doesn't drop those assets yet), just extends the load bars while loading everything else.
+
 class Title extends SceneTransition {
 
     constructor() {
@@ -13,38 +20,20 @@ class Title extends SceneTransition {
 
     preload ()
     {
-        // TODO: Erase these template items
-        this.load.setBaseURL('http://labs.phaser.io');
-        this.load.image('sky', 'assets/skies/space3.png');
-        this.load.image('logo', 'assets/sprites/phaser3-logo.png');
-        this.load.image('red', 'assets/particles/red.png');
+        this.load.json('AnimData', '../../JS/Sprites/AnimationData.json');
     }
 
     create ()
     {
         super.create();
+
+        // TODO: This can't really reference the file this deeply once I'm getting other animations in play
+        Main.animData = this.cache.json.get('AnimData').overworld.walk;
+
         // Increase the size just for this openner.
         this.mask.setScale(this.MASK_MAX_SCALE);
 
-        this.add.image(500, 300, 'sky');
-
         this.add.text(20, 20, "Loading game...");
-
-        var particles = this.add.particles('red');
-
-        var emitter = particles.createEmitter({
-            speed: 100,
-            scale: { start: 1, end: 0 },
-            blendMode: 'ADD'
-        });
-
-        var logo = this.physics.add.image(400, 100, 'logo');
-
-        logo.setVelocity(100, 200);
-        logo.setBounce(1, 1);
-        logo.setCollideWorldBounds(true);
-
-        emitter.startFollow(logo);
 
         var scene = this;
         // Check local storage, database info, etc. to pass to play state
