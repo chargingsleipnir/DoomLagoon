@@ -3,12 +3,6 @@ var validator = require('validator');
 var mapData = require('./MapDataReader.js')();
 var Consts = require('../Shared/Consts.js');
 
-var MapSprite = function (spriteType, id) {
-    this.spriteType = spriteType;
-    this.id = id;
-}
-
-
 // Tracking the data of every sprite obj in the game
 var sprites = {
     allData: {},
@@ -23,167 +17,31 @@ sprites.updatePack[Consts.spriteTypes.PLAYER] = {};
 sprites.updatePack[Consts.spriteTypes.ENEMY] = {};
 sprites.updatePack[Consts.spriteTypes.NPC] = {};
 
-// TODO: Make parent - Sprite - that covers all players, NPCs, and enemies
-function Player(socket, playerData) {
-    this.socket = socket;
-    this.id = playerData.id;
-    this.name = playerData.name;
-    this.gridPos = playerData.gridPos;
-    this.dir = playerData.dir;
+var playerFile = require('./Player.js')(sprites);
+var enemyFactory = require('./EnemyFactory.js')(sprites);
 
-    this.mapSprite = new MapSprite(Consts.spriteTypes.PLAYER, this.id);
-    mapData.SetValue(this.gridPos, this.mapSprite);
-    this.LookForAndUpdateNeighbors(this.gridPos, this.mapSprite);
-
-    this.neighbors = {};
-    this.UpdateNeighbors();
-}
-Player.prototype.SetupNetworkResponses = function (io, socket) {
-    
-    var player = this;
-
-    // JUST FOR TESTING - TODO: EXPAND SERVER TESTING FUNCTIONS
-    socket.on("ReqCellValue", function (cell) {
-        socket.emit("RecCellValue", {
-            gridX: cell.x,
-            gridY: cell.y,
-            cellValue: mapData.GetValue(cell)
-        });
-    });
-
-    socket.on("ReqCellInteraction", function (cellDiff) {
-        var newPos = { 
-            x: player.gridPos.x + cellDiff.x,
-            y: player.gridPos.y + cellDiff.y
-        };
-        const value = mapData.GetValue(newPos);
-
-        var interactionObj;
-
-        if(value == Consts.tileTypes.SIGN) {
-            interactionObj = {
-                msg: mapData.GetSignMessage(newPos)
-            }
-        }
-
-        socket.emit("RecCellInteraction", {
-            gridX: newPos.x,
-            gridY: newPos.y,
-            cellValue: value,
-            interactionObj: interactionObj
-        });
-    });
-
-    // TODO: For everything related to neighbors, account for reaching the edge of the screen and being out of bounds!!
-    socket.on("ReqNeighborValue", function (cellDiff) {
-        var newPos = { 
-            x: player.gridPos.x + cellDiff.x,
-            y: player.gridPos.y + cellDiff.y
-        };
-        socket.emit("RecCellValue", {
-            gridX: newPos.x,
-            gridY: newPos.y,
-            cellValue: mapData.GetValue(newPos)
-        });
-    });
-    socket.on("ReqChangeDir", function (dirData) {
-        player.UpdateDir(Consts.dirImg[dirData.key]);
-        sprites.updatePack[Consts.spriteTypes.PLAYER][socket.client.id].dir = player.dir;
-        socket.emit("RecChangeDir", player.dir);
-    });
-    socket.on("ReqMoveToCell", function (dirData) {
-        var newPos = { 
-            x: player.gridPos.x + dirData.cellDiff.x,
-            y: player.gridPos.y + dirData.cellDiff.y
-        };
-
-        if (mapData.GetValue(newPos) == Consts.tileTypes.WALK) {  
-            // Tell old neighbors about move out
-            mapData.SetValue(player.gridPos, Consts.tileTypes.WALK);
-            player.LookForAndUpdateNeighbors(player.gridPos, Consts.tileTypes.WALK);
-            // Tell new neighbors about move in
-            mapData.SetValue(newPos, player.mapSprite);
-            player.LookForAndUpdateNeighbors(newPos, player.mapSprite);
-            // Update own position
-            player.UpdateMove(newPos, Consts.dirImg[dirData.key]);
-            // Update who my own neighbors are
-            player.UpdateNeighbors();
-        }
-        // If all is working correctly, this should never actually come through here, as the client will have stopped the entire call from being made by checking it's neighbors ahead of time.
-        else {
-            player.UpdateDir(Consts.dirImg[dirData.key]);
-        }
-
-        socket.emit("RecMoveToCell", player.GetMoveData());
-    });
-
-    socket.on("UpdateOrientation", function (updatePack) {
-        sprites.updatePack[Consts.spriteTypes.PLAYER][socket.client.id] = updatePack;
-    });
-
-    socket.on("ReqChatLogUpdate", function (data) {
-        data["msg"] = validator.escape(data["msg"]);
-        io.emit("RecChatLogUpdate", data);
-    });
-}
-Player.prototype.UpdateMove = function (newPos, dir) {
-    this.gridPos.x = newPos.x;
-    this.gridPos.y = newPos.y;
-    this.dir = dir;
-};
-Player.prototype.UpdateDir = function (dir) {
-    this.dir = dir;
-};
-Player.prototype.GetMoveData = function() {
-    return {
-        x: this.gridPos.x,
-        y: this.gridPos.y,
-        dir: this.dir
-    };
-}
-Player.prototype.LookForAndUpdateNeighbors = function (cell, value) {
-    // Update any potentially new neighbors of this map call that they also have a new neighbor.
-    var cellValue = mapData.GetValueXY(cell.x - 1, cell.y);
-    if (cellValue.spriteType)
-        sprites.allData[cellValue.spriteType][cellValue.id].UpdateNeighbor('right', value);
-
-    cellValue = mapData.GetValueXY(cell.x + 1, cell.y);
-    if (cellValue.spriteType)
-        sprites.allData[cellValue.spriteType][cellValue.id].UpdateNeighbor('left', value);
-
-    cellValue = mapData.GetValueXY(cell.x, cell.y -1);
-    if (cellValue.spriteType)
-        sprites.allData[cellValue.spriteType][cellValue.id].UpdateNeighbor('down', value);
-
-    cellValue = mapData.GetValueXY(cell.x, cell.y + 1);
-    if (cellValue.spriteType)
-        sprites.allData[cellValue.spriteType][cellValue.id].UpdateNeighbor('up', value);
-}
-Player.prototype.UpdateNeighbors = function () {
-    // Get new neighbors
-    this.neighbors.left = mapData.GetValueOffset(this.gridPos, -1, 0);
-    this.neighbors.right = mapData.GetValueOffset(this.gridPos, 1, 0);
-    this.neighbors.up = mapData.GetValueOffset(this.gridPos, 0, -1);
-    this.neighbors.down = mapData.GetValueOffset(this.gridPos, 0, 1);
-    
-    this.socket.emit('RecUpdateNeighbors', { neighbors: this.neighbors });
-}
-// Recieve new neighbor. TODO: Maybe send back more complicated occupancy data? Maybe not necessary.
-Player.prototype.UpdateNeighbor = function (side, occupancy) {
-    this.neighbors[side] = occupancy;
-    this.socket.emit('RecUpdateNeighbor', { side: side, occupancy: occupancy });
-};
-Player.prototype.GetInitPack = function () {
-    return {
-        type: Consts.spriteTypes.PLAYER,
-        id: this.id,
-        name: this.name,
-        gridPos: this.gridPos,
-        dir: this.dir  
-    }
-}
+enemyFactory.PopulateSpawnPoints();
 
 module.exports = function(dbHdlr) {
+
+    function LookForAndUpdateNeighbors(cell, value) {
+        // Update any potentially new neighbors of this map call that they also have a new neighbor.
+        var cellValue = mapData.GetValueXY(cell.x - 1, cell.y);
+        if (cellValue.spriteType)
+            sprites.allData[cellValue.spriteType][cellValue.id].UpdateNeighbor('right', value);
+    
+        cellValue = mapData.GetValueXY(cell.x + 1, cell.y);
+        if (cellValue.spriteType)
+            sprites.allData[cellValue.spriteType][cellValue.id].UpdateNeighbor('left', value);
+    
+        cellValue = mapData.GetValueXY(cell.x, cell.y -1);
+        if (cellValue.spriteType)
+            sprites.allData[cellValue.spriteType][cellValue.id].UpdateNeighbor('down', value);
+    
+        cellValue = mapData.GetValueXY(cell.x, cell.y + 1);
+        if (cellValue.spriteType)
+            sprites.allData[cellValue.spriteType][cellValue.id].UpdateNeighbor('up', value);
+    }
 
     return {
         InitSocketCalls: function (io, socket) {
@@ -246,7 +104,8 @@ module.exports = function(dbHdlr) {
                 socket.emit("GetServerGameData", { sprites: spriteInitPack });
                 
                 // Player's been created, update their neighbors list right away, as this will always determine what their next move can be locally.
-                var player = new Player(socket, playerData.initPack);
+                var player = playerFile.GetNewPlayer(socket, playerData.initPack);
+                LookForAndUpdateNeighbors(player.gridPos, player.mapSprite);
                 player.UpdateNeighbors();
 
                 // Add player to lists
@@ -258,6 +117,35 @@ module.exports = function(dbHdlr) {
 
                 // Send new player data to all other players
                 socket.broadcast.emit("AddNewPlayer", playerData.initPack);
+            });
+
+            socket.on("ReqMoveToCell", function (dirData) {
+
+                var player = sprites.allData[Consts.spriteTypes.PLAYER][socket.client.id];
+
+                var newPos = { 
+                    x: player.gridPos.x + dirData.cellDiff.x,
+                    y: player.gridPos.y + dirData.cellDiff.y
+                };
+        
+                if (mapData.GetValue(newPos) == Consts.tileTypes.WALK) {  
+                    // Tell old neighbors about move out
+                    mapData.SetValue(player.gridPos, Consts.tileTypes.WALK);
+                    LookForAndUpdateNeighbors(player.gridPos, Consts.tileTypes.WALK);
+                    // Tell new neighbors about move in
+                    mapData.SetValue(newPos, player.mapSprite);
+                    LookForAndUpdateNeighbors(newPos, player.mapSprite);
+                    // Update own position
+                    player.UpdateMove(newPos, Consts.dirImg[dirData.key]);
+                    // Update who my own neighbors are
+                    player.UpdateNeighbors();
+                }
+                // If all is working correctly, this should never actually come through here, as the client will have stopped the entire call from being made by checking it's neighbors ahead of time.
+                else {
+                    player.UpdateDir(Consts.dirImg[dirData.key]);
+                }
+        
+                socket.emit("RecMoveToCell", player.GetMoveData());
             });
 
             // Not a user-made function

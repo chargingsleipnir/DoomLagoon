@@ -37,6 +37,11 @@ class Overworld extends TiledMapScene {
         this.load.image('sign', '../../Assets/Map/Sign.png');
         this.load.image('spring', '../../Assets/Map/Spring.png');
         this.load.image('volcano', '../../Assets/Map/VolcaonActive.png');
+
+        this.load.image('chestBrownClosed', '../../Assets/Map/ChestBrownClosed.png');
+        this.load.image('chestBrownOpen', '../../Assets/Map/ChestBrownOpen.png');
+        this.load.image('chestGreenClosed', '../../Assets/Map/ChestGreenClosed.png');
+        this.load.image('chestGreenOpen', '../../Assets/Map/ChestGreenOpen.png');
     }
 
     create(initData) {

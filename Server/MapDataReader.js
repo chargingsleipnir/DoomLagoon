@@ -12,6 +12,7 @@ var playerSpawns = [];
 var enemySpawns = [];
 var mapObjectsByGridPos = [];
 var signsByGridPos = [];
+var chestsByGridPos = [];
 var walkableMap = [];
 
 // Read the data directly, at least just to make the work required on the various layers nicely explicit.
@@ -99,7 +100,10 @@ for(var i = 0; i < layerObj.objects.length; i++) {
             playerSpawns.push(gridPos);
         }
         else {
-            enemySpawns.push(gridPos);
+            enemySpawns.push({
+                name: obj.name,
+                gridPos: gridPos
+            });
         }
     }
     else {
@@ -125,6 +129,13 @@ for(var i = 0; i < layerObj.objects.length; i++) {
                         mapObj["props"][obj.properties[z].name] = obj.properties[z].value;
                     }
                     signsByGridPos.push(mapObj);
+                }
+                else if(obj.type == Consts.tileTypes.CHEST) {
+                    mapObj["props"] = {};
+                    for(var z = 0; z < obj.properties.length; z++) {
+                        mapObj["props"][obj.properties[z].name] = obj.properties[z].value;
+                    }
+                    chestsByGridPos.push(mapObj);
                 }
             }
         }
@@ -156,6 +167,16 @@ module.exports = function() {
                 }
             }
         },
+        GetChestContents: (gridPos) => {
+            for (var i = 0; i < chestsByGridPos.length; i++) {
+                if(chestsByGridPos[i].gridX == gridPos.x && chestsByGridPos[i].gridY == gridPos.y) {
+                    return {
+                        chestType: chestsByGridPos[i]["props"]["chestType"],
+                        upgrade: chestsByGridPos[i]["props"]["upgrade"]
+                    };
+                }
+            }
+        },
         GetPlayerSpawns: () => {
             return playerSpawns;
         },
@@ -176,6 +197,9 @@ module.exports = function() {
         },
         GetValueOffset: (cell, offsetX, offsetY) => {
             return walkableMap[cell.x + offsetX][cell.y + offsetY];
+        },
+        GetMapSprite(spriteType, id) {
+            return { spriteType: spriteType, id: id };
         }
     }
 }

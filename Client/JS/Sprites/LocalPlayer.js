@@ -173,6 +173,12 @@ class LocalPlayer extends Sprite {
                 //console.log(`Sign post reads: ${data.interactionObj.msg}`);
                 Main.DispMessage(data.interactionObj.msg, 3);                
             }
+            else if(data.cellValue == Consts.tileTypes.CHEST) {
+                // TODO: If chest is closed and of lesser upgrade, get what's in it
+                // TODO: Swap closed chest for open.
+                
+                console.log(`Chest type: ${data.interactionObj.chestType} hold upgrade: ${data.interactionObj.upgrade}`);             
+            }
         });
 
         var elem_ChatLog = document.getElementById("ChatLog");

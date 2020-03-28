@@ -20,9 +20,7 @@ class Sprite {
         this.dirIndex = dirIndex;
         // TODO: The zero here is having the character start off facing an incorrect direction.
         // I think I need a single idle image/frame for each direction.
-        this.sprite = scene.add.sprite(16, 8, spritesheetKey, 0);  
-        
-        console.log(this.sprite.anims);
+        this.sprite = scene.add.sprite(16, 8, spritesheetKey, 0);
 
         this.gameObjCont.add(this.sprite);
         this.name = name || 'I am Error';

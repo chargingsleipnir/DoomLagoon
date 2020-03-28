@@ -40,10 +40,25 @@ class TiledMapScene extends SceneTransition {
         this.map.createFromObjects('Objects', 11, { key: "volcano", frame: 0 });
         for(var i = 0; i < this.map.objects[0].objects.length; i++) {
             var obj = this.map.objects[0].objects[i];
-            if(obj.type == Consts.tileTypes.SIGN)
+            if(obj.type == Consts.tileTypes.SIGN) {
                 this.map.createFromObjects('Objects', obj.id, { key: "sign", frame: 0 });
-            else if(obj.type == Consts.tileTypes.SPRING)
+            }
+            else if(obj.type == Consts.tileTypes.SPRING) {
                 this.map.createFromObjects('Objects', obj.id, { key: "spring", frame: 0 });
+            }
+            // TODO: Check initial world data and set chests appropriately. (make it per player? So the chests aren't universally open/closed?)
+            else if(obj.type == Consts.tileTypes.CHEST) {
+                for(var j = 0; j < obj.properties.length; j++) {
+                    if(obj.properties[j].name == "chestType") {
+                        if(obj.properties[j].value == Consts.chestTypes.EQUIPMENT) {
+                            this.map.createFromObjects('Objects', obj.id, { key: "chestBrownClosed", frame: 0 });
+                        }
+                        else if(obj.properties[j].value == Consts.chestTypes.ABILITY) {
+                            this.map.createFromObjects('Objects', obj.id, { key: "chestGreenClosed", frame: 0 });
+                        }
+                    }
+                }
+            }
         }
 
         //Foreground Layer
