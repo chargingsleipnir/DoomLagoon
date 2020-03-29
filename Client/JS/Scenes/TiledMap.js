@@ -33,7 +33,7 @@ class TiledMapScene extends SceneTransition {
         this.map.createStaticLayer('Terrain', [tileset_General, tileset_Grass, tileset_Sand, tileset_Dirt, tileset_Water], 0, 0);
         this.map.createStaticLayer('Transparent tiles', [tileset_General, tileset_Trees, tileset_MountainBrown, tileset_MountainGrey], 0, 0);
         var topLayer = this.map.createStaticLayer('InfrontOfCharacters', [tileset_General], 0, 0);
-        topLayer.depth = 1;
+        topLayer.depth = Consts.depthExceptions.TILEMAP_OVERLAP_LAYER;
         
         // The only way to show object layer objects using Phaser, so keep them pretty unique wherever possible.
         //* The client is merely displaying these objects, it's the server that's handling interaction.

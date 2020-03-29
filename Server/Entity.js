@@ -1,7 +1,7 @@
 var mapData = require('./MapDataReader.js')();
 var Consts = require('../Shared/Consts.js');
 
-module.exports = function(sprites, spriteType) {
+module.exports = function(sprites) {
 
     class Entity {
 
@@ -17,7 +17,7 @@ module.exports = function(sprites, spriteType) {
             this.gridPos = initData.gridPos;
             this.dir = initData.dir;
 
-            this.mapSprite = mapData.GetMapSprite(spriteType, this.id);
+            this.mapSprite = initData.cellData;
             mapData.SetValue(this.gridPos, this.mapSprite);
 
             this.neighbors = {};
@@ -52,7 +52,7 @@ module.exports = function(sprites, spriteType) {
         };
         GetInitPack() {
             return {
-                type: spriteType,
+                type: this.mapSprite.spriteType,
                 id: this.id,
                 name: this.name,
                 gridPos: this.gridPos,
@@ -62,6 +62,6 @@ module.exports = function(sprites, spriteType) {
     }
 
     return {
-        EntityClass: Entity
+        Entity: Entity
     }
 }

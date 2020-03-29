@@ -5,7 +5,8 @@
             "skins"	:	[
                 "FighterAxeBlue",
                 "LordSwordBlue",
-                "KnightLanceBlue"
+                "KnightLanceBlue",
+                "KnightAxeRed"
             ],
             "keys"	: [
                 "overworld_walk_LEFT",

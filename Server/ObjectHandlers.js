@@ -17,10 +17,16 @@ sprites.updatePack[Consts.spriteTypes.PLAYER] = {};
 sprites.updatePack[Consts.spriteTypes.ENEMY] = {};
 sprites.updatePack[Consts.spriteTypes.NPC] = {};
 
-var playerFile = require('./Player.js')(sprites);
+var playerModule = require('./Player.js')(sprites);
 var enemyFactory = require('./EnemyFactory.js')(sprites);
 
-enemyFactory.PopulateSpawnPoints();
+// One-time set up enemies
+var enemies = enemyFactory.PopulateSpawnPoints();
+
+enemies.forEach(enemy => {
+    sprites.allData[Consts.spriteTypes.ENEMY][enemy.id] = enemy;
+    sprites.updatePack[Consts.spriteTypes.ENEMY][enemy.id] = enemy.GetUpdatePack();
+});
 
 module.exports = function(dbHdlr) {
 
@@ -104,7 +110,7 @@ module.exports = function(dbHdlr) {
                 socket.emit("GetServerGameData", { sprites: spriteInitPack });
                 
                 // Player's been created, update their neighbors list right away, as this will always determine what their next move can be locally.
-                var player = playerFile.GetNewPlayer(socket, playerData.initPack);
+                var player = new playerModule.Player(socket, playerData.initPack);
                 LookForAndUpdateNeighbors(player.gridPos, player.mapSprite);
                 player.UpdateNeighbors();
 

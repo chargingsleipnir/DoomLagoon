@@ -37,6 +37,9 @@ class LocalPlayer extends Sprite {
         var dispName = scene.add.text((this.sprite.width * 0.5), -(this.sprite.height), MainMenu.GetDispName(), Consts.DISP_NAME_STYLE);
         dispName.setOrigin(0.5);
         this.gameObjCont.add(dispName);
+        // TODO: Works for now, but is really not good. I need the depth of the display name to NOT be restriced by the parent container,
+        // but that doesn't seem possible, so I'm just moving the whole container up, and the highest tile map layer even higher.
+        this.gameObjCont.depth = Consts.depthExceptions.PLAYER_CONT;
 
         this.moveCache_Grid.push({
             x: initOrientation.x,

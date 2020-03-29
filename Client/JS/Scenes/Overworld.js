@@ -90,17 +90,18 @@ class Overworld extends TiledMapScene {
         // First emission sent from server - assign proper id, setup map, etc.
         Network.CreateResponse("GetServerGameData", function (data) {
             for (let i = 0; i < data.sprites.length; i++) {
-                // TODO: Include direction
                 self.sprites[data.sprites[i].type][data.sprites[i].id] = new NetSprite(
                     self, 
                     data.sprites[i].gridPos, 
-                    Main.animData.skinPrefix + 'FighterAxeBlue', 
+                    Main.animData.skinPrefix + data.sprites[i].name, 
                     data.sprites[i].dir,  
                     data.sprites[i].name, 
                     data.sprites[i].id, 
                     data.sprites[i].type == Consts.spriteTypes.PLAYER
                 );
             }
+
+            console.log(self.sprites);
         });
 
         // and tell everyone else about player. Adding new players after this player has joined

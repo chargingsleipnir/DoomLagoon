@@ -7,6 +7,8 @@
     exports.moveCacheSlots = { FROM: 0, TO: 1, NEXT: 2 };
     exports.spawnTypes = { PLAYER: 0, ENEMY: 1, NPC: 2 };
 
+    exports.depthExceptions = { PLAYER_CONT: 2, TILEMAP_OVERLAP_LAYER: 3 }
+
     exports.tileTypes = { BLOCK: 0, WALK: 1, SIGN: 2, SPRING: 3, CHEST: 4, CAVERN: 5 };
     exports.chestTypes = { EQUIPMENT: 0, ABILITY: 1 };
     exports.equipmentUpgrades = { FIGHTER: 0, LORD: 1, KNIGHT: 2 };

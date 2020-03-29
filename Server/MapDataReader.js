@@ -198,8 +198,11 @@ module.exports = function() {
         GetValueOffset: (cell, offsetX, offsetY) => {
             return walkableMap[cell.x + offsetX][cell.y + offsetY];
         },
-        GetMapSprite(spriteType, id) {
-            return { spriteType: spriteType, id: id };
+        GetTileWidth: () => {
+            return JSON_Overworld.tilewidth;
+        },
+        GetTileHeight: () => {
+            return JSON_Overworld.tileheight;
         }
     }
 }

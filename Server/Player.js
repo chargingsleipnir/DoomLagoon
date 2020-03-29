@@ -1,16 +1,21 @@
 var mapData = require('./MapDataReader.js')();
 var Consts = require('../Shared/Consts.js');
 
-
 module.exports = function(sprites) {
 
-    const EntityModule = require('./Entity.js')(sprites, Consts.spriteTypes.PLAYER);
+    const entityModule = require('./Entity.js')(sprites);
 
-    class Player extends EntityModule.EntityClass {
+    class Player extends entityModule.Entity {
 
         socket
 
         constructor(socket, playerData) {
+
+            playerData.cellData = { 
+                spriteType: Consts.spriteTypes.PLAYER, 
+                id: socket.client.id 
+            };
+
             super(playerData);
             this.socket = socket;
         }
@@ -94,8 +99,6 @@ module.exports = function(sprites) {
     }
 
     return {
-        GetNewPlayer: (socket, playerData) => {
-            return new Player(socket, playerData);
-        }
+        Player: Player
     }
 }
