@@ -398,8 +398,14 @@
                 {
                  "height":0,
                  "id":128,
-                 "name":"KnightAxeRed",
+                 "name":"",
                  "point":true,
+                 "properties":[
+                        {
+                         "name":"enemyType",
+                         "type":"int",
+                         "value":0
+                        }],
                  "rotation":0,
                  "type":"1",
                  "visible":true,
@@ -410,8 +416,14 @@
                 {
                  "height":0,
                  "id":129,
-                 "name":"KnightAxeRed",
+                 "name":"",
                  "point":true,
+                 "properties":[
+                        {
+                         "name":"enemyType",
+                         "type":"int",
+                         "value":0
+                        }],
                  "rotation":0,
                  "type":"1",
                  "visible":true,
@@ -422,8 +434,14 @@
                 {
                  "height":0,
                  "id":130,
-                 "name":"KnightAxeRed",
+                 "name":"",
                  "point":true,
+                 "properties":[
+                        {
+                         "name":"enemyType",
+                         "type":"int",
+                         "value":0
+                        }],
                  "rotation":0,
                  "type":"1",
                  "visible":true,
@@ -434,8 +452,14 @@
                 {
                  "height":0,
                  "id":131,
-                 "name":"KnightAxeRed",
+                 "name":"",
                  "point":true,
+                 "properties":[
+                        {
+                         "name":"enemyType",
+                         "type":"int",
+                         "value":0
+                        }],
                  "rotation":0,
                  "type":"1",
                  "visible":true,

@@ -99,11 +99,16 @@ for(var i = 0; i < layerObj.objects.length; i++) {
         if(obj.type == Consts.spawnTypes.PLAYER) {
             playerSpawns.push(gridPos);
         }
-        else {
-            enemySpawns.push({
-                name: obj.name,
-                gridPos: gridPos
-            });
+        else if(obj.type == Consts.spawnTypes.ENEMY) {
+            var spawnObj = {
+                gridPos: gridPos,
+                props: {}
+            }
+            for(var j = 0; j < obj.properties.length; j++) {
+                spawnObj.props[obj.properties[j].name] = obj.properties[j].value;
+            }
+
+            enemySpawns.push(spawnObj);
         }
     }
     else {

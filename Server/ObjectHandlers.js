@@ -1,7 +1,7 @@
-// TODO: Run validator on pretty much everything.
-var validator = require('validator');
 var mapData = require('./MapDataReader.js')();
 var Consts = require('../Shared/Consts.js');
+
+// TODO: Battle handler/logic
 
 // Tracking the data of every sprite obj in the game
 var sprites = {

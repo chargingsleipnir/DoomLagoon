@@ -1,3 +1,5 @@
+// TODO: Run validator on pretty much everything.
+var validator = require('validator');
 var mapData = require('./MapDataReader.js')();
 var Consts = require('../Shared/Consts.js');
 

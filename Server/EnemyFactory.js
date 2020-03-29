@@ -13,8 +13,14 @@ module.exports = function(sprites) {
 
     class Enemy extends entityModule.Entity {
 
-        // TODO: On top of strength, speed, etc, have a deathCooldown property.
+        // TODO: deathCooldown property...
         // Just make a finite amount of enemies, amd have them "die", and re-animate at their given spawn point after the cooldown.
+
+        type = -1;
+        spawnPos;
+        hp;
+        strength;
+        deathCooldown;
 
         constructor(enemySpawnObj) {
             enemySpawnObj.id = enemyID;
@@ -22,13 +28,32 @@ module.exports = function(sprites) {
             // Not set in Tiled - no real need to be
             enemySpawnObj.dir = Consts.dirImg.DOWN;
 
+            // Add the sub-typing into the cell data to reach the Client
+            var enemyType = enemySpawnObj.props['enemyType'];
             enemySpawnObj.cellData = { 
                 spriteType: Consts.spriteTypes.ENEMY,
                 id: enemySpawnObj.id,
-                enemyType: Consts.enemyTypes.KNIGHT_AXE_RED
+                enemyType: !isNaN(enemyType) ? enemyType : null
             };
 
+            if(enemySpawnObj.cellData.enemyType == null)
+                console.error("Some Enemy not given an enemy type in Tiled");
+
             super(enemySpawnObj);
+
+            this.type = enemyType;
+            this.spawnPos = this.gridPos;
+            this.deathCooldown = 30; // Seconds
+
+            //* This might be more than sufficient to distinguish among each type of enemy for such a limited game sample
+            // TODO: If not, Give each enemy type it's own class, "extended" from an "Enemy" base class, With "Enemy Factory" a separate thing (file or class) that creates the derived classes based on the map data.
+            switch(this.type) {
+                case Consts.enemyTypes.KNIGHT_AXE_RED:
+                    this.name = "KnightAxeRed";
+                    this.hp = 100;
+                    this.strength = 10;
+                    break;
+            }
         }
 
         GetUpdatePack() {
