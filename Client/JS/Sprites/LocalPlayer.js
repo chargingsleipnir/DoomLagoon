@@ -9,12 +9,11 @@
 
 class LocalPlayer extends Sprite {
 
-    moveSpeed = 4;
     isMoving = false;
 
     keys = null;
     keyHeld = 0;
-    neighbors = { left: 0, right: 0, up: 0, down: 0 };
+    neighbors = { LEFT: 0, RIGHT: 0, UP: 0, DOWN: 0 };
     
     canCacheNext = false;
     cacheNextAtPct = 0.9;
@@ -30,8 +29,8 @@ class LocalPlayer extends Sprite {
 
     elemFocusString = "";
 
-    constructor(scene, initOrientation, spritesheetKey) {
-        super(scene, { x: initOrientation.x, y: initOrientation.y }, spritesheetKey, initOrientation.dir, MainMenu.GetDispName());
+    constructor(scene, initOrientation, spriteSkinName) {
+        super(scene, { x: initOrientation.x, y: initOrientation.y }, spriteSkinName, initOrientation.dir, MainMenu.GetDispName());
 
         // Anchor display name overhead
         var dispName = scene.add.text((this.sprite.width * 0.5), -(this.sprite.height), MainMenu.GetDispName(), Consts.DISP_NAME_STYLE);
@@ -39,7 +38,6 @@ class LocalPlayer extends Sprite {
         this.gameObjCont.add(dispName);
         // TODO: Works for now, but is really not good. I need the depth of the display name to NOT be restriced by the parent container,
         // but that doesn't seem possible, so I'm just moving the whole container up, and the highest tile map layer even higher.
-        this.gameObjCont.depth = Consts.depthExceptions.PLAYER_CONT;
 
         this.moveCache_Grid.push({
             x: initOrientation.x,
@@ -96,19 +94,19 @@ class LocalPlayer extends Sprite {
         });
 
         scene.input.keyboard.on('keydown_J', () => {
-            console.log("cell value from client: " + self.neighbors.left);
+            console.log("cell value from client: " + self.neighbors.LEFT);
             Network.Emit("ReqNeighborValue", { x: -1, y: 0 });
         });
         scene.input.keyboard.on('keydown_L', () => {
-            console.log("cell value from client: " + self.neighbors.right);
+            console.log("cell value from client: " + self.neighbors.RIGHT);
             Network.Emit("ReqNeighborValue", { x: 1, y: 0 });
         });
         scene.input.keyboard.on('keydown_I', () => {
-            console.log("cell value from client: " + self.neighbors.up);
+            console.log("cell value from client: " + self.neighbors.UP);
             Network.Emit("ReqNeighborValue", { x: 0, y: -1 });
         });
         scene.input.keyboard.on('keydown_K', () => {
-            console.log("cell value from client: " + self.neighbors.down);
+            console.log("cell value from client: " + self.neighbors.DOWN);
             Network.Emit("ReqNeighborValue", { x: 0, y: 1 });
         });
 
@@ -228,15 +226,18 @@ class LocalPlayer extends Sprite {
     }
 
     Update() {
+        this.gameObjCont.depth = this.gameObjCont.y;
+
         if(this.moveRequestConfrmed && this.elemFocusString != "INPUT") {
             // Check if we can move "to" a new cell, or cache the "next" one ahead
             if(this.moveCache_Grid.length <= Consts.moveCacheSlots.TO ||
                 this.moveCache_Grid.length <= Consts.moveCacheSlots.NEXT && this.canCacheNext) {
+                this.canCacheNext = false;
                 
                 if(this.keys.left.isDown) {
                     this.moveRequestConfrmed = false;
-                    if(this.neighbors.left == Consts.tileTypes.WALK) {
-                        Network.Emit("ReqMoveToCell", { key: 'LEFT', cellDiff: { x: -1, y: 0 } });
+                    if(this.neighbors.LEFT == Consts.tileTypes.WALK) {
+                        Network.Emit("ReqMoveToCell", Consts.dirDiff[Consts.dirIndex.LEFT]);
                     }
                     else {
                         Network.Emit("ReqChangeDir", { key: 'LEFT' });
@@ -244,8 +245,8 @@ class LocalPlayer extends Sprite {
                 }
                 else if(this.keys.right.isDown) {
                     this.moveRequestConfrmed = false;
-                    if(this.neighbors.right == Consts.tileTypes.WALK) {
-                        Network.Emit("ReqMoveToCell", { key: 'RIGHT', cellDiff: { x: 1, y: 0 } });
+                    if(this.neighbors.RIGHT == Consts.tileTypes.WALK) {
+                        Network.Emit("ReqMoveToCell", Consts.dirDiff[Consts.dirIndex.RIGHT]);
                     }
                     else {
                         Network.Emit("ReqChangeDir", { key: 'RIGHT' });
@@ -253,8 +254,8 @@ class LocalPlayer extends Sprite {
                 }
                 else if(this.keys.up.isDown) {
                     this.moveRequestConfrmed = false;
-                    if(this.neighbors.up == Consts.tileTypes.WALK) {
-                        Network.Emit("ReqMoveToCell", { key: 'UP', cellDiff: { x: 0, y: -1 } });
+                    if(this.neighbors.UP == Consts.tileTypes.WALK) {
+                        Network.Emit("ReqMoveToCell", Consts.dirDiff[Consts.dirIndex.UP]);
                     }
                     else {
                         Network.Emit("ReqChangeDir", { key: 'UP' });
@@ -262,8 +263,8 @@ class LocalPlayer extends Sprite {
                 }
                 else if(this.keys.down.isDown) {
                     this.moveRequestConfrmed = false;
-                    if(this.neighbors.down == Consts.tileTypes.WALK) {
-                        Network.Emit("ReqMoveToCell", { key: 'DOWN', cellDiff: { x: 0, y: 1 } });
+                    if(this.neighbors.DOWN == Consts.tileTypes.WALK) {
+                        Network.Emit("ReqMoveToCell", Consts.dirDiff[Consts.dirIndex.DOWN]);
                     }
                     else {
                         Network.Emit("ReqChangeDir", { key: 'DOWN' });
@@ -284,7 +285,7 @@ class LocalPlayer extends Sprite {
             this.ChangeDirection(this.moveCache_Pixel[Consts.moveCacheSlots.TO].dir);
         }
 
-        this.moveDist += this.moveSpeed;
+        this.moveDist += Consts.MAP_MOVE_SPEED;
         // Presuming square tiles of course
         this.moveFracCovered = this.moveDist / this.scene.MapTileWidth;
 
@@ -316,13 +317,13 @@ class LocalPlayer extends Sprite {
     }
 
     GetCellDiffByDir() {
-        if(this.dirIndex == Consts.dirImg.LEFT)
+        if(this.dirIndex == Consts.dirIndex.LEFT)
             return { x: -1, y: 0 };
-        else if(this.dirIndex == Consts.dirImg.RIGHT)
+        else if(this.dirIndex == Consts.dirIndex.RIGHT)
             return { x: 1, y: 0 };
-        else if(this.dirIndex == Consts.dirImg.UP)
+        else if(this.dirIndex == Consts.dirIndex.UP)
             return { x: 0, y: -1 };
-        else if(this.dirIndex == Consts.dirImg.DOWN)
+        else if(this.dirIndex == Consts.dirIndex.DOWN)
             return { x: 0, y: 1 };
     }
 

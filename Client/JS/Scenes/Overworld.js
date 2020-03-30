@@ -58,7 +58,8 @@ class Overworld extends TiledMapScene {
             }, this);
         }, this);
 
-        Main.player = new LocalPlayer(this, initData.orientation, Main.animData.skinPrefix + 'FighterAxeBlue');
+        // TODO: 'FighterAxeBlue' will actually come from save data first, default to this for new player
+        Main.player = new LocalPlayer(this, initData.orientation, 'FighterAxeBlue');
         
         this.cameras.main.startFollow(Main.player.gameObjCont);
         this.cameras.main.setZoom(1.5);
@@ -89,27 +90,27 @@ class Overworld extends TiledMapScene {
 
         // First emission sent from server - assign proper id, setup map, etc.
         Network.CreateResponse("GetServerGameData", function (data) {
+            //console.log(data);
             for (let i = 0; i < data.sprites.length; i++) {
                 self.sprites[data.sprites[i].type][data.sprites[i].id] = new NetSprite(
                     self, 
                     data.sprites[i].gridPos, 
-                    Main.animData.skinPrefix + data.sprites[i].name, 
+                    data.sprites[i].name, 
                     data.sprites[i].dir,  
                     data.sprites[i].name, 
                     data.sprites[i].id, 
                     data.sprites[i].type == Consts.spriteTypes.PLAYER
                 );
             }
-
-            console.log(self.sprites);
         });
 
         // and tell everyone else about player. Adding new players after this player has joined
         Network.CreateResponse("AddNewPlayer", function (playerData) {
             self.sprites[Consts.spriteTypes.PLAYER][playerData.id] = new NetSprite(
                 self, 
-                playerData.gridPos, 
-                Main.animData.skinPrefix + 'FighterAxeBlue', 
+                playerData.gridPos,
+                // TODO: 'FighterAxeBlue' will actually come from that player's save data first, default to this for new player
+                'FighterAxeBlue', 
                 playerData.dir,  
                 playerData.name, 
                 playerData.id, 

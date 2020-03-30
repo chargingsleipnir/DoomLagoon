@@ -4,12 +4,13 @@ class Sprite {
 
     gameObjCont;
     sprite;
+    spriteSkinName;
     name;
 
     dirIndex;
     prevDirIndex;
 
-    constructor(scene, initGridSpawn, spritesheetKey, dirIndex, name) {
+    constructor(scene, initGridSpawn, spriteSkinName, dirIndex, name) {
         this.scene = scene;
 
         this.gameObjCont = scene.add.container(
@@ -19,8 +20,9 @@ class Sprite {
         
         this.dirIndex = dirIndex;
 
+        this.spriteSkinName = spriteSkinName;
         var frameKey = Main.animData.keys[dirIndex];
-        this.sprite = scene.add.sprite(16, 8, spritesheetKey, Main.animData.frames[frameKey].start);
+        this.sprite = scene.add.sprite(16, 8, Main.animData.skinPrefix + spriteSkinName, Main.animData.frames[frameKey].start);
 
         this.gameObjCont.add(this.sprite);
         this.name = name || 'I am Error';
@@ -41,7 +43,7 @@ class Sprite {
         if(this.prevDirIndex == this.dirIndex)
             return;
 
-        this.sprite.anims.play("FighterAxeBlue-" + Main.animData.keys[dirIndex]);
+        this.sprite.anims.play(this.spriteSkinName + "-" + Main.animData.keys[dirIndex]);
         this.prevDirIndex = this.dirIndex;
     }
 

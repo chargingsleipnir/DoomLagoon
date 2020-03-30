@@ -33,6 +33,11 @@ module.exports = function(sprites) {
                     cellValue: mapData.GetValue(cell)
                 });
             });
+
+            socket.on("ReqMoveToCell", function (dirData) {
+                self.MoveToCell(dirData);
+                socket.emit("RecMoveToCell", self.GetMoveData());
+            });
         
             socket.on("ReqCellInteraction", function (cellDiff) {
                 var newPos = { 
@@ -71,7 +76,7 @@ module.exports = function(sprites) {
                 });
             });
             socket.on("ReqChangeDir", function (dirData) {
-                self.UpdateDir(Consts.dirImg[dirData.key]);
+                self.UpdateDir(Consts.dirIndex[dirData.key]);
                 sprites.updatePack[Consts.spriteTypes.PLAYER][socket.client.id].dir = self.dir;
                 socket.emit("RecChangeDir", self.dir);
             });        
@@ -86,15 +91,16 @@ module.exports = function(sprites) {
         }
         UpdateNeighbors() {
             // Get new neighbors
-            this.neighbors.left = mapData.GetValueOffset(this.gridPos, -1, 0);
-            this.neighbors.right = mapData.GetValueOffset(this.gridPos, 1, 0);
-            this.neighbors.up = mapData.GetValueOffset(this.gridPos, 0, -1);
-            this.neighbors.down = mapData.GetValueOffset(this.gridPos, 0, 1);
+            this.neighbors.LEFT = mapData.GetValueOffset(this.gridPos, -1, 0);
+            this.neighbors.RIGHT = mapData.GetValueOffset(this.gridPos, 1, 0);
+            this.neighbors.UP = mapData.GetValueOffset(this.gridPos, 0, -1);
+            this.neighbors.DOWN = mapData.GetValueOffset(this.gridPos, 0, 1);
 
             this.socket.emit('RecUpdateNeighbors', { neighbors: this.neighbors });
         }
         // Recieve new neighbor. TODO: Maybe send back more complicated occupancy data? Maybe not necessary.
         UpdateNeighbor(side, occupancy) {
+            //console.log(`Neighbor change: ${side}: ${occupancy}`);
             this.neighbors[side] = occupancy;
             this.socket.emit('RecUpdateNeighbor', { side: side, occupancy: occupancy });
         };

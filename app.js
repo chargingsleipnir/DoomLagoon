@@ -81,8 +81,15 @@ io.sockets.on("connection", function (socket) {
   objHdlrs.InitSocketCalls(io, socket);
 });
 
-// Update function
-var tick = 1000 / 24;
+// Update to Clients
+var tick = 1000 / 30;
 setInterval(function () {
+  objHdlrs.Update();
   io.emit("UpdateFromServer", objHdlrs.GetUpdatePack());
 }, tick);
+
+//? Is 30 correct? 60? Update locally = needs to match client for enemies to move at the same pace, but I suppose they don't really have to.
+// tick = 1000 / 60;
+// setInterval(function () {
+//   objHdlrs.Update();
+// }, tick);

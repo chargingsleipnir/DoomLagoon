@@ -3,7 +3,6 @@
 class NetSprite extends Sprite {
 
     id;
-    moveSpeed = 4;
     isMoving = false;
 
     // Purely pixel based
@@ -13,8 +12,8 @@ class NetSprite extends Sprite {
     moveFracCovered = { x: 0, y: 0 };
     distToCover = { x: 0, y: 0 };
 
-    constructor(scene, initGridPos, spritesheetKey, dirIndex, name, id, doDispName) {
-        super(scene, initGridPos, spritesheetKey, dirIndex, name);
+    constructor(scene, initGridPos, spriteSkinName, dirIndex, name, id, doDispName) {
+        super(scene, initGridPos, spriteSkinName, dirIndex, name);
 
         this.id = id;
 
@@ -40,6 +39,10 @@ class NetSprite extends Sprite {
 
     ServerUpdate(updatePack) {
 
+        // if(this.id == 100) {
+        //     console.log(updatePack);
+        // }
+
         this.isMoving = false;
 
         this.moveCache[Consts.moveCacheSlots.FROM] = this.moveCache[Consts.moveCacheSlots.TO];
@@ -61,6 +64,8 @@ class NetSprite extends Sprite {
     }
 
     Update() {
+        this.gameObjCont.depth = this.gameObjCont.y;
+
         if(!this.isMoving) {
             this.gameObjCont.x = this.moveCache[Consts.moveCacheSlots.TO].x;
             this.gameObjCont.y = this.moveCache[Consts.moveCacheSlots.TO].y;
@@ -69,7 +74,7 @@ class NetSprite extends Sprite {
         }
         
         if (this.distToCover.x > 0 && this.moveFracCovered.x < 1.0) {
-            this.moveDist.x += this.moveSpeed;
+            this.moveDist.x += Consts.MAP_MOVE_SPEED;
             this.moveFracCovered.x = this.moveDist.x / this.distToCover.x;
             this.gameObjCont.x = Phaser.Math.Linear(this.moveCache[Consts.moveCacheSlots.FROM].x, this.moveCache[Consts.moveCacheSlots.TO].x, this.moveFracCovered.x);
         }
@@ -78,7 +83,7 @@ class NetSprite extends Sprite {
         }
 
         if (this.distToCover.y > 0 && this.moveFracCovered.y < 1.0) {
-            this.moveDist.y += this.moveSpeed;
+            this.moveDist.y += Consts.MAP_MOVE_SPEED;
             this.moveFracCovered.y = this.moveDist.y / this.distToCover.y;
             this.gameObjCont.y = Phaser.Math.Linear(this.moveCache[Consts.moveCacheSlots.FROM].y, this.moveCache[Consts.moveCacheSlots.TO].y, this.moveFracCovered.y);
         }

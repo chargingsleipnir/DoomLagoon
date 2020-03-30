@@ -18,39 +18,20 @@ sprites.updatePack[Consts.spriteTypes.ENEMY] = {};
 sprites.updatePack[Consts.spriteTypes.NPC] = {};
 
 var playerModule = require('./Player.js')(sprites);
-var enemyFactory = require('./EnemyFactory.js')(sprites);
+var enemiesModule = require('./Enemies.js')(sprites);
 
 // One-time set up enemies
-var enemies = enemyFactory.PopulateSpawnPoints();
+var enemyList = enemiesModule.PopulateSpawnPoints();
 
-enemies.forEach(enemy => {
+enemyList.forEach(enemy => {
     sprites.allData[Consts.spriteTypes.ENEMY][enemy.id] = enemy;
     sprites.updatePack[Consts.spriteTypes.ENEMY][enemy.id] = enemy.GetUpdatePack();
 });
 
 module.exports = function(dbHdlr) {
 
-    function LookForAndUpdateNeighbors(cell, value) {
-        // Update any potentially new neighbors of this map call that they also have a new neighbor.
-        var cellValue = mapData.GetValueXY(cell.x - 1, cell.y);
-        if (cellValue.spriteType)
-            sprites.allData[cellValue.spriteType][cellValue.id].UpdateNeighbor('right', value);
-    
-        cellValue = mapData.GetValueXY(cell.x + 1, cell.y);
-        if (cellValue.spriteType)
-            sprites.allData[cellValue.spriteType][cellValue.id].UpdateNeighbor('left', value);
-    
-        cellValue = mapData.GetValueXY(cell.x, cell.y -1);
-        if (cellValue.spriteType)
-            sprites.allData[cellValue.spriteType][cellValue.id].UpdateNeighbor('down', value);
-    
-        cellValue = mapData.GetValueXY(cell.x, cell.y + 1);
-        if (cellValue.spriteType)
-            sprites.allData[cellValue.spriteType][cellValue.id].UpdateNeighbor('up', value);
-    }
-
     return {
-        InitSocketCalls: function (io, socket) {
+        InitSocketCalls: (io, socket) => {
 
             socket.on("ReqWorldInitData", async function (localStorage) {
 
@@ -85,7 +66,7 @@ module.exports = function(dbHdlr) {
                     orientObj =  {
                         x: spawnPoints[spawnIndex].x,
                         y: spawnPoints[spawnIndex].y,
-                        dir: Consts.dirImg.DOWN
+                        dir: Consts.dirIndex.DOWN
                     };
 
                     dbHdlr.SaveOrientation(socket.client.id, orientObj);
@@ -111,8 +92,7 @@ module.exports = function(dbHdlr) {
                 
                 // Player's been created, update their neighbors list right away, as this will always determine what their next move can be locally.
                 var player = new playerModule.Player(socket, playerData.initPack);
-                LookForAndUpdateNeighbors(player.gridPos, player.mapSprite);
-                player.UpdateNeighbors();
+                player.Init();
 
                 // Add player to lists
                 sprites.allData[Consts.spriteTypes.PLAYER][socket.client.id] = player;
@@ -123,35 +103,6 @@ module.exports = function(dbHdlr) {
 
                 // Send new player data to all other players
                 socket.broadcast.emit("AddNewPlayer", playerData.initPack);
-            });
-
-            socket.on("ReqMoveToCell", function (dirData) {
-
-                var player = sprites.allData[Consts.spriteTypes.PLAYER][socket.client.id];
-
-                var newPos = { 
-                    x: player.gridPos.x + dirData.cellDiff.x,
-                    y: player.gridPos.y + dirData.cellDiff.y
-                };
-        
-                if (mapData.GetValue(newPos) == Consts.tileTypes.WALK) {  
-                    // Tell old neighbors about move out
-                    mapData.SetValue(player.gridPos, Consts.tileTypes.WALK);
-                    LookForAndUpdateNeighbors(player.gridPos, Consts.tileTypes.WALK);
-                    // Tell new neighbors about move in
-                    mapData.SetValue(newPos, player.mapSprite);
-                    LookForAndUpdateNeighbors(newPos, player.mapSprite);
-                    // Update own position
-                    player.UpdateMove(newPos, Consts.dirImg[dirData.key]);
-                    // Update who my own neighbors are
-                    player.UpdateNeighbors();
-                }
-                // If all is working correctly, this should never actually come through here, as the client will have stopped the entire call from being made by checking it's neighbors ahead of time.
-                else {
-                    player.UpdateDir(Consts.dirImg[dirData.key]);
-                }
-        
-                socket.emit("RecMoveToCell", player.GetMoveData());
             });
 
             // Not a user-made function
@@ -178,8 +129,13 @@ module.exports = function(dbHdlr) {
                 }
             });
         },
-        GetUpdatePack: function () {
+        GetUpdatePack: () => {
             return sprites.updatePack;
+        },
+        Update: () => {
+            enemyList.forEach(enemy => {
+                enemy.Update();
+            });
         }
     }
 }
