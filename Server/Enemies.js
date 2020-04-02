@@ -3,22 +3,35 @@
 var mapData = require('./MapDataReader.js')();
 var Consts = require('../Shared/Consts.js');
 
+// var obj = {
+//     a: 5,
+//     b: "test"
+// };
+
+// var arr = [];
+// arr.push({
+//     a: 5,
+//     b: "test"
+// });
+
+// var cont = {};
+// cont['slot'] = arr[0];
+
+// delete cont['slot'];
+
+// console.log(arr[0]);
+// console.log(cont['slot']);
+
 module.exports = function(sprites) {
 
     const entityModule = require('./Entity.js')(sprites);
 
     // Since I'll only be reusing a small amount of enemies, less than 100, this is as much as I need to do for their ids
     var enemyID = 100;
-    var enemies = [];
 
     class Enemy extends entityModule.Entity {
-
-        // TODO: deathCooldown property...
-        // Just make a finite amount of enemies, amd have them "die", and re-animate at their given spawn point after the cooldown.
-
         type = -1;
         spawnPos;
-        nextGridPos;
         pixelPosActive;
         pixelPosFrom;
         pixelPosTo;
@@ -28,9 +41,12 @@ module.exports = function(sprites) {
         moveFracCovered;
         MOVE_COOLDOWN = 2;
 
-        hp;
         strength;
-        deathCooldown;
+        playerSocketIDs;
+        isAlive;
+
+        io;
+        timeoutRef;
 
         constructor(enemySpawnObj) {
             enemySpawnObj.id = enemyID;
@@ -52,8 +68,37 @@ module.exports = function(sprites) {
             super(enemySpawnObj);
 
             this.type = enemyType;
-            this.spawnPos = this.gridPos;
-            this.nextGridPos = this.gridPos;
+            this.spawnPos = {
+                x: this.gridPos.x,
+                y: this.gridPos.y
+            };
+            
+            this.ResetPosData();
+
+            this.playerSocketIDs = [];
+            this.isAlive = true;
+
+            //* This might be more than sufficient to distinguish among each type of enemy for such a limited game sample
+            // TODO: If not, Give each enemy type it's own class, "extended" from an "Enemy" base class, With "Enemy Factory" a separate thing (file or class) that creates the derived classes based on the map data.
+            switch(this.type) {
+                case Consts.enemyTypes.KNIGHT_AXE_RED:
+                    this.name = "KnightAxeRed";
+                    this.hpCurr = this.hpMax = 10;
+                    this.strength = 10;
+                    break;
+            }
+        }
+
+        SetIoObj(io) {
+            this.io = io;
+        }
+
+        Init() {
+            super.Init();
+            this.RunMoveTimer();
+        }
+
+        ResetPosData() {
             this.pixelPosActive = {
                 x: this.gridPos.x * mapData.GetTileWidth(),
                 y: this.gridPos.y * mapData.GetTileHeight(),
@@ -64,22 +109,7 @@ module.exports = function(sprites) {
 
             this.isMoving = false;
             this.moveDist = 0;
-            this.deathCooldown = 30; // Seconds
-
-            //* This might be more than sufficient to distinguish among each type of enemy for such a limited game sample
-            // TODO: If not, Give each enemy type it's own class, "extended" from an "Enemy" base class, With "Enemy Factory" a separate thing (file or class) that creates the derived classes based on the map data.
-            switch(this.type) {
-                case Consts.enemyTypes.KNIGHT_AXE_RED:
-                    this.name = "KnightAxeRed";
-                    this.hp = 100;
-                    this.strength = 10;
-                    break;
-            }
-        }
-
-        Init() {
-            super.Init();
-            this.RunMoveTimer();
+            this.moveFracCovered = 0;
         }
 
         //* Gets called from Entity MoveToCell, upon RunMoveTimer's new position selection, so this is the perfect - if not entirely appropriate - place to update the next pixel-based coordinates
@@ -97,18 +127,123 @@ module.exports = function(sprites) {
             };
         }
 
+        CanAddPlayerToBattle() {
+            return this.playerSocketIDs.length < Consts.MAX_PLAYERS_PER_BATTLE;
+        }
+
+        AddPlayerToBattle(socketID) {
+            if(this.CanAddPlayerToBattle()) {
+                console.log(`Socket ID pushed: ${socketID}`);
+                this.playerSocketIDs.push(socketID);
+                clearTimeout(this.timeoutRef);
+                // TODO: Every new player needs to be sent the info of the players currently in battle to fill out their battle view.
+            }
+            this.inBattle = this.playerSocketIDs.length > 0;
+        }
+
+        RemovePlayerFromBattle(socketID) {
+            if(this.playerSocketIDs.length > 0) {
+                var idx = this.playerSocketIDs.indexOf(socketID);
+                if(idx > -1) {
+                    this.playerSocketIDs.splice(idx, 1);
+                    console.log(`Removed player ${socketID}`);
+                    console.log(`Players remaining in list ${this.playerSocketIDs.length}`);
+
+                    this.inBattle = this.playerSocketIDs.length > 0;
+                    if(this.isAlive && !this.inBattle) {
+                        this.RunMoveTimer();
+                    }
+                }
+            }
+        }
+
+        Enact(actionObj) {
+            this.hpCurr -= actionObj.damage;
+
+            this.playerSocketIDs.forEach(playerSocketID => {
+                this.io.to(playerSocketID).emit('RecPlayerAction', { 
+                    socketID: actionObj.fromSocketID,
+                    damage: actionObj.damage,
+                    enemyHP: this.hpCurr
+                });
+            });
+            
+            if(this.hpCurr <= 0) {
+                this.isAlive = false;
+                this.inBattle = false;
+                // Deactivate self from map
+                this.RemoveSelf();
+
+                // Reset back to spawn position and wait for it to be clear before reviving.
+                this.gridPos.x = this.spawnPos.x;
+                this.gridPos.y = this.spawnPos.y;
+                this.ResetPosData();
+
+                for(var i = this.playerSocketIDs.length - 1; i > -1; i--) {
+                    // TODO: Pass through anything that the enemy might hold. Enemy could be the keeper of exp, if there will be any...?
+                    sprites.allData[Consts.spriteTypes.PLAYER][this.playerSocketIDs[i]].WinBattle();
+                    this.RemovePlayerFromBattle(this.playerSocketIDs[i]);
+                }
+
+                delete sprites.allData[Consts.spriteTypes.ENEMY][this.id];
+                delete sprites.updatePack[Consts.spriteTypes.ENEMY][this.id];
+
+                // Tell everyone in the game to remove this sprite until further notice
+                this.io.emit("RemoveSprite", this.mapSprite);
+
+                //console.log(`Enemy removed: ${this.id}`);
+
+                // REVIVE SELF
+                
+                var self = this;
+                function CheckSpawnPosForRevival () {
+                    setTimeout(() => {
+                        //console.log("Revival timeout expired");
+                        //console.log("Spawn position available: ", mapData.GetValue(self.gridPos) == Consts.spriteTypes.WALK);
+                        if(mapData.GetValue(self.gridPos) == Consts.tileTypes.WALK) {
+                            //console.log("Calling self revival");
+                            self.Revive();
+                        }
+                        else {
+                            //console.log("Spot occupied, recalling CheckSpawnPosForRevival");
+                            CheckSpawnPosForRevival();
+                        }
+                    }, Consts.ENEMY_DEATH_COOLDOWN * 1000);
+                }
+                CheckSpawnPosForRevival();
+            }
+        }
+
+        Revive() {
+            //console.log(`Ready to revive enemy: ${this.id}`);
+
+            sprites.allData[Consts.spriteTypes.ENEMY][this.id] = this;
+            sprites.updatePack[Consts.spriteTypes.ENEMY][this.id] = this.GetUpdatePack();
+            this.isAlive = true;
+            this.hpCurr = this.hpMax;
+            this.Init();
+
+            this.io.emit("GetServerGameData", { sprites: [ this.GetInitPack() ] });
+        }
+
+        CanMoveOnMap() {
+            return this.isAlive && !this.inBattle;
+        }
+
         RunMoveTimer() {
-            if(this.inBattle)
+            if(!this.CanMoveOnMap())
                 return;
 
             var self = this;
-            setTimeout(() => {
+            this.timeoutRef = setTimeout(() => {
                 var neighborKeyArr = [ "LEFT", "RIGHT", "UP", "DOWN" ];
 
                 function RecurCheck_neighborKeyArr() {
                     if(neighborKeyArr.length > 0) {
                         var randIndex = Math.floor(Math.random() * neighborKeyArr.length);
-                        if(self.neighbors[neighborKeyArr[randIndex]] != Consts.tileTypes.WALK) {
+                        var cellDiff = Consts.cellDiff[neighborKeyArr[randIndex]];
+                        var isBridgeTile = mapData.CheckForBridgeTile(self.gridPos.x + cellDiff.x, self.gridPos.y + cellDiff.y);
+                        if(self.neighbors[neighborKeyArr[randIndex]] != Consts.tileTypes.WALK || isBridgeTile) {
                             // Remove that direction and run it again.
                             neighborKeyArr.splice(randIndex, 1);
                             // Keep going till all are checked.
@@ -123,21 +258,29 @@ module.exports = function(sprites) {
                 var openTileIndex = RecurCheck_neighborKeyArr();
                 if(openTileIndex == -1) {
                      // If none are good, restart entire 5 second timer from scratch.
-                     console.log("Enemy has no tiles to move to.");
+                     // console.log("Enemy has no tiles to move to.");
                      self.RunMoveTimer();
                 }
                 else {
-                    var dir = Consts.dirIndex[neighborKeyArr[openTileIndex]];
-                    this.pixelPosFrom.x = this.pixelPosActive.x;
-                    this.pixelPosFrom.y = this.pixelPosActive.y;
-                    self.MoveToCell(Consts.dirDiff[dir]);
-                    self.isMoving = true;
+                    // In case this functionality is running when a player prompts a battle, this can be skipped over.
+                    if(self.CanMoveOnMap()) {
+                        var dir = Consts.dirIndex[neighborKeyArr[openTileIndex]];
+                        this.pixelPosFrom.x = this.pixelPosActive.x;
+                        this.pixelPosFrom.y = this.pixelPosActive.y;
+                        self.MoveToCell(Consts.dirDiff[dir]);
+                        self.isMoving = true;
+                    }
                 }
-            }, self.MOVE_COOLDOWN * 1000)
+            }, (1 + (Math.random() * self.MOVE_COOLDOWN)) * 1000) // 1 to 3 seconds
         }
 
         // Pick a random neighbor that can be walked to, walk there, and wait for the moveCooldown before doing so again.
         Update() {
+            // I actually do want the enemy to finish their last movement, if one was moving toward a player and initiated battle.
+            // The !this.isMoving check should sufficiently take care of block the loop otherwise
+            // if(!this.CanMoveOnMap())
+            //     return;
+
             if(!this.isMoving)
                 return;
 
@@ -173,6 +316,8 @@ module.exports = function(sprites) {
     return {
         // TODO: In tiled, enemy spawn points will need to hold more info (just another enum) about the type of enemy.
         PopulateSpawnPoints: () => {
+            var enemies = [];
+
             mapData.GetEnemySpawns().forEach(enemySpawnObj => {
                 var enemy = new Enemy(enemySpawnObj);
                 enemy.Init();

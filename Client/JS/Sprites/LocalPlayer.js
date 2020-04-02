@@ -29,6 +29,8 @@ class LocalPlayer extends Sprite {
 
     elemFocusString = "";
 
+    inBattle;
+
     constructor(scene, initOrientation, spriteSkinName) {
         super(scene, { x: initOrientation.x, y: initOrientation.y }, spriteSkinName, initOrientation.dir, MainMenu.GetDispName());
 
@@ -53,6 +55,8 @@ class LocalPlayer extends Sprite {
 
         this.moveRequestConfrmed = true;
         this.assessRequestConfirmed = true;
+
+        this.inBattle = false;
 
         var self = this;
 
@@ -142,9 +146,11 @@ class LocalPlayer extends Sprite {
 
         Network.CreateResponse('RecUpdateNeighbor', (data) => {
             self.neighbors[data.side] = data.occupancy;
+            self.inBattle = data.inBattle;
         });
         Network.CreateResponse('RecUpdateNeighbors', (data) => {
             self.neighbors = data.neighbors;
+            self.inBattle = data.inBattle;
         });
 
         Network.CreateResponse("RecMoveToCell", function (newMoveData) {
@@ -228,7 +234,7 @@ class LocalPlayer extends Sprite {
     Update() {
         this.gameObjCont.depth = this.gameObjCont.y;
 
-        if(this.moveRequestConfrmed && this.elemFocusString != "INPUT") {
+        if(this.moveRequestConfrmed && !this.inBattle && this.elemFocusString != "INPUT") {
             // Check if we can move "to" a new cell, or cache the "next" one ahead
             if(this.moveCache_Grid.length <= Consts.moveCacheSlots.TO ||
                 this.moveCache_Grid.length <= Consts.moveCacheSlots.NEXT && this.canCacheNext) {

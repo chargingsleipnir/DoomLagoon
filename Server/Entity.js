@@ -34,20 +34,26 @@ module.exports = function(sprites) {
         neighbors;
         inBattle;
 
+        hpMax;
+        hpCurr;
+
         constructor(initData) {
             this.id = initData.id;
             this.name = initData.name;
-            this.gridPos = initData.gridPos;
+            this.gridPos = {
+                x: initData.gridPos.x,
+                y: initData.gridPos.y
+            };
             this.dir = initData.dir;
 
             this.mapSprite = initData.cellData;
-            mapData.SetValue(this.gridPos, this.mapSprite);
 
             this.neighbors = { LEFT: null, RIGHT: null, UP: null, DOWN: null };
             this.inBattle = false;
         }
 
         Init() {
+            mapData.SetValue(this.gridPos, this.mapSprite);
             LookForAndUpdateNeighbors(this.gridPos, this.mapSprite);
             this.UpdateNeighbors();
         }
@@ -69,6 +75,9 @@ module.exports = function(sprites) {
         };
 
         MoveToCell(dirData) {
+            if(this.inBattle)
+                return;
+
             var newPos = { 
                 x: this.gridPos.x + dirData.cellDiff.x,
                 y: this.gridPos.y + dirData.cellDiff.y
@@ -76,8 +85,7 @@ module.exports = function(sprites) {
 
             if (mapData.GetValue(newPos) == Consts.tileTypes.WALK) {
                 // Tell old neighbors about move out
-                mapData.SetValue(this.gridPos, Consts.tileTypes.WALK);
-                LookForAndUpdateNeighbors(this.gridPos, Consts.tileTypes.WALK);
+                this.RemoveSelf();
                 // Tell new neighbors about move in
                 mapData.SetValue(newPos, this.mapSprite);
                 LookForAndUpdateNeighbors(newPos, this.mapSprite);
@@ -92,12 +100,17 @@ module.exports = function(sprites) {
             }
         };
 
+        RemoveSelf() {
+            mapData.SetValue(this.gridPos, Consts.tileTypes.WALK);
+            LookForAndUpdateNeighbors(this.gridPos, Consts.tileTypes.WALK);
+        }
+
         UpdateNeighbors() {
             // Get new neighbors
-            this.neighbors.LEFT = mapData.GetValueOffset(this.gridPos, -1, 0);
-            this.neighbors.RIGHT = mapData.GetValueOffset(this.gridPos, 1, 0);
-            this.neighbors.UP = mapData.GetValueOffset(this.gridPos, 0, -1);
-            this.neighbors.DOWN = mapData.GetValueOffset(this.gridPos, 0, 1);
+            this.UpdateNeighbor("LEFT", mapData.GetValueOffset(this.gridPos, -1, 0));
+            this.UpdateNeighbor("RIGHT", mapData.GetValueOffset(this.gridPos, 1, 0));
+            this.UpdateNeighbor("UP", mapData.GetValueOffset(this.gridPos, 0, -1));
+            this.UpdateNeighbor("DOWN", mapData.GetValueOffset(this.gridPos, 0, 1));
         };
         // Recieve new neighbor. TODO: Maybe send back more complicated occupancy data? Maybe not necessary.
         UpdateNeighbor(side, occupancy) {

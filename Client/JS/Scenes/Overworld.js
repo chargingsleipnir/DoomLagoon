@@ -42,6 +42,9 @@ class Overworld extends TiledMapScene {
         this.load.image('chestBrownOpen', '../../Assets/Map/ChestBrownOpen.png');
         this.load.image('chestGreenClosed', '../../Assets/Map/ChestGreenClosed.png');
         this.load.image('chestGreenOpen', '../../Assets/Map/ChestGreenOpen.png');
+    
+        // BATTLE SCENE
+        this.load.image('battleBG_Grass_House_01', '../../Assets/BattleBackgrounds/Grass_House_01.png');
     }
 
     create(initData) {
@@ -92,14 +95,15 @@ class Overworld extends TiledMapScene {
         Network.CreateResponse("GetServerGameData", function (data) {
             //console.log(data);
             for (let i = 0; i < data.sprites.length; i++) {
+                var isPlayer = data.sprites[i].type == Consts.spriteTypes.PLAYER;
                 self.sprites[data.sprites[i].type][data.sprites[i].id] = new NetSprite(
                     self, 
                     data.sprites[i].gridPos, 
-                    data.sprites[i].name, 
+                    isPlayer ? 'FighterAxeBlue' : data.sprites[i].name, // TODO: This includes existing players as well.
                     data.sprites[i].dir,  
                     data.sprites[i].name, 
                     data.sprites[i].id, 
-                    data.sprites[i].type == Consts.spriteTypes.PLAYER
+                    isPlayer
                 );
             }
         });
@@ -166,6 +170,26 @@ class Overworld extends TiledMapScene {
             }
         }
         Network.CreateResponse("MoveNetSprite", MoveSpriteCallback);
+
+        // BATTLE SCENE!
+        Network.CreateResponse("RecCommenceBattle", function (battleData) {
+            // scene.scene.transition({
+            //     duration: scene.TRANSITION_TIME,
+            //     target: "Battle",
+            //     data: battleData
+            // });
+
+            console.log("Overworld starting battle scene: ", battleData);
+
+            // TODO: Maybe just transition smoothly from in the sceen itself, no need to use the phaser transition system.
+            // Let it last a couple seconds so the player can see the units actually approach properly, as they're still entering their respective tiles when this is called.
+            if(self.scene.isSleeping("Battle")) {
+                self.scene.wake("Battle", battleData);
+            }
+            else {
+                self.scene.launch("Battle", battleData);
+            }
+        });
     }
 
     update() {

@@ -2,6 +2,20 @@
 var Consts = require('../Shared/Consts.js');
 var JSON_Overworld = require('../Shared/DataFiles/OverworldTilesetsEmbeded.json');
 
+function CoordsToInt(x, y) {
+    return (x * JSON_Overworld.width) + y;
+}
+
+function IntToCoords(int) {
+    var y = int % JSON_Overworld.width;
+    return {
+        x: (int - y) / JSON_Overworld.width,
+        y: y
+    }
+}
+
+//console.log(JSON_Overworld);
+
 var JSON_tilesets = {};
 for(var i = 0; i < JSON_Overworld.tilesets.length; i++) {
     var setName = JSON_Overworld.tilesets[i].name;
@@ -14,6 +28,7 @@ var mapObjectsByGridPos = [];
 var signsByGridPos = [];
 var chestsByGridPos = [];
 var walkableMap = [];
+var bridgeCoordList = [];
 
 // Read the data directly, at least just to make the work required on the various layers nicely explicit.
 
@@ -24,6 +39,21 @@ for (var i = 0; i < waterTiles.length; i++) {
     waterTilesetIDs.push(waterTiles[i].id + JSON_tilesets["BaseWater"].firstgid);
 }
 //console.log(waterTilesetIDs);
+
+
+
+// TODO: Change the map "sprites" to add better & more consistent information
+// ! Not worth doing right now, not unless I have way more to look for than just wherever a bridge can be found.
+// I want to see in one object that a tile is walkable, is/not a bridge, has/not a sprite on it, and what it's information is.
+// Those just for now, leaving room to add anything else that comes up.
+// Maybe still reserve 0 for a hard block. For the scope of this game, that should be fine.
+// function MapDataObj(tileType = null, terrainType = null, spriteData = null) {
+//     return {
+//         tileType: tileType,
+//         terrainType: terrainType,
+//         spriteData: spriteData
+//     }
+// }
 
 // var q = 0;
 var layerObj = JSON_Overworld.layers[0];
@@ -38,7 +68,7 @@ for (var i = 0; i < layerObj.width; i++) {
             walkableMap[i][j] = Consts.tileTypes.BLOCK;
 
         // q++;
-        // if(q > 433)
+        // if(q > 1950)
         //     console.log(walkableMap[i][j]);
     }
 }
@@ -60,8 +90,8 @@ for (var i = 0; i < bridgeTiles.length; i++) {
     }
 }
 
-//var p = 0;
-var layerObj = JSON_Overworld.layers[1];
+// var p = 0;
+layerObj = JSON_Overworld.layers[1];
 for (var i = 0; i < layerObj.width; i++) {
     for (var j = 0; j < layerObj.height; j++) {
         var col = j * layerObj.width;
@@ -69,7 +99,7 @@ for (var i = 0; i < layerObj.width; i++) {
         // No tile placed here at all, proceed through loop
         if(value == 0) {
             // p++;
-            // if(p > 433)
+            // if(p > 1950)
             //      console.log(walkableMap[i][j]);
             continue;
         }
@@ -77,17 +107,20 @@ for (var i = 0; i < layerObj.width; i++) {
             // Value is not a bridge, so something blocking travel
             if(bridgeTilesetIDs.indexOf(value) == -1)
                 walkableMap[i][j] = Consts.tileTypes.BLOCK;
-            else
+            else {
                 walkableMap[i][j] = Consts.tileTypes.WALK;
+                bridgeCoordList.push(CoordsToInt(i, j));
+            }
         }
         // p++;
-        // if(p > 433)
+        // if(p > 1950)
         //     console.log(walkableMap[i][j]);
     }
 }
 
+
 //* Object layer - Get the coorinates occupied by every object, overlap the walkable cell data from previous loops, and set interactable object data (treasure chests, etc.) on map.
-var layerObj = JSON_Overworld.layers[3];
+layerObj = JSON_Overworld.layers[3];
 for(var i = 0; i < layerObj.objects.length; i++) {
     var obj = layerObj.objects[i];
 
@@ -208,6 +241,9 @@ module.exports = function() {
         },
         GetTileHeight: () => {
             return JSON_Overworld.tileheight;
+        },
+        CheckForBridgeTile: (x, y) => {
+            return bridgeCoordList.indexOf(CoordsToInt(x, y)) != -1;
         }
     }
 }

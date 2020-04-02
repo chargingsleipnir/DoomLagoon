@@ -33,6 +33,10 @@ module.exports = function(dbHdlr) {
     return {
         InitSocketCalls: (io, socket) => {
 
+            enemyList.forEach(enemy => {
+                enemy.SetIoObj(io);
+            });
+
             socket.on("ReqWorldInitData", async function (localStorage) {
 
                 //* Set up this player first
@@ -118,6 +122,8 @@ module.exports = function(dbHdlr) {
                 } : null);
                 
                 if (player) {
+                    player.Disconnect();
+
                     socket.broadcast.emit("RemoveSprite", player.mapSprite);
 
                     // Take player off the map

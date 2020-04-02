@@ -9,6 +9,12 @@
         { key: 'UP', cellDiff: { x: 0, y: -1 } },
         { key: 'DOWN', cellDiff: { x: 0, y: 1 } }
     ];
+    exports.cellDiff = { 
+        LEFT: { x: -1, y: 0 },
+        RIGHT: { x: 1, y: 0 },
+        UP: { x: 0, y: -1 },
+        DOWN: { x: 0, y: 1 }
+    };
 
     exports.spriteTypes = { PLAYER: 0, ENEMY: 1, NPC: 2 };
     exports.enemyTypes = { KNIGHT_AXE_RED: 0 };
@@ -18,12 +24,16 @@
     exports.depthExceptions = { TILEMAP_OVERLAP_LAYER: 9999 }
 
     exports.tileTypes = { BLOCK: 0, WALK: 1, SIGN: 2, SPRING: 3, CHEST: 4, CAVERN: 5 };
+    exports.terrainTypes = { BRIDGE: 0 } // Grass, Sand, Dirt, etc...
     exports.chestTypes = { EQUIPMENT: 0, ABILITY: 1 };
     exports.equipmentUpgrades = { FIGHTER: 0, LORD: 1, KNIGHT: 2 };
     exports.abilityUpgrades = { INIT: 0, LEVEL1: 1, LEVEL2: 2 };
     // If both server and client read the same map data independently, perhaps nothing needs to be noted here?
 
     exports.MAP_MOVE_SPEED = 2;
+    exports.MAX_PLAYERS_PER_BATTLE = 4;
+    exports.ENEMY_DEATH_COOLDOWN = 10;
+
     exports.SALT_ROUNDS = 10;
     exports.CHAT_LOG_SIZE = 50;
 
