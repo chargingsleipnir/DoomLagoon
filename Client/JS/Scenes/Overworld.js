@@ -45,6 +45,7 @@ class Overworld extends TiledMapScene {
     
         // BATTLE SCENE
         this.load.image('battleBG_Grass_House_01', '../../Assets/BattleBackgrounds/Grass_House_01.png');
+        this.load.image('battleMenuBG', '../../Assets/GUI/Menu_450x100.png');
     }
 
     create(initData) {

@@ -103,6 +103,9 @@ module.exports = function(sprites) {
 
             // JUST FOR TESTING - TODO: EXPAND SERVER TESTING FUNCTIONS
             socket.on("BattleAction", function () {
+                if(self.enemyID == -1)
+                    return;
+
                 var enemy = sprites.allData[Consts.spriteTypes.ENEMY][self.enemyID];
 
                 // Presumably the server has all the stats - damage, health, etc for the player.
