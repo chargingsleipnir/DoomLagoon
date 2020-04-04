@@ -21,8 +21,8 @@ class Sprite {
         this.dirIndex = dirIndex;
 
         this.spriteSkinName = spriteSkinName;
-        var frameKey = Main.animData.keys[dirIndex];
-        this.sprite = scene.add.sprite(16, 8, Main.animData.skinPrefix + spriteSkinName, Main.animData.frames[frameKey].start);
+        var frameKey = Main.animData.overworld.keys[dirIndex];
+        this.sprite = scene.add.sprite(16, 8, Main.animData.overworld.skinPrefix + spriteSkinName, Main.animData.overworld.frames[frameKey].start);
 
         this.gameObjCont.add(this.sprite);
         this.name = name || 'I am Error';
@@ -43,7 +43,7 @@ class Sprite {
         if(this.prevDirIndex == this.dirIndex)
             return;
 
-        this.sprite.anims.play(this.spriteSkinName + "-" + Main.animData.keys[dirIndex]);
+        this.sprite.anims.play(this.spriteSkinName + "-" + Main.animData.overworld.keys[dirIndex]);
         this.prevDirIndex = this.dirIndex;
     }
 

@@ -32,7 +32,7 @@
     // If both server and client read the same map data independently, perhaps nothing needs to be noted here?
 
     exports.MAP_MOVE_SPEED = 2;
-    exports.MAX_PLAYERS_PER_BATTLE = 4;
+    exports.MAX_PLAYERS_PER_BATTLE = 3;
     exports.ENEMY_DEATH_COOLDOWN = 10;
     exports.BATTLE_WON_NEXT_COOLDOWN = 1;
     exports.BATTLE_RAN_NEXT_COOLDOWN = 4;

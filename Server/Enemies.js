@@ -133,7 +133,7 @@ module.exports = function(sprites) {
 
         AddPlayerToBattle(socketID) {
             if(this.CanAddPlayerToBattle()) {
-                console.log(`Socket ID pushed: ${socketID}`);
+                //console.log(`Socket ID pushed into battle group: ${socketID}`);
                 this.playerSocketIDs.push(socketID);
                 clearTimeout(this.timeoutRef);
                 // TODO: Every new player needs to be sent the info of the players currently in battle to fill out their battle view.
@@ -146,11 +146,12 @@ module.exports = function(sprites) {
                 var idx = this.playerSocketIDs.indexOf(socketID);
                 if(idx > -1) {
                     this.playerSocketIDs.splice(idx, 1);
-                    console.log(`Removed player ${socketID}`);
-                    console.log(`Players remaining in list ${this.playerSocketIDs.length}`);
+                    //console.log(`Removed player ${socketID}`);
+                    //console.log(`Players remaining in list ${this.playerSocketIDs.length}`);
 
                     this.inBattle = this.playerSocketIDs.length > 0;
                     if(this.CanMoveOnMap()) {
+                        this.hpCurr = this.hpMax;
                         this.RunMoveTimer();
                     }
                 }
@@ -213,13 +214,13 @@ module.exports = function(sprites) {
             }
             // RUN, only other option for now.
             else {
-                console.log("Enemies: Run from battle");
-                // TODO: This calls the player which calls this enemy back... a little ridiculous of a process...
+                //console.log("Enemies: Run from battle");
+                actionObj.damage = 0;
+                // This calls the player which calls this enemy back... a little ridiculous of a process, but works best programatically. :/
                 sprites.allData[Consts.spriteTypes.PLAYER][actionObj.fromSocketID].LeaveBattle();
             }
 
             socketIDListCopy.forEach(playerSocketID => {
-                console.log("Enemies: Calling RecPlayerAction");
                 this.io.to(playerSocketID).emit('RecPlayerAction', { 
                     socketID: actionObj.fromSocketID,
                     command: actionObj.command,

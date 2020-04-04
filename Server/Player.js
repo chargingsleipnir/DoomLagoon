@@ -114,8 +114,6 @@ module.exports = function(sprites) {
                     damage: self.strength,
                     fromSocketID: socket.client.id
                 });
-
-                console.log("battle action registered");
             });
 
             socket.on("NextBattleReady", function () {
@@ -181,7 +179,6 @@ module.exports = function(sprites) {
                 
 
                 if(this.inBattle) {
-                    console.log("Battle!");
                     this.nextBattleReady = false;
                     this.enemyID = enemy.id;
                     enemy.AddPlayerToBattle(this.socket.client.id);
@@ -203,7 +200,7 @@ module.exports = function(sprites) {
         }
 
         WinBattle() {
-            console.log(`Battle won for player ${this.socket.client.id}`);
+            // console.log(`Battle won for player ${this.socket.client.id}`);
             // TODO: database update as needed
             // TODO: Send win information to local player.
             this.LeaveBattle();

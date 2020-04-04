@@ -1,27 +1,34 @@
 {
+    "skins": [
+        "FighterAxeBlue",
+        "LordSwordBlue",
+        "KnightLanceBlue",
+        "KnightAxeRed"
+    ],
     "overworld": {
-        "walk": {
-            "skinPrefix": "ssOverworldWalk_",
-            "skins"	:	[
-                "FighterAxeBlue",
-                "LordSwordBlue",
-                "KnightLanceBlue",
-                "KnightAxeRed"
-            ],
-            "keys"	: [
-                "overworld_walk_LEFT",
-                "overworld_walk_RIGHT",
-                "overworld_walk_UP",
-                "overworld_walk_DOWN"
-            ],
-            "frames"	: {
-                "overworld_walk_LEFT"	: { "start": 0, "end": 5 },
-                "overworld_walk_RIGHT" : { "start": 6, "end": 11 },
-                "overworld_walk_UP"	: { "start": 12, "end": 17 },
-                "overworld_walk_DOWN"	: { "start": 18, "end": 23 }
-            },
-            "repeat"	: -1,
-            "frameRate"	: 12
-        }
+        "skinPrefix": "ssOverworld_",
+        "keys": [
+            "LEFT",
+            "RIGHT",
+            "UP",
+            "DOWN"
+        ],
+        "frames": {
+            "LEFT": { "start": 0, "end": 5 },
+            "RIGHT": { "start": 6, "end": 11 },
+            "UP": { "start": 12, "end": 17 },
+            "DOWN": { "start": 18, "end": 23 }
+        },
+        "repeat": -1,
+        "frameRate": 12
+    },
+    "battle": {
+        "skinPrefix": "ssBattle_",
+        "keys": [
+            "IDLE",
+            "DODGE",
+            "SWING",
+            "CHOP"
+        ]
     }
 }

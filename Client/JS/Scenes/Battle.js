@@ -14,7 +14,10 @@ class Battle extends SceneTransition {
     scaleFactorX;
     scaleFactorY;
 
-    inputReady
+    inputReady;
+
+    spriteEnemy;
+    spritePlayers = [];
     
     constructor() {
         super("Battle");
@@ -26,9 +29,23 @@ class Battle extends SceneTransition {
     //     console.log("INIT BATTLE");
     // }
 
-    // preload() {
-    //     console.log("PRELOAD BATTLE");
-    // }
+    preload() {
+        this.load.image('battleBG_Grass_House_01', '../../Assets/BattleBackgrounds/Grass_House_01.png');
+        this.load.image('battleMenuBG', '../../Assets/GUI/Menu_450x100.png');
+        this.load.image('battleMenuCursor', '../../Assets/GUI/arrowRight_32x32.png');
+
+        // Fighter
+        this.load.spritesheet('ssBattleIdle_FighterAxeBlue', '../../Assets/Sprites/Fighter/Idle_72x80_23frames.png', { frameWidth: 72, frameHeight: 80, margin: 0, spacing: 0 });
+        this.load.spritesheet('ssBattleDodge_FighterAxeBlue', '../../Assets/Sprites/Fighter/Dodge_72x80_13frames.png', { frameWidth: 72, frameHeight: 80, margin: 0, spacing: 0 });
+        this.load.spritesheet('ssBattleSwing_FighterAxeBlue', '../../Assets/Sprites/Fighter/Swing_96x80_25frames.png', { frameWidth: 96, frameHeight: 80, margin: 0, spacing: 0 });
+        this.load.spritesheet('ssBattleChop_FighterAxeBlue', '../../Assets/Sprites/Fighter/Chop_96x88_30frames.png', { frameWidth: 96, frameHeight: 88, margin: 0, spacing: 0 });
+
+        // Warrior
+        this.load.spritesheet('ssBattleIdle_KnightAxeRed', '../../Assets/Sprites/KnightAxeRed/Idle_64x72_23frames.png', { frameWidth: 64, frameHeight: 72, margin: 0, spacing: 0 });
+        this.load.spritesheet('ssBattleDodge_KnightAxeRed', '../../Assets/Sprites/KnightAxeRed/Dodge_72x72_13frames.png', { frameWidth: 72, frameHeight: 72, margin: 0, spacing: 0 });
+        this.load.spritesheet('ssBattleSwing_KnightAxeRed', '../../Assets/Sprites/KnightAxeRed/Swing_104x112_20frames.png', { frameWidth: 104, frameHeight: 112, margin: 0, spacing: 0 });
+        this.load.spritesheet('ssBattleChop_KnightAxeRed', '../../Assets/Sprites/KnightAxeRed/Chop_120x152_24frames.png', { frameWidth: 120, frameHeight: 152, margin: 0, spacing: 0 });
+    }
 
     create() {
         //console.log("CREATE BATTLE");
@@ -62,24 +79,42 @@ class Battle extends SceneTransition {
         // X is set perfectly, y being just barely off screen
         this.menuCont.setPosition((this.menuBG.width * 0.5) + 10, Main.phaserConfig.height + (this.menuBG.height * 0.5) + 10);
 
+
+        // ANIMATIONS
+        this.anims.create({ key	: 'FighterAxeBlue_Battle_Idle', frames : this.anims.generateFrameNumbers('ssBattleIdle_FighterAxeBlue', { start: 0, end: 23 }), repeat : -1, frameRate : 12 });
+        this.anims.create({ key	: 'FighterAxeBlue_Battle_Dodge', frames : this.anims.generateFrameNumbers('ssBattleDodge_FighterAxeBlue', { start: 0, end: 13 }), repeat : 0, frameRate : 12 });
+        this.anims.create({ key	: 'FighterAxeBlue_Battle_Swing', frames : this.anims.generateFrameNumbers('ssBattleSwing_FighterAxeBlue', { start: 0, end: 25 }), repeat : 0, frameRate : 12 });
+        this.anims.create({ key	: 'FighterAxeBlue_Battle_Chop', frames : this.anims.generateFrameNumbers('ssBattleChop_FighterAxeBlue', { start: 0, end: 30 }), repeat : 0, frameRate : 12 });
+        
+        this.anims.create({ key	: 'KnightAxeRed_Battle_Idle', frames : this.anims.generateFrameNumbers('ssBattleIdle_KnightAxeRed', { start: 0, end: 23 }), repeat : -1, frameRate : 12 });
+        this.anims.create({ key	: 'KnightAxeRed_Battle_Dodge', frames : this.anims.generateFrameNumbers('ssBattleDodge_KnightAxeRed', { start: 0, end: 13 }), repeat : 0, frameRate : 12 });
+        this.anims.create({ key	: 'KnightAxeRed_Battle_Swing', frames : this.anims.generateFrameNumbers('ssBattleSwing_KnightAxeRed', { start: 0, end: 20 }), repeat : 0, frameRate : 12 });
+        this.anims.create({ key	: 'KnightAxeRed_Battle_Chop', frames : this.anims.generateFrameNumbers('ssBattleChop_KnightAxeRed', { start: 0, end: 24 }), repeat : 0, frameRate : 12 });
+
+        // 4 sprites to hold here permanently, 1 enemy and 3 players to use as needed.
+        this.spriteEnemy = new BattleSprite(this, { x: 250, y: 325 }, -100, 'KnightAxeRed', true);
+        this.spritePlayers[0] = new BattleSprite(this, { x: 775, y: 275 }, Main.phaserConfig.width + 100, 'FighterAxeBlue');
+        this.spritePlayers[1] = new BattleSprite(this, { x: 700, y: 350 }, Main.phaserConfig.width + 100, 'FighterAxeBlue');
+        this.spritePlayers[2] = new BattleSprite(this, { x: 800, y: 425 }, Main.phaserConfig.width + 100, 'FighterAxeBlue');
+
         var self = this;
 
         Network.CreateResponse("RecPlayerAction", (actionObj) => {
             // TODO: Do everything graphically here. This could be my own actions, or one of the other players
-            console.log(`Player ${actionObj.socketID} acted, doing ${actionObj.damage} damage. Enemy HP: ${actionObj.enemyHP}`);
 
             if(actionObj.command == Consts.battleCommands.FIGHT) {
+                console.log(`Player ${actionObj.socketID} fought, doing ${actionObj.damage} damage. Enemy HP: ${actionObj.enemyHP}`);
                 // TODO: Match sprite with socketID and have that sprite run it's fight animation
             }
-            // RUN, only other option for now.
-            else {
-                //* I COULD just do this when selecting to run
+            else { // RUN, only other option for now.
+                console.log(`Player ${actionObj.socketID} ran.`);
+
                 if(actionObj.socketID == Network.GetSocketID()) {
                     // I fled, so end battle scene.
                     self.EndBattleScene(self);
                 }
                 else {
-                    // TODO: Someone else fled, animated their sprite, leaving the battle scene
+                    // TODO: Someone else fled, animate their sprite leaving the battle scene
                 }
             }
         });
@@ -152,19 +187,9 @@ class Battle extends SceneTransition {
         //console.log("WAKE EVENT, BATTLE WITH ENEMY: ", battleData.enemyID)
         var scene = sys.scene;
 
-        const propertyConfigX = {
-            ease: 'Back',
-            from: 0,
-            start: 0,
-            to: scene.scaleFactorX,
-        };
-        const propertyConfigY = {
-            ease: 'Back',
-            from: 0,
-            start: 0,
-            to: scene.scaleFactorY,
-        };
-
+        // Blow up background
+        const propertyConfigX = { ease: 'Back', from: 0, start: 0, to: scene.scaleFactorX };
+        const propertyConfigY = { ease: 'Back', from: 0, start: 0, to: scene.scaleFactorY };
         scene.tweens.add({
             delay: scene.LAUNCH_TIME * 0.25,
             duration: scene.LAUNCH_TIME,
@@ -176,11 +201,12 @@ class Battle extends SceneTransition {
             }
         });
 
+        // Slide in menu
         const menuPropertyConfig = {
             ease: 'Back',
             from: Main.phaserConfig.height + (scene.menuBG.height * 0.5) + 10,
             start: Main.phaserConfig.height + (scene.menuBG.height * 0.5) + 10,
-            to: Main.phaserConfig.height - (scene.menuBG.height * 0.5) - 10,
+            to: Main.phaserConfig.height - (scene.menuBG.height * 0.5) - 10 
         };
         scene.tweens.add({
             delay: scene.LAUNCH_TIME,
@@ -188,25 +214,21 @@ class Battle extends SceneTransition {
             y: menuPropertyConfig,
             targets: scene.menuCont
         });
+
+        // Slide in characters
+        scene.spriteEnemy.EnterBattle(scene.LAUNCH_TIME, scene.LAUNCH_TIME * 0.5);
+        scene.spritePlayers[0].EnterBattle(scene.LAUNCH_TIME, scene.LAUNCH_TIME * 0.5);
+        scene.spritePlayers[1].EnterBattle(scene.LAUNCH_TIME, scene.LAUNCH_TIME * 0.5);
+        scene.spritePlayers[2].EnterBattle(scene.LAUNCH_TIME, scene.LAUNCH_TIME * 0.5);
     }
 
     // Needs the scene passed into it if it's going to be used as a Network response
     EndBattleScene(scene, battleWon = false) {
         scene.inputReady = false;
 
-        const propertyConfigX = {
-            ease: 'Expo.easeInOut',
-            from: scene.scaleFactorX,
-            start: scene.scaleFactorX,
-            to: 0,
-        };
-        const propertyConfigY = {
-            ease: 'Expo.easeInOut',
-            from: scene.scaleFactorY,
-            start: scene.scaleFactorY,
-            to: 0,
-        };
-
+        // Shrink bg back down
+        const propertyConfigX = { ease: 'Expo.easeInOut', from: scene.scaleFactorX, start: scene.scaleFactorX, to: 0 };
+        const propertyConfigY = { ease: 'Expo.easeInOut', from: scene.scaleFactorY, start: scene.scaleFactorY, to: 0 };
         scene.tweens.add({
             delay: scene.LAUNCH_TIME * 0.5,
             duration: scene.LAUNCH_TIME,
@@ -227,6 +249,7 @@ class Battle extends SceneTransition {
             }
         });
 
+        // Slide menu away
         const menuPropertyConfig = {
             ease: 'Back',
             from: Main.phaserConfig.height - (scene.menuBG.height * 0.5) - 10,
@@ -239,6 +262,11 @@ class Battle extends SceneTransition {
             y: menuPropertyConfig,
             targets: scene.menuCont
         });
+
+        scene.spriteEnemy.ExitBattle(scene.LAUNCH_TIME * 0.25, scene.LAUNCH_TIME * 0.75);
+        scene.spritePlayers[0].ExitBattle(scene.LAUNCH_TIME * 0.25, scene.LAUNCH_TIME * 0.75);
+        scene.spritePlayers[1].ExitBattle(scene.LAUNCH_TIME * 0.25, scene.LAUNCH_TIME * 0.75);
+        scene.spritePlayers[2].ExitBattle(scene.LAUNCH_TIME * 0.25, scene.LAUNCH_TIME * 0.75);
     }
 
     EndGame() {

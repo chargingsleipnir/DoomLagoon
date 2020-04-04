@@ -16,15 +16,9 @@ class Overworld extends TiledMapScene {
     // TODO: Show controls on options menu
     // TODO: Audio
 
-    init() {
-        console.log("INIT OVERWORLD");
-    }
-
     preload() {
-        console.log("PRELOAD OVERWORLD");
-
         Main.animData.skins.forEach((skin) => {
-            this.load.spritesheet(Main.animData.skinPrefix + skin, '../../Assets/Sprites/' + Main.animData.skinPrefix + skin + '.png', { frameWidth: 32, frameHeight: 32, margin: 1, spacing: 1 });
+            this.load.spritesheet(Main.animData.overworld.skinPrefix + skin, '../../Assets/Sprites/' + Main.animData.overworld.skinPrefix + skin + '.png', { frameWidth: 32, frameHeight: 32, margin: 1, spacing: 1 });
         }, this);
 
         this.LoadMapData('DataFiles/OverworldTilesetsEmbeded.json');
@@ -48,11 +42,6 @@ class Overworld extends TiledMapScene {
         this.load.image('chestBrownOpen', '../../Assets/Map/ChestBrownOpen.png');
         this.load.image('chestGreenClosed', '../../Assets/Map/ChestGreenClosed.png');
         this.load.image('chestGreenOpen', '../../Assets/Map/ChestGreenOpen.png');
-    
-        // BATTLE SCENE
-        this.load.image('battleBG_Grass_House_01', '../../Assets/BattleBackgrounds/Grass_House_01.png');
-        this.load.image('battleMenuBG', '../../Assets/GUI/Menu_450x100.png');
-        this.load.image('battleMenuCursor', '../../Assets/GUI/arrowRight_32x32.png');
     }
 
     create(initData) {
@@ -61,12 +50,12 @@ class Overworld extends TiledMapScene {
         console.log("CREATE OVERWORLD");
 
         Main.animData.skins.forEach((skin) => {
-            Main.animData.keys.forEach((key) => {
+            Main.animData.overworld.keys.forEach((key) => {
                 this.anims.create({
                     key	: skin + '-' + key,
-                    frames : this.anims.generateFrameNumbers(Main.animData.skinPrefix + skin, { start: Main.animData.frames[key].start, end: Main.animData.frames[key].end }),
-                    repeat : Main.animData.repeat,
-                    frameRate : Main.animData.frameRate
+                    frames : this.anims.generateFrameNumbers(Main.animData.overworld.skinPrefix + skin, { start: Main.animData.overworld.frames[key].start, end: Main.animData.overworld.frames[key].end }),
+                    repeat : Main.animData.overworld.repeat,
+                    frameRate : Main.animData.overworld.frameRate
                 });
             }, this);
         }, this);

@@ -28,7 +28,7 @@ class Title extends SceneTransition {
         super.create();
 
         // TODO: This can't really reference the file this deeply once I'm getting other animations in play
-        Main.animData = this.cache.json.get('AnimData').overworld.walk;
+        Main.animData = this.cache.json.get('AnimData');
 
         // Increase the size just for this openner.
         this.mask.setScale(this.MASK_MAX_SCALE);
