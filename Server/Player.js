@@ -11,6 +11,7 @@ module.exports = function(sprites) {
 
         socket;
         enemyID;
+        nextBattleReady;
 
         constructor(socket, playerData) {
 
@@ -20,10 +21,12 @@ module.exports = function(sprites) {
             };
 
             super(playerData);
+            this.hpCurr = this.hpMax = 20;
+            this.strength = 3;
+
             this.socket = socket;
             this.enemyID = -1;
-
-            this.hpCurr = this.hpMax = 20;
+            this.nextBattleReady = true;
         }
         
         SetupNetworkResponses(io, socket) {
@@ -102,21 +105,21 @@ module.exports = function(sprites) {
             });
 
             // JUST FOR TESTING - TODO: EXPAND SERVER TESTING FUNCTIONS
-            socket.on("BattleAction", function () {
+            socket.on("BattleAction", function (actionObj) {
                 if(self.enemyID == -1)
                     return;
 
-                var enemy = sprites.allData[Consts.spriteTypes.ENEMY][self.enemyID];
-
-                // Presumably the server has all the stats - damage, health, etc for the player.
-
-                enemy.Enact({
-                    damage: 11,
+                sprites.allData[Consts.spriteTypes.ENEMY][self.enemyID].Enact({
+                    command: actionObj.command,
+                    damage: self.strength,
                     fromSocketID: socket.client.id
                 });
 
                 console.log("battle action registered");
-                // TODO: Send each action to every person in battle - perhaps if the enemy is actually holding an array of socketIDs, that can be used by each player to reach the others
+            });
+
+            socket.on("NextBattleReady", function () {
+                self.nextBattleReady = true;
             });
         }
         UpdateNeighbors() {
@@ -126,10 +129,12 @@ module.exports = function(sprites) {
             this.neighbors.UP = mapData.GetValueOffset(this.gridPos, 0, -1);
             this.neighbors.DOWN = mapData.GetValueOffset(this.gridPos, 0, 1);
 
-            this.CheckForBattle(this.neighbors.LEFT);
-            this.CheckForBattle(this.neighbors.RIGHT);
-            this.CheckForBattle(this.neighbors.UP);
-            this.CheckForBattle(this.neighbors.DOWN);
+            if(this.nextBattleReady) {
+                this.CheckForBattle(this.neighbors.LEFT);
+                this.CheckForBattle(this.neighbors.RIGHT);
+                this.CheckForBattle(this.neighbors.UP);
+                this.CheckForBattle(this.neighbors.DOWN);
+            }
 
             this.socket.emit('RecUpdateNeighbors', { neighbors: this.neighbors, inBattle: this.inBattle });
         }
@@ -137,11 +142,17 @@ module.exports = function(sprites) {
         UpdateNeighbor(side, occupancy) {
             //console.log(`Neighbor change: ${side}: ${occupancy}`);
             this.neighbors[side] = occupancy;
-            this.CheckForBattle(occupancy);
+
+            if(this.nextBattleReady) {
+                this.CheckForBattle(occupancy);
+            }
 
             this.socket.emit('RecUpdateNeighbor', { side: side, occupancy: occupancy, inBattle: this.inBattle });
         };
         CheckForBattle(neighbor) {
+            if(!this.nextBattleReady)
+                return;
+
             if(this.inBattle)
                 return;
 
@@ -171,6 +182,7 @@ module.exports = function(sprites) {
 
                 if(this.inBattle) {
                     console.log("Battle!");
+                    this.nextBattleReady = false;
                     this.enemyID = enemy.id;
                     enemy.AddPlayerToBattle(this.socket.client.id);
                     this.socket.emit('RecCommenceBattle', { enemyID: this.enemyID });
@@ -179,25 +191,26 @@ module.exports = function(sprites) {
         }
 
         LeaveBattle() {
-            console.log(`Reseting player battle props: enemyID: ${this.enemyID}, inBattle: ${this.inBattle}`);
+            if(!this.inBattle)
+                return;
+                
+            //console.log(`Reseting player battle props: enemyID: ${this.enemyID}, inBattle: ${this.inBattle}`);
+            
+            //* The enemy itself could take care of this when the battle is won, but because the play needs to initiate it both on disconnect, and when RUN is selected, we invoke the enemy here to do it.
+            sprites.allData[Consts.spriteTypes.ENEMY][this.enemyID].RemovePlayerFromBattle(this.socket.client.id);
             this.enemyID = -1;
             this.inBattle = false;
         }
 
         WinBattle() {
             console.log(`Battle won for player ${this.socket.client.id}`);
-            // TODO: server update as needed
+            // TODO: database update as needed
             // TODO: Send win information to local player.
             this.LeaveBattle();
-            this.socket.emit("RecBattleWon", {});
+            this.socket.emit("RecBattleWon");
         }
 
         Disconnect() {
-            // Normally the enemy itself would take care of this, but in the case of disconnect, invoke the enemy here to do it.
-            if(this.inBattle) {
-                var enemy = sprites.allData[Consts.spriteTypes.ENEMY][this.enemyID];
-                enemy.RemovePlayerFromBattle(this.socket.client.id);
-            }
             this.LeaveBattle();
             this.RemoveSelf();
         }

@@ -84,7 +84,7 @@ module.exports = function(sprites) {
                 case Consts.enemyTypes.KNIGHT_AXE_RED:
                     this.name = "KnightAxeRed";
                     this.hpCurr = this.hpMax = 10;
-                    this.strength = 10;
+                    this.strength = 3;
                     break;
             }
         }
@@ -150,7 +150,7 @@ module.exports = function(sprites) {
                     console.log(`Players remaining in list ${this.playerSocketIDs.length}`);
 
                     this.inBattle = this.playerSocketIDs.length > 0;
-                    if(this.isAlive && !this.inBattle) {
+                    if(this.CanMoveOnMap()) {
                         this.RunMoveTimer();
                     }
                 }
@@ -158,60 +158,75 @@ module.exports = function(sprites) {
         }
 
         Enact(actionObj) {
-            this.hpCurr -= actionObj.damage;
+            // This is necessary to be able to emit a signal to all battle members after they are removed from the battle and their socketID is lost
+            var socketIDListCopy = [];
+            for(var i = this.playerSocketIDs.length - 1; i > -1; i--) {
+                socketIDListCopy.push(this.playerSocketIDs[i]);
+            }
 
-            this.playerSocketIDs.forEach(playerSocketID => {
+            if(actionObj.command == Consts.battleCommands.FIGHT) {
+                this.hpCurr -= actionObj.damage;
+                if(this.hpCurr <= 0) {
+                    this.hpCurr = 0;
+                    this.isAlive = false;
+                    this.inBattle = false;
+                    // Deactivate self from map
+                    this.RemoveSelf();
+    
+                    // Reset back to spawn position and wait for it to be clear before reviving.
+                    this.gridPos.x = this.spawnPos.x;
+                    this.gridPos.y = this.spawnPos.y;
+                    this.ResetPosData();
+    
+                    for(var i = this.playerSocketIDs.length - 1; i > -1; i--) {
+                        // TODO: Pass through anything that the enemy might hold. Enemy could be the keeper of exp, if there will be any...?
+                        sprites.allData[Consts.spriteTypes.PLAYER][this.playerSocketIDs[i]].WinBattle();
+                    }
+    
+                    delete sprites.allData[Consts.spriteTypes.ENEMY][this.id];
+                    delete sprites.updatePack[Consts.spriteTypes.ENEMY][this.id];
+    
+                    // Tell everyone in the game to remove this sprite until further notice
+                    this.io.emit("RemoveSprite", this.mapSprite);
+    
+                    //console.log(`Enemy removed: ${this.id}`);
+    
+                    // REVIVE SELF
+                    
+                    var self = this;
+                    function CheckSpawnPosForRevival () {
+                        setTimeout(() => {
+                            //console.log("Revival timeout expired");
+                            //console.log("Spawn position available: ", mapData.GetValue(self.gridPos) == Consts.spriteTypes.WALK);
+                            if(mapData.GetValue(self.gridPos) == Consts.tileTypes.WALK) {
+                                //console.log("Calling self revival");
+                                self.Revive();
+                            }
+                            else {
+                                //console.log("Spot occupied, recalling CheckSpawnPosForRevival");
+                                CheckSpawnPosForRevival();
+                            }
+                        }, Consts.ENEMY_DEATH_COOLDOWN * 1000);
+                    }
+                    CheckSpawnPosForRevival();
+                }
+            }
+            // RUN, only other option for now.
+            else {
+                console.log("Enemies: Run from battle");
+                // TODO: This calls the player which calls this enemy back... a little ridiculous of a process...
+                sprites.allData[Consts.spriteTypes.PLAYER][actionObj.fromSocketID].LeaveBattle();
+            }
+
+            socketIDListCopy.forEach(playerSocketID => {
+                console.log("Enemies: Calling RecPlayerAction");
                 this.io.to(playerSocketID).emit('RecPlayerAction', { 
                     socketID: actionObj.fromSocketID,
+                    command: actionObj.command,
                     damage: actionObj.damage,
                     enemyHP: this.hpCurr
                 });
             });
-            
-            if(this.hpCurr <= 0) {
-                this.isAlive = false;
-                this.inBattle = false;
-                // Deactivate self from map
-                this.RemoveSelf();
-
-                // Reset back to spawn position and wait for it to be clear before reviving.
-                this.gridPos.x = this.spawnPos.x;
-                this.gridPos.y = this.spawnPos.y;
-                this.ResetPosData();
-
-                for(var i = this.playerSocketIDs.length - 1; i > -1; i--) {
-                    // TODO: Pass through anything that the enemy might hold. Enemy could be the keeper of exp, if there will be any...?
-                    sprites.allData[Consts.spriteTypes.PLAYER][this.playerSocketIDs[i]].WinBattle();
-                    this.RemovePlayerFromBattle(this.playerSocketIDs[i]);
-                }
-
-                delete sprites.allData[Consts.spriteTypes.ENEMY][this.id];
-                delete sprites.updatePack[Consts.spriteTypes.ENEMY][this.id];
-
-                // Tell everyone in the game to remove this sprite until further notice
-                this.io.emit("RemoveSprite", this.mapSprite);
-
-                //console.log(`Enemy removed: ${this.id}`);
-
-                // REVIVE SELF
-                
-                var self = this;
-                function CheckSpawnPosForRevival () {
-                    setTimeout(() => {
-                        //console.log("Revival timeout expired");
-                        //console.log("Spawn position available: ", mapData.GetValue(self.gridPos) == Consts.spriteTypes.WALK);
-                        if(mapData.GetValue(self.gridPos) == Consts.tileTypes.WALK) {
-                            //console.log("Calling self revival");
-                            self.Revive();
-                        }
-                        else {
-                            //console.log("Spot occupied, recalling CheckSpawnPosForRevival");
-                            CheckSpawnPosForRevival();
-                        }
-                    }, Consts.ENEMY_DEATH_COOLDOWN * 1000);
-                }
-                CheckSpawnPosForRevival();
-            }
         }
 
         Revive() {

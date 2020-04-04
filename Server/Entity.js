@@ -37,6 +37,8 @@ module.exports = function(sprites) {
         hpMax;
         hpCurr;
 
+        strength;
+
         constructor(initData) {
             this.id = initData.id;
             this.name = initData.name;

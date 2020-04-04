@@ -16,7 +16,13 @@ class Overworld extends TiledMapScene {
     // TODO: Show controls on options menu
     // TODO: Audio
 
+    init() {
+        console.log("INIT OVERWORLD");
+    }
+
     preload() {
+        console.log("PRELOAD OVERWORLD");
+
         Main.animData.skins.forEach((skin) => {
             this.load.spritesheet(Main.animData.skinPrefix + skin, '../../Assets/Sprites/' + Main.animData.skinPrefix + skin + '.png', { frameWidth: 32, frameHeight: 32, margin: 1, spacing: 1 });
         }, this);
@@ -46,10 +52,13 @@ class Overworld extends TiledMapScene {
         // BATTLE SCENE
         this.load.image('battleBG_Grass_House_01', '../../Assets/BattleBackgrounds/Grass_House_01.png');
         this.load.image('battleMenuBG', '../../Assets/GUI/Menu_450x100.png');
+        this.load.image('battleMenuCursor', '../../Assets/GUI/arrowRight_32x32.png');
     }
 
     create(initData) {
         super.create();
+
+        console.log("CREATE OVERWORLD");
 
         Main.animData.skins.forEach((skin) => {
             Main.animData.keys.forEach((key) => {
@@ -174,23 +183,12 @@ class Overworld extends TiledMapScene {
 
         // BATTLE SCENE!
         Network.CreateResponse("RecCommenceBattle", function (battleData) {
-            // scene.scene.transition({
-            //     duration: scene.TRANSITION_TIME,
-            //     target: "Battle",
-            //     data: battleData
-            // });
-
             console.log("Overworld starting battle scene: ", battleData);
-
-            // TODO: Maybe just transition smoothly from in the sceen itself, no need to use the phaser transition system.
-            // Let it last a couple seconds so the player can see the units actually approach properly, as they're still entering their respective tiles when this is called.
-            if(self.scene.isSleeping("Battle")) {
-                self.scene.wake("Battle", battleData);
-            }
-            else {
-                self.scene.launch("Battle", battleData);
-            }
+            self.scene.wake("Battle", battleData);
         });
+
+        //* Launch and put to sleep immediately, so it's just always on standby, only to ever be slept and awaken.
+        self.scene.launch("Battle");
     }
 
     update() {

@@ -20,6 +20,7 @@
     exports.enemyTypes = { KNIGHT_AXE_RED: 0 };
     exports.moveCacheSlots = { FROM: 0, TO: 1, NEXT: 2 };
     exports.spawnTypes = { PLAYER: 0, ENEMY: 1, NPC: 2 };
+    exports.battleCommands = { FIGHT: 0, RUN: 1 }
 
     exports.depthExceptions = { TILEMAP_OVERLAP_LAYER: 9999 }
 
@@ -33,6 +34,8 @@
     exports.MAP_MOVE_SPEED = 2;
     exports.MAX_PLAYERS_PER_BATTLE = 4;
     exports.ENEMY_DEATH_COOLDOWN = 10;
+    exports.BATTLE_WON_NEXT_COOLDOWN = 1;
+    exports.BATTLE_RAN_NEXT_COOLDOWN = 4;
 
     exports.SALT_ROUNDS = 10;
     exports.CHAT_LOG_SIZE = 50;
