@@ -18,16 +18,18 @@ class Battle extends SceneTransition {
 
     spriteEnemy;
     spritePlayers = [];
+
+    playerIdxObj;
     
     constructor() {
         super("Battle");
 
         this.menuOptionIdx = Consts.battleCommands.FIGHT;
+        this.playerIdxObj = {
+            self: -1,
+            others: []
+        };
     }
-
-    // init() {
-    //     console.log("INIT BATTLE");
-    // }
 
     preload() {
         this.load.image('battleBG_Grass_House_01', '../../Assets/BattleBackgrounds/Grass_House_01.png');
@@ -93,17 +95,32 @@ class Battle extends SceneTransition {
 
         // 4 sprites to hold here permanently, 1 enemy and 3 players to use as needed.
         this.spriteEnemy = new BattleSprite(this, { x: 250, y: 325 }, -100, 'KnightAxeRed', true);
-        this.spritePlayers[0] = new BattleSprite(this, { x: 775, y: 275 }, Main.phaserConfig.width + 100, 'FighterAxeBlue');
-        this.spritePlayers[1] = new BattleSprite(this, { x: 700, y: 350 }, Main.phaserConfig.width + 100, 'FighterAxeBlue');
+        this.spritePlayers[0] = new BattleSprite(this, { x: 700, y: 350 }, Main.phaserConfig.width + 100, 'FighterAxeBlue');
+        this.spritePlayers[1] = new BattleSprite(this, { x: 775, y: 275 }, Main.phaserConfig.width + 100, 'FighterAxeBlue');
         this.spritePlayers[2] = new BattleSprite(this, { x: 800, y: 425 }, Main.phaserConfig.width + 100, 'FighterAxeBlue');
 
         var self = this;
+
+        Network.CreateResponse('RecAddPlayer', (battleIndex) => {
+            this.playerIdxObj.others.push(battleIndex);
+            this.spritePlayers[battleIndex].EnterBattle(this.LAUNCH_TIME, this.LAUNCH_TIME * 0.5);
+            console.log(`Player at battle index ${battleIndex} added`);
+            console.log(`playerIdxObj now:`, this.playerIdxObj);
+        });
+
+        Network.CreateResponse('RecLosePlayer', (battleIndex) => {
+            var listIdx = this.playerIdxObj.others.indexOf(battleIndex);
+            this.playerIdxObj.others.splice(listIdx, 1);
+            this.spritePlayers[battleIndex].ExitBattle(this.LAUNCH_TIME * 0.25, this.LAUNCH_TIME * 0.75);
+            console.log(`Player at battle index ${battleIndex} left`);
+            console.log(`playerIdxObj remaining:`, this.playerIdxObj);
+        });
 
         Network.CreateResponse("RecPlayerAction", (actionObj) => {
             // TODO: Do everything graphically here. This could be my own actions, or one of the other players
 
             if(actionObj.command == Consts.battleCommands.FIGHT) {
-                console.log(`Player ${actionObj.socketID} fought, doing ${actionObj.damage} damage. Enemy HP: ${actionObj.enemyHP}`);
+                console.log(`Player ${actionObj.battlePosIdx} (${actionObj.socketID}) fought, doing ${actionObj.damage} damage. Enemy HP: ${actionObj.enemyHP}`);
                 // TODO: Match sprite with socketID and have that sprite run it's fight animation
             }
             else { // RUN, only other option for now.
@@ -217,9 +234,16 @@ class Battle extends SceneTransition {
 
         // Slide in characters
         scene.spriteEnemy.EnterBattle(scene.LAUNCH_TIME, scene.LAUNCH_TIME * 0.5);
-        scene.spritePlayers[0].EnterBattle(scene.LAUNCH_TIME, scene.LAUNCH_TIME * 0.5);
-        scene.spritePlayers[1].EnterBattle(scene.LAUNCH_TIME, scene.LAUNCH_TIME * 0.5);
-        scene.spritePlayers[2].EnterBattle(scene.LAUNCH_TIME, scene.LAUNCH_TIME * 0.5);
+        
+        scene.playerIdxObj.self = battleData.playerIdxObj.self;
+        scene.playerIdxObj.others = battleData.playerIdxObj.others.slice();
+
+        if(scene.playerIdxObj.self > -1) {
+            scene.spritePlayers[scene.playerIdxObj.self].EnterBattle(scene.LAUNCH_TIME, scene.LAUNCH_TIME * 0.5);
+        }
+        for(let i = 0; i < scene.playerIdxObj.others.length; i++) {
+            scene.spritePlayers[scene.playerIdxObj.others[i]].EnterBattle(scene.LAUNCH_TIME, scene.LAUNCH_TIME * 0.5);
+        }
     }
 
     // Needs the scene passed into it if it's going to be used as a Network response
@@ -263,10 +287,21 @@ class Battle extends SceneTransition {
             targets: scene.menuCont
         });
 
-        scene.spriteEnemy.ExitBattle(scene.LAUNCH_TIME * 0.25, scene.LAUNCH_TIME * 0.75);
-        scene.spritePlayers[0].ExitBattle(scene.LAUNCH_TIME * 0.25, scene.LAUNCH_TIME * 0.75);
-        scene.spritePlayers[1].ExitBattle(scene.LAUNCH_TIME * 0.25, scene.LAUNCH_TIME * 0.75);
-        scene.spritePlayers[2].ExitBattle(scene.LAUNCH_TIME * 0.25, scene.LAUNCH_TIME * 0.75);
+        scene.spritePlayers[scene.playerIdxObj.self].ExitBattle(scene.LAUNCH_TIME * 0.25, scene.LAUNCH_TIME * 0.75);
+        
+        // TODO: A different closing animation for if "battleWon", one in which the enemy and other player do not actually leave, as they are of course still be in battle.
+        // Perhaps just the player runs and the whole scene fades/drops away...?
+        //if(battleWon) {
+            console.log(scene.playerIdxObj);
+
+            scene.spriteEnemy.ExitBattle(scene.LAUNCH_TIME * 0.25, scene.LAUNCH_TIME * 0.75);
+            for(let i = 0; i < scene.playerIdxObj.others.length; i++) {
+                scene.spritePlayers[scene.playerIdxObj.others[i]].ExitBattle(scene.LAUNCH_TIME * 0.25, scene.LAUNCH_TIME * 0.75);
+            }
+        //}
+
+        scene.playerIdxObj.self = -1;
+        scene.playerIdxObj.others = [];
     }
 
     EndGame() {

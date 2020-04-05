@@ -47,8 +47,6 @@ class Overworld extends TiledMapScene {
     create(initData) {
         super.create();
 
-        console.log("CREATE OVERWORLD");
-
         Main.animData.skins.forEach((skin) => {
             Main.animData.overworld.keys.forEach((key) => {
                 this.anims.create({

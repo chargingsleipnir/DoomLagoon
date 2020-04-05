@@ -42,7 +42,9 @@ module.exports = function(sprites) {
         MOVE_COOLDOWN = 2;
 
         strength;
+        // Going to maintain this as always full list of nulls and/or socketIDs so I can use the indices to send to the clients to match their locations.
         playerSocketIDs;
+        playerBattleCount;
         isAlive;
 
         io;
@@ -76,6 +78,11 @@ module.exports = function(sprites) {
             this.ResetPosData();
 
             this.playerSocketIDs = [];
+            this.playerBattleCount = 0;
+            for(let i = 0; i < Consts.MAX_PLAYERS_PER_BATTLE; i++) {
+                this.playerSocketIDs.push(null);
+            }
+
             this.isAlive = true;
 
             //* This might be more than sufficient to distinguish among each type of enemy for such a limited game sample
@@ -128,31 +135,67 @@ module.exports = function(sprites) {
         }
 
         CanAddPlayerToBattle() {
-            return this.playerSocketIDs.length < Consts.MAX_PLAYERS_PER_BATTLE;
+            return this.playerBattleCount < Consts.MAX_PLAYERS_PER_BATTLE;
         }
 
         AddPlayerToBattle(socketID) {
+            var playerIdxObj = {
+                self: -1,
+                others: []
+            };
+
             if(this.CanAddPlayerToBattle()) {
                 //console.log(`Socket ID pushed into battle group: ${socketID}`);
-                this.playerSocketIDs.push(socketID);
-                clearTimeout(this.timeoutRef);
-                // TODO: Every new player needs to be sent the info of the players currently in battle to fill out their battle view.
+                for(let i = 0; i < Consts.MAX_PLAYERS_PER_BATTLE; i++) {
+                    if(this.playerSocketIDs[i] == null) {
+                        if(playerIdxObj.self > -1)
+                            continue;
+
+                        this.playerSocketIDs[i] = socketID;
+                        playerIdxObj.self = i;
+                        this.playerBattleCount++;
+
+                        // Let all other active battle participants know to add this player
+                        for(let j = 0; j < Consts.MAX_PLAYERS_PER_BATTLE; j++) {
+                            if(j == i)
+                                continue;
+
+                            if(this.playerSocketIDs[j] != null)
+                                this.io.to(this.playerSocketIDs[j]).emit('RecAddPlayer', i);
+                        }
+                    }
+                    else {
+                        playerIdxObj.others.push(i);
+                    }
+                }
             }
-            this.inBattle = this.playerSocketIDs.length > 0;
+            this.inBattle = this.playerBattleCount > 0;
+            if(this.inBattle)
+                clearTimeout(this.timeoutRef);
+
+            return playerIdxObj;
         }
 
         RemovePlayerFromBattle(socketID) {
-            if(this.playerSocketIDs.length > 0) {
+            if(this.playerBattleCount > 0) {
                 var idx = this.playerSocketIDs.indexOf(socketID);
                 if(idx > -1) {
-                    this.playerSocketIDs.splice(idx, 1);
+                    this.playerSocketIDs[idx] = null;
+                    this.playerBattleCount--;
                     //console.log(`Removed player ${socketID}`);
-                    //console.log(`Players remaining in list ${this.playerSocketIDs.length}`);
+                    //console.log(`Players remaining in list ${this.playerBattleCount}`);
 
-                    this.inBattle = this.playerSocketIDs.length > 0;
+                    this.inBattle = this.playerBattleCount > 0;
                     if(this.CanMoveOnMap()) {
                         this.hpCurr = this.hpMax;
                         this.RunMoveTimer();
+                    }
+                    // If still in battle, let every other player know of the one that left
+                    else {
+                        for(let i = 0; i < Consts.MAX_PLAYERS_PER_BATTLE; i++) {
+                            if(this.playerSocketIDs[i] != null)
+                                this.io.to(this.playerSocketIDs[i]).emit('RecLosePlayer', idx);
+                        }
                     }
                 }
             }
@@ -179,9 +222,10 @@ module.exports = function(sprites) {
                     this.gridPos.y = this.spawnPos.y;
                     this.ResetPosData();
     
-                    for(var i = this.playerSocketIDs.length - 1; i > -1; i--) {
+                    for(let i = 0; i < this.playerSocketIDs.length; i++) {
                         // TODO: Pass through anything that the enemy might hold. Enemy could be the keeper of exp, if there will be any...?
-                        sprites.allData[Consts.spriteTypes.PLAYER][this.playerSocketIDs[i]].WinBattle();
+                        if(this.playerSocketIDs[i] != null)
+                            sprites.allData[Consts.spriteTypes.PLAYER][this.playerSocketIDs[i]].WinBattle();
                     }
     
                     delete sprites.allData[Consts.spriteTypes.ENEMY][this.id];
@@ -220,14 +264,17 @@ module.exports = function(sprites) {
                 sprites.allData[Consts.spriteTypes.PLAYER][actionObj.fromSocketID].LeaveBattle();
             }
 
-            socketIDListCopy.forEach(playerSocketID => {
-                this.io.to(playerSocketID).emit('RecPlayerAction', { 
-                    socketID: actionObj.fromSocketID,
-                    command: actionObj.command,
-                    damage: actionObj.damage,
-                    enemyHP: this.hpCurr
-                });
-            });
+            for(let i = 0; i < socketIDListCopy.length; i++) {
+                if(socketIDListCopy[i] != null) {
+                    this.io.to(socketIDListCopy[i]).emit('RecPlayerAction', { 
+                        socketID: actionObj.fromSocketID,
+                        battlePosIdx: i,
+                        command: actionObj.command,
+                        damage: actionObj.damage,
+                        enemyHP: this.hpCurr
+                    });
+                }
+            }
         }
 
         Revive() {

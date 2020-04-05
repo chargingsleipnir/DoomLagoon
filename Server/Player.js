@@ -181,8 +181,11 @@ module.exports = function(sprites) {
                 if(this.inBattle) {
                     this.nextBattleReady = false;
                     this.enemyID = enemy.id;
-                    enemy.AddPlayerToBattle(this.socket.client.id);
-                    this.socket.emit('RecCommenceBattle', { enemyID: this.enemyID });
+                    var playerIdxObj = enemy.AddPlayerToBattle(this.socket.client.id);
+                    this.socket.emit('RecCommenceBattle', { 
+                        enemyID: this.enemyID,
+                        playerIdxObj: playerIdxObj,
+                    });
                 }
             }
         }
