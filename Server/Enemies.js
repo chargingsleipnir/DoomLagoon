@@ -204,7 +204,7 @@ module.exports = function(sprites) {
         Enact(actionObj) {
             // This is necessary to be able to emit a signal to all battle members after they are removed from the battle and their socketID is lost
             var socketIDListCopy = [];
-            for(var i = this.playerSocketIDs.length - 1; i > -1; i--) {
+            for(let i = 0; i < this.playerSocketIDs.length; i++) {
                 socketIDListCopy.push(this.playerSocketIDs[i]);
             }
 
@@ -268,7 +268,7 @@ module.exports = function(sprites) {
                 if(socketIDListCopy[i] != null) {
                     this.io.to(socketIDListCopy[i]).emit('RecPlayerAction', { 
                         socketID: actionObj.fromSocketID,
-                        battlePosIdx: i,
+                        playerBattleIdx: actionObj.playerBattleIdx,
                         command: actionObj.command,
                         damage: actionObj.damage,
                         enemyHP: this.hpCurr

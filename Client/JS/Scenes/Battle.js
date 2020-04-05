@@ -120,7 +120,7 @@ class Battle extends SceneTransition {
             // TODO: Do everything graphically here. This could be my own actions, or one of the other players
 
             if(actionObj.command == Consts.battleCommands.FIGHT) {
-                console.log(`Player ${actionObj.battlePosIdx} (${actionObj.socketID}) fought, doing ${actionObj.damage} damage. Enemy HP: ${actionObj.enemyHP}`);
+                console.log(`Player ${actionObj.playerBattleIdx} (${actionObj.socketID}) fought, doing ${actionObj.damage} damage. Enemy HP: ${actionObj.enemyHP}`);
                 // TODO: Match sprite with socketID and have that sprite run it's fight animation
             }
             else { // RUN, only other option for now.
@@ -165,7 +165,8 @@ class Battle extends SceneTransition {
 
             // TODO: Do nothing graphically here, just send input/command
             Network.Emit("BattleAction", {
-                command: this.menuOptionIdx
+                command: this.menuOptionIdx,
+                playerBattleIdx: this.playerIdxObj.self
             });
         });
 

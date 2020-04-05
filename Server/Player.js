@@ -111,6 +111,7 @@ module.exports = function(sprites) {
 
                 sprites.allData[Consts.spriteTypes.ENEMY][self.enemyID].Enact({
                     command: actionObj.command,
+                    playerBattleIdx: actionObj.playerBattleIdx,
                     damage: self.strength,
                     fromSocketID: socket.client.id
                 });
