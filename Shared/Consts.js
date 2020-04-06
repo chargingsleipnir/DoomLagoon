@@ -40,4 +40,6 @@
     exports.SALT_ROUNDS = 10;
     exports.CHAT_LOG_SIZE = 50;
 
+    exports.INTERVAL_STEP = 1000 / 60;
+
 })(typeof exports === 'undefined' ? this['Consts'] = {} : exports);

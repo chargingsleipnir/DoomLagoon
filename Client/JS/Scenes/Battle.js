@@ -84,14 +84,14 @@ class Battle extends SceneTransition {
 
         // ANIMATIONS
         this.anims.create({ key	: 'FighterAxeBlue_Battle_Idle', frames : this.anims.generateFrameNumbers('ssBattleIdle_FighterAxeBlue', { start: 0, end: 23 }), repeat : -1, frameRate : 12 });
-        this.anims.create({ key	: 'FighterAxeBlue_Battle_Dodge', frames : this.anims.generateFrameNumbers('ssBattleDodge_FighterAxeBlue', { start: 0, end: 13 }), repeat : 0, frameRate : 12 });
-        this.anims.create({ key	: 'FighterAxeBlue_Battle_Swing', frames : this.anims.generateFrameNumbers('ssBattleSwing_FighterAxeBlue', { start: 0, end: 25 }), repeat : 0, frameRate : 12 });
-        this.anims.create({ key	: 'FighterAxeBlue_Battle_Chop', frames : this.anims.generateFrameNumbers('ssBattleChop_FighterAxeBlue', { start: 0, end: 30 }), repeat : 0, frameRate : 12 });
+        this.anims.create({ key	: 'FighterAxeBlue_Battle_Dodge', frames : this.anims.generateFrameNumbers('ssBattleDodge_FighterAxeBlue', { start: 0, end: 13 }), repeat : 0, frameRate : 20 });
+        this.anims.create({ key	: 'FighterAxeBlue_Battle_Swing', frames : this.anims.generateFrameNumbers('ssBattleSwing_FighterAxeBlue', { start: 0, end: 25 }), repeat : 0, frameRate : 20 });
+        this.anims.create({ key	: 'FighterAxeBlue_Battle_Chop', frames : this.anims.generateFrameNumbers('ssBattleChop_FighterAxeBlue', { start: 0, end: 30 }), repeat : 0, frameRate : 20 });
         
         this.anims.create({ key	: 'KnightAxeRed_Battle_Idle', frames : this.anims.generateFrameNumbers('ssBattleIdle_KnightAxeRed', { start: 0, end: 23 }), repeat : -1, frameRate : 12 });
-        this.anims.create({ key	: 'KnightAxeRed_Battle_Dodge', frames : this.anims.generateFrameNumbers('ssBattleDodge_KnightAxeRed', { start: 0, end: 13 }), repeat : 0, frameRate : 12 });
-        this.anims.create({ key	: 'KnightAxeRed_Battle_Swing', frames : this.anims.generateFrameNumbers('ssBattleSwing_KnightAxeRed', { start: 0, end: 20 }), repeat : 0, frameRate : 12 });
-        this.anims.create({ key	: 'KnightAxeRed_Battle_Chop', frames : this.anims.generateFrameNumbers('ssBattleChop_KnightAxeRed', { start: 0, end: 24 }), repeat : 0, frameRate : 12 });
+        this.anims.create({ key	: 'KnightAxeRed_Battle_Dodge', frames : this.anims.generateFrameNumbers('ssBattleDodge_KnightAxeRed', { start: 0, end: 13 }), repeat : 0, frameRate : 20 });
+        this.anims.create({ key	: 'KnightAxeRed_Battle_Swing', frames : this.anims.generateFrameNumbers('ssBattleSwing_KnightAxeRed', { start: 0, end: 20 }), repeat : 0, frameRate : 20 });
+        this.anims.create({ key	: 'KnightAxeRed_Battle_Chop', frames : this.anims.generateFrameNumbers('ssBattleChop_KnightAxeRed', { start: 0, end: 24 }), repeat : 0, frameRate : 20 });
 
         // 4 sprites to hold here permanently, 1 enemy and 3 players to use as needed.
         this.spriteEnemy = new BattleSprite(this, { x: 250, y: 325 }, -100, 'KnightAxeRed', true);
@@ -121,6 +121,11 @@ class Battle extends SceneTransition {
 
             if(actionObj.command == Consts.battleCommands.FIGHT) {
                 console.log(`Player ${actionObj.playerBattleIdx} (${actionObj.socketID}) fought, doing ${actionObj.damage} damage. Enemy HP: ${actionObj.enemyHP}`);
+                
+                if(this.spritePlayers[actionObj.playerBattleIdx].inBattle) {
+                    this.spritePlayers[actionObj.playerBattleIdx].Swing();
+                }
+
                 // TODO: Match sprite with socketID and have that sprite run it's fight animation
             }
             else { // RUN, only other option for now.

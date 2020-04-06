@@ -92,6 +92,7 @@ module.exports = function(sprites) {
                     this.name = "KnightAxeRed";
                     this.hpCurr = this.hpMax = 10;
                     this.strength = 3;
+                    this.actionCooldown = 4000;
                     break;
             }
         }
@@ -144,6 +145,8 @@ module.exports = function(sprites) {
                 others: []
             };
 
+            var battleJustStarted = false;
+
             if(this.CanAddPlayerToBattle()) {
                 //console.log(`Socket ID pushed into battle group: ${socketID}`);
                 for(let i = 0; i < Consts.MAX_PLAYERS_PER_BATTLE; i++) {
@@ -154,6 +157,10 @@ module.exports = function(sprites) {
                         this.playerSocketIDs[i] = socketID;
                         playerIdxObj.self = i;
                         this.playerBattleCount++;
+
+                        // First player added means battle just started - launch action timer
+                        if(this.playerBattleCount == 1)
+                            battleJustStarted = true;
 
                         // Let all other active battle participants know to add this player
                         for(let j = 0; j < Consts.MAX_PLAYERS_PER_BATTLE; j++) {
@@ -170,8 +177,12 @@ module.exports = function(sprites) {
                 }
             }
             this.inBattle = this.playerBattleCount > 0;
-            if(this.inBattle)
+            if(this.inBattle) {
                 clearTimeout(this.timeoutRef);
+                if(battleJustStarted) {
+                    this.RunActionTimer();
+                }
+            }
 
             return playerIdxObj;
         }

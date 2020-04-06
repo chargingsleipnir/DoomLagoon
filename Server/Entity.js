@@ -39,6 +39,11 @@ module.exports = function(sprites) {
 
         strength;
 
+        actionCooldown;
+        actionIntervalRef;
+        actionIntervalCounter;
+        canAct;
+
         constructor(initData) {
             this.id = initData.id;
             this.name = initData.name;
@@ -52,6 +57,10 @@ module.exports = function(sprites) {
 
             this.neighbors = { LEFT: null, RIGHT: null, UP: null, DOWN: null };
             this.inBattle = false;
+
+            this.canAct = true;
+            this.actionCooldown = 0;
+            this.actionIntervalCounter = 0;
         }
 
         Init() {
@@ -126,6 +135,31 @@ module.exports = function(sprites) {
                 gridPos: this.gridPos,
                 dir: this.dir  
             }
+        }
+
+        // TODO: Use "Update" function instead? Already exists for enemy, so why not set up for player as well...
+        RunActionTimer() {
+            var pctFrac = 100 / this.actionCooldown;
+            this.actionIntervalRef = setInterval(() => {
+                this.actionIntervalCounter += Consts.INTERVAL_STEP;
+                // TODO: Each step, send percentage to client for ATB bar fill-up
+
+                console.log(`Seconds: ${this.actionIntervalCounter * 0.001}, pct: ${this.actionIntervalCounter * pctFrac}`);
+
+                // Timer expired
+                if(this.actionIntervalCounter >= this.actionCooldown) {
+                    this.canAct = true;
+                    this.actionIntervalCounter = 0;
+                    console.log("Ready to act!");
+                    // TODO: Send signal to client to act.
+
+                    // TODO: An action queue will be required to actions/animations aren't overlapping on each other
+                    // TODO: This is something else that'll have to be handled on the server to make sure it's all spread equally across all players.
+
+                    clearInterval(this.actionIntervalRef);
+                }
+                
+            }, Consts.INTERVAL_STEP);
         }
     }
 

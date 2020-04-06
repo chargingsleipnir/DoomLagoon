@@ -27,6 +27,8 @@ module.exports = function(sprites) {
             this.socket = socket;
             this.enemyID = -1;
             this.nextBattleReady = true;
+
+            this.actionCooldown = 3500;
         }
         
         SetupNetworkResponses(io, socket) {
@@ -109,6 +111,11 @@ module.exports = function(sprites) {
                 if(self.enemyID == -1)
                     return;
 
+                if(!this.canAct)
+                    return;
+
+                this.canAct = false;
+
                 sprites.allData[Consts.spriteTypes.ENEMY][self.enemyID].Enact({
                     command: actionObj.command,
                     playerBattleIdx: actionObj.playerBattleIdx,
@@ -180,6 +187,9 @@ module.exports = function(sprites) {
                 
 
                 if(this.inBattle) {
+
+                    // TODO: Start player action timer
+
                     this.nextBattleReady = false;
                     this.enemyID = enemy.id;
                     var playerIdxObj = enemy.AddPlayerToBattle(this.socket.client.id);
@@ -210,6 +220,10 @@ module.exports = function(sprites) {
             this.LeaveBattle();
             this.socket.emit("RecBattleWon");
         }
+
+        // Update() {
+        //     console.log("Player update");
+        // }
 
         Disconnect() {
             this.LeaveBattle();

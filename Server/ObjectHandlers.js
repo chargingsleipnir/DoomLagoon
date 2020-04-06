@@ -139,6 +139,11 @@ module.exports = function(dbHdlr) {
             return sprites.updatePack;
         },
         Update: () => {
+            // var playersObj = sprites.allData[Consts.spriteTypes.PLAYER];
+            // Object.keys(playersObj).forEach((key) => {
+            //     playersObj[key].Update();
+            // })
+
             enemyList.forEach(enemy => {
                 enemy.Update();
             });
