@@ -14,7 +14,7 @@ class Battle extends SceneTransition {
     scaleFactorX;
     scaleFactorY;
 
-    inputReady;
+    actionReady;
 
     spriteEnemy;
     spritePlayers = [];
@@ -151,24 +151,38 @@ class Battle extends SceneTransition {
             
         });
 
+        Network.CreateResponse("RecActionReadyingTick", (tickPctObj) => {
+            this.spriteEnemy.UpdateActionTimer(tickPctObj["-1"]);
+            delete tickPctObj["-1"]; // So only players remain
+
+            for(let battleIdx in tickPctObj) {
+                battleIdx = parseInt(battleIdx);
+                this.spritePlayers[battleIdx].UpdateActionTimer(tickPctObj[battleIdx]);
+            }
+        });
+
+        Network.CreateResponse("RecActionReady", () => {
+            self.actionReady = true;
+            console.log(`Action ready: ${self.actionReady}`);
+        });
+
         // BATTLE INPUT
         this.input.keyboard.on('keydown_W', () => {
-            if(!self.inputReady)
+            if(!self.actionReady)
                 return;
 
             self.ChangeMenuOption();
         });
         this.input.keyboard.on('keydown_S', () => {
-            if(!self.inputReady)
+            if(!self.actionReady)
                 return;
 
             self.ChangeMenuOption();
         });
         this.input.keyboard.on('keydown_ENTER', () => {
-            if(!self.inputReady)
+            if(!self.actionReady)
                 return;
 
-            // TODO: Do nothing graphically here, just send input/command
             Network.Emit("BattleAction", {
                 command: this.menuOptionIdx,
                 playerBattleIdx: this.playerIdxObj.self
@@ -220,7 +234,7 @@ class Battle extends SceneTransition {
             scaleY: propertyConfigY,
             targets: scene.bg,
             onComplete: () => {
-                scene.inputReady = true;
+                // Had "actionReady", but now that just waits for the ATB to fill
             }
         });
 
@@ -254,7 +268,7 @@ class Battle extends SceneTransition {
 
     // Needs the scene passed into it if it's going to be used as a Network response
     EndBattleScene(scene, battleWon = false) {
-        scene.inputReady = false;
+        scene.actionReady = false;
 
         // Shrink bg back down
         const propertyConfigX = { ease: 'Expo.easeInOut', from: scene.scaleFactorX, start: scene.scaleFactorX, to: 0 };

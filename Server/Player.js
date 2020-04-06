@@ -11,6 +11,7 @@ module.exports = function(sprites) {
 
         socket;
         enemyID;
+        battlePosIndex;
         nextBattleReady;
 
         constructor(socket, playerData) {
@@ -26,6 +27,7 @@ module.exports = function(sprites) {
 
             this.socket = socket;
             this.enemyID = -1;
+            this.battlePosIndex = -1;
             this.nextBattleReady = true;
 
             this.actionCooldown = 3500;
@@ -116,7 +118,7 @@ module.exports = function(sprites) {
 
                 this.canAct = false;
 
-                sprites.allData[Consts.spriteTypes.ENEMY][self.enemyID].Enact({
+                sprites.allData[Consts.spriteTypes.ENEMY][self.enemyID].ReceiveAction({
                     command: actionObj.command,
                     playerBattleIdx: actionObj.playerBattleIdx,
                     damage: self.strength,
@@ -193,6 +195,8 @@ module.exports = function(sprites) {
                     this.nextBattleReady = false;
                     this.enemyID = enemy.id;
                     var playerIdxObj = enemy.AddPlayerToBattle(this.socket.client.id);
+                    this.battlePosIndex = playerIdxObj.self;
+                    this.RunActionTimer(); // Calls ActionReady() upon timer completing
                     this.socket.emit('RecCommenceBattle', { 
                         enemyID: this.enemyID,
                         playerIdxObj: playerIdxObj,
@@ -208,9 +212,24 @@ module.exports = function(sprites) {
             //console.log(`Reseting player battle props: enemyID: ${this.enemyID}, inBattle: ${this.inBattle}`);
             
             //* The enemy itself could take care of this when the battle is won, but because the play needs to initiate it both on disconnect, and when RUN is selected, we invoke the enemy here to do it.
-            sprites.allData[Consts.spriteTypes.ENEMY][this.enemyID].RemovePlayerFromBattle(this.socket.client.id);
+            sprites.allData[Consts.spriteTypes.ENEMY][this.enemyID].RemovePlayerFromBattle(this.battlePosIndex);
             this.enemyID = -1;
+            this.battlePosIndex = -1;
             this.inBattle = false;
+        }
+
+        ActionReadyingTick(percentReady) {
+            if(!this.inBattle)
+                return;
+
+            sprites.allData[Consts.spriteTypes.ENEMY][this.enemyID].UpdatePlayerActionTimer(this.battlePosIndex, percentReady);
+        }
+
+        ActionReady() {
+            if(!this.inBattle)
+                return;
+
+            this.socket.emit("RecActionReady");
         }
 
         WinBattle() {

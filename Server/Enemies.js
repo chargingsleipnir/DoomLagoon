@@ -3,25 +3,6 @@
 var mapData = require('./MapDataReader.js')();
 var Consts = require('../Shared/Consts.js');
 
-// var obj = {
-//     a: 5,
-//     b: "test"
-// };
-
-// var arr = [];
-// arr.push({
-//     a: 5,
-//     b: "test"
-// });
-
-// var cont = {};
-// cont['slot'] = arr[0];
-
-// delete cont['slot'];
-
-// console.log(arr[0]);
-// console.log(cont['slot']);
-
 module.exports = function(sprites) {
 
     const entityModule = require('./Entity.js')(sprites);
@@ -43,12 +24,14 @@ module.exports = function(sprites) {
 
         strength;
         // Going to maintain this as always full list of nulls and/or socketIDs so I can use the indices to send to the clients to match their locations.
-        playerSocketIDs;
+        playersInBattle;
         playerBattleCount;
         isAlive;
 
         io;
         timeoutRef;
+
+        actionReadyPct;
 
         constructor(enemySpawnObj) {
             enemySpawnObj.id = enemyID;
@@ -77,11 +60,16 @@ module.exports = function(sprites) {
             
             this.ResetPosData();
 
-            this.playerSocketIDs = [];
+            this.playersInBattle = [];
             this.playerBattleCount = 0;
             for(let i = 0; i < Consts.MAX_PLAYERS_PER_BATTLE; i++) {
-                this.playerSocketIDs.push(null);
+                this.playersInBattle.push({
+                    actionReadyPct: 0,
+                    socketID: null
+                });
             }
+
+            this.actionReadyPct = 0;
 
             this.isAlive = true;
 
@@ -150,11 +138,12 @@ module.exports = function(sprites) {
             if(this.CanAddPlayerToBattle()) {
                 //console.log(`Socket ID pushed into battle group: ${socketID}`);
                 for(let i = 0; i < Consts.MAX_PLAYERS_PER_BATTLE; i++) {
-                    if(this.playerSocketIDs[i] == null) {
+                    if(this.playersInBattle[i].socketID == null) {
+                        // Self has been set (added to one of the first-found "null" spot), so skip the rest
                         if(playerIdxObj.self > -1)
                             continue;
 
-                        this.playerSocketIDs[i] = socketID;
+                        this.playersInBattle[i].socketID = socketID;
                         playerIdxObj.self = i;
                         this.playerBattleCount++;
 
@@ -167,8 +156,8 @@ module.exports = function(sprites) {
                             if(j == i)
                                 continue;
 
-                            if(this.playerSocketIDs[j] != null)
-                                this.io.to(this.playerSocketIDs[j]).emit('RecAddPlayer', i);
+                            if(this.playersInBattle[j].socketID != null)
+                                this.io.to(this.playersInBattle[j].socketID).emit('RecAddPlayer', i);
                         }
                     }
                     else {
@@ -187,13 +176,25 @@ module.exports = function(sprites) {
             return playerIdxObj;
         }
 
-        RemovePlayerFromBattle(socketID) {
+        GetBattlePosIndex(socketID) {
+            var idx = -1;
+            for(let i = 0; i < this.playersInBattle.length; i++) {
+                if(this.playersInBattle[i].socketID == socketID) {
+                    idx = i;
+                    break;
+                }
+            }
+
+            return idx;
+        }
+
+        RemovePlayerFromBattle(battlePosIdx) {
             if(this.playerBattleCount > 0) {
-                var idx = this.playerSocketIDs.indexOf(socketID);
-                if(idx > -1) {
-                    this.playerSocketIDs[idx] = null;
+                if(battlePosIdx > -1) {
+                    //console.log(`Removed player ${this.playersInBattle[battlePosIdx].socketID}`);
+                    this.playersInBattle[battlePosIdx].socketID = null;
+                    this.playersInBattle[battlePosIdx].actionReadyPct = 0;
                     this.playerBattleCount--;
-                    //console.log(`Removed player ${socketID}`);
                     //console.log(`Players remaining in list ${this.playerBattleCount}`);
 
                     this.inBattle = this.playerBattleCount > 0;
@@ -204,19 +205,22 @@ module.exports = function(sprites) {
                     // If still in battle, let every other player know of the one that left
                     else {
                         for(let i = 0; i < Consts.MAX_PLAYERS_PER_BATTLE; i++) {
-                            if(this.playerSocketIDs[i] != null)
-                                this.io.to(this.playerSocketIDs[i]).emit('RecLosePlayer', idx);
+                            if(this.playersInBattle[i].socketID != null)
+                                this.io.to(this.playersInBattle[i].socketID).emit('RecLosePlayer', battlePosIdx);
                         }
                     }
                 }
             }
         }
 
-        Enact(actionObj) {
+        ReceiveAction(actionObj) {
             // This is necessary to be able to emit a signal to all battle members after they are removed from the battle and their socketID is lost
             var socketIDListCopy = [];
-            for(let i = 0; i < this.playerSocketIDs.length; i++) {
-                socketIDListCopy.push(this.playerSocketIDs[i]);
+            for(let i = 0; i < this.playersInBattle.length; i++) {
+                socketIDListCopy.push({
+                    actionReadyPct: this.playersInBattle[i].actionReadyPct,
+                    socketID: this.playersInBattle[i].socketID
+                });
             }
 
             if(actionObj.command == Consts.battleCommands.FIGHT) {
@@ -233,10 +237,10 @@ module.exports = function(sprites) {
                     this.gridPos.y = this.spawnPos.y;
                     this.ResetPosData();
     
-                    for(let i = 0; i < this.playerSocketIDs.length; i++) {
+                    for(let i = 0; i < this.playersInBattle.length; i++) {
                         // TODO: Pass through anything that the enemy might hold. Enemy could be the keeper of exp, if there will be any...?
-                        if(this.playerSocketIDs[i] != null)
-                            sprites.allData[Consts.spriteTypes.PLAYER][this.playerSocketIDs[i]].WinBattle();
+                        if(this.playersInBattle[i].socketID != null)
+                            sprites.allData[Consts.spriteTypes.PLAYER][this.playersInBattle[i].socketID].WinBattle();
                     }
     
                     delete sprites.allData[Consts.spriteTypes.ENEMY][this.id];
@@ -286,6 +290,19 @@ module.exports = function(sprites) {
                     });
                 }
             }
+        }
+
+        ActionReadyingTick(percentReady) {
+            this.actionReadyPct = percentReady;
+        }
+        ActionReady() {
+        }
+
+        // Tell all battle players of the given player's action timer percentage
+        UpdatePlayerActionTimer(battlePosIndex, percentReady) {
+            this.playersInBattle[battlePosIndex].actionReadyPct = percentReady;
+            // TODO: hold/pool percentages, and update continually during battle as the enemy does so itself, or perhaps in the enemy's update loop.
+            // As the enemy itself should take little pauses to give the animations space to play.
         }
 
         Revive() {
@@ -354,6 +371,26 @@ module.exports = function(sprites) {
             // The !this.isMoving check should sufficiently take care of block the loop otherwise
             // if(!this.CanMoveOnMap())
             //     return;
+
+            // Send action timer updates to everyone in battle
+            if(this.playerBattleCount > 0) {
+
+                // TODO: Either a preliminary loop to get the percentage data alone,
+                // TODO: OR, just send everyone the whole "playersInBattle" object,
+                // TODO: Either way, this.actionReadyPct goes with it under "enemyPct" or something.
+                var pctObj = { "-1": this.actionReadyPct };
+                for(let i = 0; i < this.playersInBattle.length; i++) {
+                    if(this.playersInBattle[i].socketID != null) {
+                        pctObj[i] = this.playersInBattle[i].actionReadyPct;
+                    }
+                }
+
+                for(let i = 0; i < this.playersInBattle.length; i++) {
+                    if(this.playersInBattle[i].socketID != null) {
+                        this.io.to(this.playersInBattle[i].socketID).emit("RecActionReadyingTick", pctObj);
+                    }
+                }
+            }
 
             if(!this.isMoving)
                 return;

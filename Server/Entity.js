@@ -139,28 +139,30 @@ module.exports = function(sprites) {
 
         // TODO: Use "Update" function instead? Already exists for enemy, so why not set up for player as well...
         RunActionTimer() {
-            var pctFrac = 100 / this.actionCooldown;
+            var pctFrac = (1 / this.actionCooldown) || 0;
             this.actionIntervalRef = setInterval(() => {
                 this.actionIntervalCounter += Consts.INTERVAL_STEP;
-                // TODO: Each step, send percentage to client for ATB bar fill-up
 
-                console.log(`Seconds: ${this.actionIntervalCounter * 0.001}, pct: ${this.actionIntervalCounter * pctFrac}`);
+                // Each step, send percentage to client for ATB bar fill-up
+                //console.log(`Seconds: ${this.actionIntervalCounter * 0.001}, pct: ${this.actionIntervalCounter * pctFrac}`);
+                var decimalPct = this.actionIntervalCounter * pctFrac;
+                if(decimalPct > 1.00) decimalPct = 1.00;
+                this.ActionReadyingTick(decimalPct);
 
                 // Timer expired
                 if(this.actionIntervalCounter >= this.actionCooldown) {
                     this.canAct = true;
                     this.actionIntervalCounter = 0;
-                    console.log("Ready to act!");
-                    // TODO: Send signal to client to act.
-
-                    // TODO: An action queue will be required to actions/animations aren't overlapping on each other
-                    // TODO: This is something else that'll have to be handled on the server to make sure it's all spread equally across all players.
-
                     clearInterval(this.actionIntervalRef);
+                    this.ActionReady();
                 }
                 
             }, Consts.INTERVAL_STEP);
         }
+
+        //? Exists only to be overridden
+        ActionReadyingTick(percentReady) {}
+        ActionReady() {}
     }
 
     return {
