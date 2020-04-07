@@ -137,7 +137,7 @@ class Overworld extends TiledMapScene {
         });
 
         // Remove any sprite, including players
-        function RemoveSpriteCallback(mapSprite) {
+        function RemoveMapSpriteCallback(mapSprite) {
             // TODO: Other removal things as needed (exit animation for players? Handle any world interactions/events/etc.)
             if (self.sprites[mapSprite.spriteType][mapSprite.id]) {
                 self.sprites[mapSprite.spriteType][mapSprite.id].gameObjCont.destroy();
@@ -147,11 +147,11 @@ class Overworld extends TiledMapScene {
                 // Incase "GetServerGameData" has not yet been called and player with that id has not yet been added to this client,
                 // Recursively call this function until it is done.
                 setTimeout(function () {
-                    RemoveSpriteCallback(mapSprite);
+                    RemoveMapSpriteCallback(mapSprite);
                 }, 250);
             }
         }
-        Network.CreateResponse("RemoveSprite", RemoveSpriteCallback);
+        Network.CreateResponse("RemoveMapSprite", RemoveMapSpriteCallback);
         
         function MoveSpriteCallback(moveData) {
             // TODO: Other removal things as needed (exit animation for players? Handle any world interactions/events/etc.)

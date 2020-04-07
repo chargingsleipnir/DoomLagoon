@@ -96,7 +96,7 @@ module.exports = function(sprites) {
 
             if (mapData.GetValue(newPos) == Consts.tileTypes.WALK) {
                 // Tell old neighbors about move out
-                this.RemoveSelf();
+                this.RemoveSelfFromMap();
                 // Tell new neighbors about move in
                 mapData.SetValue(newPos, this.mapSprite);
                 LookForAndUpdateNeighbors(newPos, this.mapSprite);
@@ -111,7 +111,7 @@ module.exports = function(sprites) {
             }
         };
 
-        RemoveSelf() {
+        RemoveSelfFromMap() {
             mapData.SetValue(this.gridPos, Consts.tileTypes.WALK);
             LookForAndUpdateNeighbors(this.gridPos, Consts.tileTypes.WALK);
         }
@@ -137,10 +137,19 @@ module.exports = function(sprites) {
             }
         }
 
-        // TODO: Use "Update" function instead? Already exists for enemy, so why not set up for player as well...
+        StopActionTimer() {
+            this.actionIntervalCounter = 0;
+            clearInterval(this.actionIntervalRef);
+        }
+
         RunActionTimer() {
             var pctFrac = (100 / this.actionCooldown) || 0;
             this.actionIntervalRef = setInterval(() => {
+                if(!this.inBattle) {
+                    this.canAct = false;
+                    this.StopActionTimer();
+                }
+
                 this.actionIntervalCounter += Consts.INTERVAL_STEP;
 
                 // Each step, send percentage to client for ATB bar fill-up
@@ -151,8 +160,7 @@ module.exports = function(sprites) {
                 // Timer expired
                 if(this.actionIntervalCounter >= this.actionCooldown) {
                     this.canAct = true;
-                    this.actionIntervalCounter = 0;
-                    clearInterval(this.actionIntervalRef);
+                    this.StopActionTimer();
                     this.ActionReady();
                 }
                 

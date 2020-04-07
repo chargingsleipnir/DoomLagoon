@@ -114,20 +114,21 @@ class Battle extends SceneTransition {
             this.LosePlayer(battleIndex);
         });
 
+        // TODO: It looks like I may be getting closer to blending this function with that of the enemy's attack response
         Network.CreateResponse("RecPlayerAction", (actionObj) => {
             // Don't take on any more actions past the one that kills the enemy.
             if(this.battleOver)
                 return;
 
-            if(actionObj.enemyHPPct == 0)
+            if(actionObj.targetHPPct == 0)
                 this.battleOver = true;
 
 
             if(actionObj.command == Consts.battleCommands.FIGHT) {
-                console.log(`Player ${actionObj.playerBattleIdx} (${actionObj.socketID}) fought, doing ${actionObj.damage} damage. Enemy HP pct: ${actionObj.enemyHPPct}`);
+                console.log(`Player ${actionObj.actorBattleIdx} (${actionObj.socketID}) fought, doing ${actionObj.damage} damage. Enemy HP pct: ${actionObj.targetHPPct}`);
                 
-                if(this.spritePlayers[actionObj.playerBattleIdx].inBattle) {
-                    this.spritePlayers[actionObj.playerBattleIdx].Swing(actionObj);
+                if(this.spritePlayers[actionObj.actorBattleIdx].inBattle) {
+                    this.spritePlayers[actionObj.actorBattleIdx].Swing(actionObj);
                 }
             }
             // RUN, only other option for now.
@@ -140,14 +141,27 @@ class Battle extends SceneTransition {
                 }
                 // Someone else ran, just get rid of them.
                 else {
-                    self.LosePlayer(actionObj.playerBattleIdx);
+                    self.LosePlayer(actionObj.actorBattleIdx);
                 }
+            }
+        });
+
+        Network.CreateResponse("RecEnemyAction", (actionObj) => {
+            // TODO: This will get any other player, or myself only if not killed.
+            // If I'm killed, RecBattleLost called instead.
+            console.log(`Enemy attacked player ${actionObj.targetBattleIdx} (${actionObj.socketID}), doing ${actionObj.damage} damage. Player HP pct: ${actionObj.playerHPPct}`);
+                
+            if(this.spritePlayers[actionObj.targetBattleIdx].inBattle) {
+                this.spriteEnemy.Swing(actionObj);
             }
         });
 
         // TODO: Implement
         Network.CreateResponse("RecBattleLost", () => {
-            
+            console.log("PLAYER KILLED")
+            // TODO: Everything has been taken care of on the server, just need to figure this out now.
+            // For now, just a menu pop-up with a single "Restart" button, which would ideally not refresh the page,
+            // but essentially restart everything else (just put the player back at the inital spawn point... or Title scene?)
         });
 
         Network.CreateResponse("RecActionReadyingTick", (tickPctObj) => {
@@ -290,21 +304,33 @@ class Battle extends SceneTransition {
 
     //* This can be fired immediately when an action comes in, but also used as a post-animation callback, so as to ensure we see those first.
     ProcessAction(scene, battlePosIndex, actionObj) {
-        scene.spriteEnemy.UpdateHP(actionObj.enemyHPPct);
+        // Player attacked enemy
+        if(actionObj.targetBattleIdx == -1) {
+            scene.spriteEnemy.UpdateHP(actionObj.targetHPPct);
 
-        if(actionObj.enemyHPPct == 0) {
-            console.log("Battle won!");
-            scene.SetActionReady(false);
-            Main.DispMessage("You won!", 2);
-            Main.DispMessage("Got x exp!", 2);
-
-            scene.spriteEnemy.Die(250, 1500, () => {
-                scene.EndBattleScene(scene, true);
-            });            
+            if(actionObj.targetHPPct == 0) {
+                console.log("Battle won!");
+                Main.DispMessage("You won!", 2);
+                Main.DispMessage("Got x exp!", 2);
+    
+                scene.spriteEnemy.Die(250, 1500, () => {
+                    scene.EndBattleScene(scene, true);
+                });            
+            }
+            else {
+                if(battlePosIndex == scene.playerIdxObj.self) {
+                    Network.Emit("ResetActionTimer");
+                }
+            }
         }
+        // Enemy attacked player
         else {
-            if(battlePosIndex == scene.playerIdxObj.self) {
-                Network.Emit("ResetActionTimer");
+            scene.spritePlayers[actionObj.targetBattleIdx].UpdateHP(actionObj.targetHPPct);
+
+            if(actionObj.targetHPPct == 0) {
+                console.log("Lost a player!");
+                Main.DispMessage("Player died!", 2);
+                scene.spritePlayers[actionObj.targetBattleIdx].Die(250, 1500, () => {});            
             }
         }
     }

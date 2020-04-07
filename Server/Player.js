@@ -122,7 +122,7 @@ module.exports = function(sprites) {
 
                 sprites.allData[Consts.spriteTypes.ENEMY][self.enemyID].ReceiveAction({
                     command: actionObj.command,
-                    playerBattleIdx: actionObj.playerBattleIdx,
+                    battleIdx: actionObj.playerBattleIdx,
                     damage: self.strength,
                     fromSocketID: socket.client.id
                 });
@@ -231,17 +231,28 @@ module.exports = function(sprites) {
         }
 
         ActionReadyingTick(percentReady) {
-            if(!this.inBattle)
-                return;
-
             sprites.allData[Consts.spriteTypes.ENEMY][this.enemyID].UpdatePlayerActionTimer(this.battlePosIndex, percentReady);
         }
 
         ActionReady() {
-            if(!this.inBattle)
-                return;
-
             this.socket.emit("RecActionReady");
+        }
+
+        ReceiveAttack(damage) {
+            this.hpCurr -= damage;
+
+            // Player was killed
+            if(this.hpCurr <= 0) {
+                this.hpCurr = 0;
+                this.LeaveBattle(false);
+                this.RemoveSelfFromMap();
+
+                this.socket.broadcast.emit("RemoveMapSprite", this.mapSprite);
+                delete sprites.allData[Consts.spriteTypes.PLAYER][this.id];
+                delete sprites.updatePack[Consts.spriteTypes.PLAYER][this.id];
+
+                this.socket.emit("RecBattleLost");
+            }
         }
 
         // Update() {
@@ -250,7 +261,7 @@ module.exports = function(sprites) {
 
         Disconnect() {
             this.LeaveBattle(true);
-            this.RemoveSelf();
+            this.RemoveSelfFromMap();
         }
     }
 

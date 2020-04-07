@@ -124,10 +124,10 @@ module.exports = function(dbHdlr) {
                 if (player) {
                     player.Disconnect();
 
-                    socket.broadcast.emit("RemoveSprite", player.mapSprite);
-
                     // Take player off the map
                     mapData.SetValue(player.gridPos, Consts.tileTypes.WALK);
+
+                    socket.broadcast.emit("RemoveSprite", player.mapSprite);
                     
                     // Remove player from server
                     delete sprites.allData[Consts.spriteTypes.PLAYER][socket.client.id];

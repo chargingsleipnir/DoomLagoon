@@ -24,6 +24,9 @@ class BattleSprite {
 
     actionObj = null;
 
+    // TODO: Bettter tie-in with map sprites
+    // TODO: I need to put their names on the battle field!!!
+
     constructor(scene, battlePosIndex, idlePos, offScreenX, spriteSkinName, AnimEndCB, flipX = false) {
         this.scene = scene;
         this.battlePosIndex = battlePosIndex;

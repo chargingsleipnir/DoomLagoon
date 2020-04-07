@@ -22,14 +22,14 @@ module.exports = function(sprites) {
         moveFracCovered;
         MOVE_COOLDOWN = 2;
 
-        strength;
         // Going to maintain this as always full list of nulls and/or socketIDs so I can use the indices to send to the clients to match their locations.
         playersInBattle;
         playerBattleCount;
         isAlive;
 
         io;
-        timeoutRef;
+        moveTimeoutRef;
+        actionCooldownTimeoutRef;
 
         actionReadyPct;
 
@@ -167,7 +167,7 @@ module.exports = function(sprites) {
             }
             this.inBattle = this.playerBattleCount > 0;
             if(this.inBattle) {
-                clearTimeout(this.timeoutRef);
+                clearTimeout(this.moveTimeoutRef);
                 if(battleJustStarted) {
                     this.RunActionTimer();
                 }
@@ -214,7 +214,6 @@ module.exports = function(sprites) {
         }
 
         ReceiveAction(actionObj) {
-
             //* In the event that 2 or more players input the finishing blow on the enemy at nearly the same time, this should prevent both actions from registering, as the block is created just a few lines away.
             //! Still not perfect though :<
             if(this.hpCurr <= 0) {
@@ -236,8 +235,9 @@ module.exports = function(sprites) {
                     this.hpCurr = 0;
                     this.isAlive = false;
                     this.inBattle = false;
+                    clearTimeout(this.actionCooldownTimeoutRef);
                     // Deactivate self from map
-                    this.RemoveSelf();
+                    this.RemoveSelfFromMap();
     
                     // Reset back to spawn position and wait for it to be clear before reviving.
                     this.gridPos.x = this.spawnPos.x;
@@ -295,10 +295,11 @@ module.exports = function(sprites) {
                 if(socketIDListCopy[i].socketID != null) {
                     this.io.to(socketIDListCopy[i].socketID).emit('RecPlayerAction', { 
                         socketID: actionObj.fromSocketID,
-                        playerBattleIdx: actionObj.playerBattleIdx,
+                        actorBattleIdx: actionObj.battleIdx,
+                        targetBattleIdx: -1,
                         command: actionObj.command,
                         damage: actionObj.damage,
-                        enemyHPPct: Math.floor((this.hpCurr / this.hpMax) * 100)
+                        targetHPPct: Math.floor((this.hpCurr / this.hpMax) * 100)
                     });
                 }
             }
@@ -307,7 +308,47 @@ module.exports = function(sprites) {
         ActionReadyingTick(percentReady) {
             this.actionReadyPct = percentReady;
         }
+        // Enemy attack
         ActionReady() {
+            // Because of the dispersal of actual players in "this.playersInBattle", get a random number limited by how many active players there are (wherever in the list they may be),
+            // and loop through that many active players to hit the random one. Hence using the random number as a negative counter.
+            var randPlayerCounter = 1 + Math.floor(Math.random() * this.playerBattleCount);
+            var attackIndex = -1;
+
+            // Loop is required to actually get the index of the correct player
+            for(let i = 0; i < this.playersInBattle.length; i++) {
+                if(this.playersInBattle[i].socketID == null)
+                    continue;
+
+                randPlayerCounter--;
+                if(randPlayerCounter > 0)
+                    continue;
+                else
+                    attackIndex = i;
+            }
+
+            var player = sprites[Consts.spriteTypes.PLAYER][this.playersInBattle[attackIndex].socketID];
+            player.Attack(this.strength);
+
+            // This will either include the attacked player, simply resulting in a reduction of their hp, or
+            // not if they were killed, in which case they're calling their socket's "RecBattleLost".
+            for(let i = 0; i < this.playersInBattle.length; i++) {
+                if(this.playersInBattle[i].socketID != null) {
+                    this.io.to(this.playersInBattle[i].socketID).emit('RecEnemyAction', { 
+                        socketID: player.socketID, // Don't need to send this?
+                        actorBattleIdx: -1,
+                        targetBattleIdx: attackIndex,
+                        damage: this.strength,
+                        targetHPPct: Math.floor((player.hpCurr / player.hpMax) * 100)
+                    });
+                }
+            }
+
+            // Might have killed the last player (this.inBattle will toggle when player is removed [down line through player.Attack]), but if not, keep attacking.
+            // Apply a small delay to allow for client animations. Although it'd be best to let an animation run and hear back, from which player? The multiplayer setup is not conducive to that.
+            if(this.inBattle) {
+                this.actionCooldownTimeoutRef = setTimeout(this.RunActionTimer, 2000);
+            }
         }
 
         // Tell all battle players of the given player's action timer percentage
@@ -338,7 +379,7 @@ module.exports = function(sprites) {
                 return;
 
             var self = this;
-            this.timeoutRef = setTimeout(() => {
+            this.moveTimeoutRef = setTimeout(() => {
                 var neighborKeyArr = [ "LEFT", "RIGHT", "UP", "DOWN" ];
 
                 function RecurCheck_neighborKeyArr() {
