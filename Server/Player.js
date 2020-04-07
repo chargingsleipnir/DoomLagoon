@@ -205,7 +205,7 @@ module.exports = function(sprites) {
                     this.RunActionTimer(); // Calls ActionReady() upon timer completing
                     this.socket.emit('RecCommenceBattle', { 
                         enemyID: this.enemyID,
-                        enemyHPPct: enemy.hpCurr / enemy.hpMax,
+                        enemyHPPct: Math.floor((enemy.hpCurr / enemy.hpMax) * 100),
                         playerIdxObj: playerIdxObj,
                     });
                 }

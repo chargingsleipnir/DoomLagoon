@@ -130,12 +130,15 @@ class Battle extends SceneTransition {
             if(actionObj.enemyHPPct == 0)
                 this.battleOver = true;
 
-            this.actionDataQueue.push(actionObj);
+            
 
             if(actionObj.command == Consts.battleCommands.FIGHT) {
                 console.log(`Player ${actionObj.playerBattleIdx} (${actionObj.socketID}) fought, doing ${actionObj.damage} damage. Enemy HP pct: ${actionObj.enemyHPPct}`);
                 
                 if(this.spritePlayers[actionObj.playerBattleIdx].inBattle) {
+
+                    // TODO: Only add this here because it's running an animation and will thus "shift()" later?? This still needs much refining.
+                    this.actionDataQueue.push(actionObj);
                     this.spritePlayers[actionObj.playerBattleIdx].Swing();
                 }
             }
@@ -224,6 +227,13 @@ class Battle extends SceneTransition {
 
         //* First time putting it to sleep, no data to pass, just getting ready for the rest of the game.
         this.scene.sleep("Battle");
+    }
+
+    update() {
+        this.spriteEnemy.Update();
+        this.spritePlayers[0].Update();
+        this.spritePlayers[1].Update();
+        this.spritePlayers[2].Update();
     }
 
     Awaken(sys, battleData) {

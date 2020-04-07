@@ -297,7 +297,7 @@ module.exports = function(sprites) {
                         playerBattleIdx: actionObj.playerBattleIdx,
                         command: actionObj.command,
                         damage: actionObj.damage,
-                        enemyHPPct: this.hpCurr / this.hpMax
+                        enemyHPPct: Math.floor((this.hpCurr / this.hpMax) * 100)
                     });
                 }
             }

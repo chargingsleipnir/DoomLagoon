@@ -15,6 +15,13 @@ class BattleSprite {
     actionArc;
     hpArc;
 
+    flipXFactor;
+
+    hpPctFrom;
+    hpPctTo;
+    hpChangeFactor;
+    hpDispIncrement = 1;
+
     constructor(scene, battlePosIndex, idlePos, offScreenX, spriteSkinName, AnimEndCB, flipX = false) {
         this.scene = scene;
         this.battlePosIndex = battlePosIndex;
@@ -28,6 +35,13 @@ class BattleSprite {
         this.sprite.setScale(1.75);
         this.gameObjCont.add(this.sprite);
 
+        this.flipXFactor = 1;
+        if(flipX) {
+            //this.gameObjCont.setScale(-1, 1);
+            this.sprite.flipX = true;
+            this.flipXFactor = -1;
+        }
+
         // Action timer and hp indicators.
         var actionArcBG = scene.add.graphics();
         this.actionArc = scene.add.graphics();
@@ -40,17 +54,16 @@ class BattleSprite {
         this.gameObjCont.add(this.hpArc);
 
         actionArcBG.fillStyle(0x222222, 1);
-        actionArcBG.fillCircle(90, 20, 30);
+        actionArcBG.fillCircle(90 * this.flipXFactor, 20, 30);
         hpArcBG.fillStyle(0x800303, 1);
-        hpArcBG.fillCircle(90, 20, 25);
+        hpArcBG.fillCircle(90 * this.flipXFactor, 20, 25);
 
-        // TODO: Not sure if I should keep this, just showing a presumed full HP off the start.
-        this.UpdateHP(1);
+        this.hpPctFrom = this.hpPctTo = 100;
+        this.hpChangeFactor = -1;
+        this.UpdateHP(this.hpPctTo);
+        this.DrawHP(this.hpPctTo);
 
         this.sprite.anims.play(spriteSkinName + '_Battle_Idle');
-
-        if(flipX)
-            this.gameObjCont.setScale(-1, 1);
 
         this.inBattle = false;
 
@@ -100,11 +113,23 @@ class BattleSprite {
         this.sprite.anims.play(this.spriteSkinName + '_Battle_Chop');
     }
 
+    Update() {
+        //console.log(`Hp to: ${this.hpPctTo}, from: ${this.hpPctFrom}`);
+        if(this.hpPctTo != this.hpPctFrom) {
+            this.hpPctFrom += (this.hpDispIncrement * this.hpChangeFactor);
+            // Safety check to ensure a single frame blip doesn't cause the value to go past the first check and increment forever.
+            if(this.hpPctTo - (this.hpPctFrom * this.hpChangeFactor) <= this.hpDispIncrement * 2)
+                this.hpPctFrom = this.hpPctTo;
+
+            this.DrawHP(this.hpPctFrom);
+        }
+    }
+
     UpdateActionTimer(percentage) {
         this.actionArc.clear();
         this.actionArc.fillStyle(0x004cff, 1);
-        this.actionArc.moveTo(90, 20);
-        this.actionArc.arc(90, 20, 30, Phaser.Math.DegToRad(0), Phaser.Math.DegToRad(-360 * percentage), true);
+        this.actionArc.moveTo(90 * this.flipXFactor, 20);
+        this.actionArc.arc(90 * this.flipXFactor, 20, 30, Phaser.Math.DegToRad(0), Phaser.Math.DegToRad(-360 * (percentage * 0.01)), true);
         //this.actionProgressArc.slice(130, 0, 30, Phaser.Math.DegToRad(0), Phaser.Math.DegToRad(125));
         this.actionArc.closePath();
         this.actionArc.fillPath();
@@ -112,10 +137,19 @@ class BattleSprite {
 
     // TODO: This is a hard increase/drop. Get step updates or tweening in here.
     UpdateHP(percentage) {
+        this.hpPctFrom = this.hpPctTo;
+        this.hpPctTo = percentage;
+
+        // Presume to show losing health, but if hp is gained, show increasing health.
+        this.hpChangeFactor = -1;
+        if(this.hpPctTo > this.hpPctFrom)
+            this.hpChangeFactor = 1;
+    }
+    DrawHP(percentage) {
         this.hpArc.clear();
         this.hpArc.fillStyle(0x058003, 1);
-        this.hpArc.moveTo(90, 20);
-        this.hpArc.arc(90, 20, 25, Phaser.Math.DegToRad(0), Phaser.Math.DegToRad(-360 * percentage), true);
+        this.hpArc.moveTo(90 * this.flipXFactor, 20);
+        this.hpArc.arc(90 * this.flipXFactor, 20, 25, Phaser.Math.DegToRad(0), Phaser.Math.DegToRad(360 * (percentage * 0.01)));
         this.hpArc.closePath();
         this.hpArc.fillPath();
     }

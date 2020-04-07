@@ -139,15 +139,14 @@ module.exports = function(sprites) {
 
         // TODO: Use "Update" function instead? Already exists for enemy, so why not set up for player as well...
         RunActionTimer() {
-            var pctFrac = (1 / this.actionCooldown) || 0;
+            var pctFrac = (100 / this.actionCooldown) || 0;
             this.actionIntervalRef = setInterval(() => {
                 this.actionIntervalCounter += Consts.INTERVAL_STEP;
 
                 // Each step, send percentage to client for ATB bar fill-up
                 //console.log(`Seconds: ${this.actionIntervalCounter * 0.001}, pct: ${this.actionIntervalCounter * pctFrac}`);
-                var decimalPct = this.actionIntervalCounter * pctFrac;
-                if(decimalPct > 1.00) decimalPct = 1.00;
-                this.ActionReadyingTick(decimalPct);
+                var pctOf100 = Math.floor(this.actionIntervalCounter * pctFrac);
+                this.ActionReadyingTick(pctOf100);
 
                 // Timer expired
                 if(this.actionIntervalCounter >= this.actionCooldown) {
