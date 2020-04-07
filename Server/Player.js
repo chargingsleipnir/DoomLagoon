@@ -110,7 +110,7 @@ module.exports = function(sprites) {
 
             // JUST FOR TESTING - TODO: EXPAND SERVER TESTING FUNCTIONS
             socket.on("BattleAction", function (actionObj) {
-                console.log(`Received battle action, enemyID: ${self.enemyID}, canAct: ${self.canAct}`);
+                //console.log(`Received battle action, enemyID: ${self.enemyID}, canAct: ${self.canAct}`);
 
                 if(self.enemyID == -1)
                     return;
@@ -203,6 +203,8 @@ module.exports = function(sprites) {
                     var playerIdxObj = enemy.AddPlayerToBattle(this.socket.client.id);
                     this.battlePosIndex = playerIdxObj.self;
                     this.RunActionTimer(); // Calls ActionReady() upon timer completing
+                    // TODO: Send full hp data and display current HP number in centre of dial or something
+                    // Low priority but it could always be made to look a little nicer.
                     this.socket.emit('RecCommenceBattle', { 
                         enemyID: this.enemyID,
                         enemyHPPct: Math.floor((enemy.hpCurr / enemy.hpMax) * 100),
@@ -212,14 +214,17 @@ module.exports = function(sprites) {
             }
         }
 
-        LeaveBattle() {
+        LeaveBattle(wasDisconnected) {
             if(!this.inBattle)
                 return;
                 
             //console.log(`Reseting player battle props: enemyID: ${this.enemyID}, inBattle: ${this.inBattle}`);
             
             //* The enemy itself could take care of this when the battle is won, but because the play needs to initiate it both on disconnect, and when RUN is selected, we invoke the enemy here to do it.
-            sprites.allData[Consts.spriteTypes.ENEMY][this.enemyID].RemovePlayerFromBattle(this.battlePosIndex);
+            sprites.allData[Consts.spriteTypes.ENEMY][this.enemyID].RemovePlayerFromBattleOnServer(this.battlePosIndex);
+            if(wasDisconnected)
+                sprites.allData[Consts.spriteTypes.ENEMY][this.enemyID].RemovePlayerFromBattleOnClient(this.battlePosIndex);
+            
             this.enemyID = -1;
             this.battlePosIndex = -1;
             this.inBattle = false;
@@ -244,7 +249,7 @@ module.exports = function(sprites) {
         // }
 
         Disconnect() {
-            this.LeaveBattle();
+            this.LeaveBattle(true);
             this.RemoveSelf();
         }
     }

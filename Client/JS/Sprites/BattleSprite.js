@@ -22,6 +22,8 @@ class BattleSprite {
     hpChangeFactor;
     hpDispIncrement = 1;
 
+    actionObj = null;
+
     constructor(scene, battlePosIndex, idlePos, offScreenX, spriteSkinName, AnimEndCB, flipX = false) {
         this.scene = scene;
         this.battlePosIndex = battlePosIndex;
@@ -48,6 +50,8 @@ class BattleSprite {
         var hpArcBG = scene.add.graphics();
         this.hpArc = scene.add.graphics();
 
+        // TODO: Add number that pops up each time sprite takes damage or heals.
+        // TODO: Add current HP value in centre of dial.
         this.gameObjCont.add(actionArcBG);
         this.gameObjCont.add(this.actionArc);
         this.gameObjCont.add(hpArcBG);
@@ -68,13 +72,18 @@ class BattleSprite {
         this.inBattle = false;
 
         var self = this;
+
+        // TODO: Should be able to do this for any animation, to read frames, and launch events specifically on them.
+        // this.sprite.on('animationupdate-' + this.spriteSkinName + '_Battle_Swing', (anim, frame, gameObj) => {
+        // }, this.scene);
+
         this.sprite.on('animationcomplete', (anim, frame) => {
             //console.log(anim);
             //console.log(frame);
             // Anything that's not idle, return to idle after
             if(anim.key != self.spriteSkinName + '_Battle_Idle') {
                 self.sprite.anims.play(spriteSkinName + '_Battle_Idle');
-                AnimEndCB(this.scene, this.battlePosIndex);
+                AnimEndCB(this.scene, this.battlePosIndex, this.actionObj);
             }
         }, this.scene);
     }
@@ -97,20 +106,39 @@ class BattleSprite {
             delay: delay,
             duration: duration,
             x: battleEnterConfig,
-            targets: this.gameObjCont
+            targets: this.gameObjCont,
+            onComplete: () => {
+                this.gameObjCont.alpha = 1;
+            }
         });
     }
 
-    Dodge() {
+    Dodge(actionObj) {
+        this.actionObj = actionObj;
         this.sprite.anims.play(this.spriteSkinName + '_Battle_Dodge');
     }
 
-    Swing() {
+    Swing(actionObj) {
+        this.actionObj = actionObj;
         this.sprite.anims.play(this.spriteSkinName + '_Battle_Swing');
     }
 
-    Chop() {
+    Chop(actionObj) {
+        this.actionObj = actionObj;
         this.sprite.anims.play(this.spriteSkinName + '_Battle_Chop');
+    }
+
+    // TODO: Sounds, graphics, sprite jitter and any other effects
+    Die(delay, duration, OnCompleteCB) {
+        this.inBattle = false;
+        const spriteDieConfig = { ease: 'Linear', from: 1, start: 1, to: 0 };
+        this.scene.tweens.add({
+            delay: delay,
+            duration: duration,
+            alpha: spriteDieConfig,
+            targets: this.gameObjCont,
+            onComplete: OnCompleteCB
+        });
     }
 
     Update() {

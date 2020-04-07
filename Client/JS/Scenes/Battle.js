@@ -20,19 +20,15 @@ class Battle extends SceneTransition {
     spritePlayers = [];
 
     playerIdxObj;
-
-    actionDataQueue;
     battleOver;
     
     constructor() {
         super("Battle");
-
         this.menuOptionIdx = Consts.battleCommands.FIGHT;
         this.playerIdxObj = {
             self: -1,
             others: []
         };
-        this.actionDataQueue = [];
         this.battleOver = false;
     }
 
@@ -100,10 +96,10 @@ class Battle extends SceneTransition {
         this.anims.create({ key	: 'KnightAxeRed_Battle_Chop', frames : this.anims.generateFrameNumbers('ssBattleChop_KnightAxeRed', { start: 0, end: 24 }), repeat : 0, frameRate : 20 });
 
         // 4 sprites to hold here permanently, 1 enemy and 3 players to use as needed.
-        this.spriteEnemy = new BattleSprite(this, -1, { x: 250, y: 325 }, -100, 'KnightAxeRed', this.PlayerAnimationEndCallback, true);
-        this.spritePlayers[0] = new BattleSprite(this, 0, { x: 700, y: 350 }, Main.phaserConfig.width + 100, 'FighterAxeBlue', this.PlayerAnimationEndCallback);
-        this.spritePlayers[1] = new BattleSprite(this, 1, { x: 775, y: 275 }, Main.phaserConfig.width + 100, 'FighterAxeBlue', this.PlayerAnimationEndCallback);
-        this.spritePlayers[2] = new BattleSprite(this, 2, { x: 800, y: 425 }, Main.phaserConfig.width + 100, 'FighterAxeBlue', this.PlayerAnimationEndCallback);
+        this.spriteEnemy = new BattleSprite(this, -1, { x: 250, y: 325 }, -100, 'KnightAxeRed', this.ProcessAction, true);
+        this.spritePlayers[0] = new BattleSprite(this, 0, { x: 700, y: 350 }, Main.phaserConfig.width + 100, 'FighterAxeBlue', this.ProcessAction);
+        this.spritePlayers[1] = new BattleSprite(this, 1, { x: 775, y: 275 }, Main.phaserConfig.width + 100, 'FighterAxeBlue', this.ProcessAction);
+        this.spritePlayers[2] = new BattleSprite(this, 2, { x: 800, y: 425 }, Main.phaserConfig.width + 100, 'FighterAxeBlue', this.ProcessAction);
 
         var self = this;
 
@@ -115,11 +111,7 @@ class Battle extends SceneTransition {
         });
 
         Network.CreateResponse('RecLosePlayer', (battleIndex) => {
-            var listIdx = this.playerIdxObj.others.indexOf(battleIndex);
-            this.playerIdxObj.others.splice(listIdx, 1);
-            this.spritePlayers[battleIndex].ExitBattle(this.LAUNCH_TIME * 0.25, this.LAUNCH_TIME * 0.75);
-            console.log(`Player at battle index ${battleIndex} left`);
-            console.log(`playerIdxObj remaining:`, this.playerIdxObj);
+            this.LosePlayer(battleIndex);
         });
 
         Network.CreateResponse("RecPlayerAction", (actionObj) => {
@@ -130,27 +122,25 @@ class Battle extends SceneTransition {
             if(actionObj.enemyHPPct == 0)
                 this.battleOver = true;
 
-            
 
             if(actionObj.command == Consts.battleCommands.FIGHT) {
                 console.log(`Player ${actionObj.playerBattleIdx} (${actionObj.socketID}) fought, doing ${actionObj.damage} damage. Enemy HP pct: ${actionObj.enemyHPPct}`);
                 
                 if(this.spritePlayers[actionObj.playerBattleIdx].inBattle) {
-
-                    // TODO: Only add this here because it's running an animation and will thus "shift()" later?? This still needs much refining.
-                    this.actionDataQueue.push(actionObj);
-                    this.spritePlayers[actionObj.playerBattleIdx].Swing();
+                    this.spritePlayers[actionObj.playerBattleIdx].Swing(actionObj);
                 }
             }
-            else { // RUN, only other option for now.
+            // RUN, only other option for now.
+            else {
                 console.log(`Player ${actionObj.socketID} ran.`);
-
+                // This player ran, end whole battle for them
                 if(actionObj.socketID == Network.GetSocketID()) {
                     // I fled, so end battle scene.
-                    self.EndBattleScene(self);
+                    self.EndBattleScene(self, false);
                 }
+                // Someone else ran, just get rid of them.
                 else {
-                    // TODO: Someone else fled, animate their sprite leaving the battle scene
+                    self.LosePlayer(actionObj.playerBattleIdx);
                 }
             }
         });
@@ -212,7 +202,7 @@ class Battle extends SceneTransition {
 
                 var time = data.battleWon ? Consts.BATTLE_WON_NEXT_COOLDOWN : Consts.BATTLE_RAN_NEXT_COOLDOWN;
                 setTimeout(() => {
-                    console.log("Reactivating Battle readiness.");
+                    console.log("Reactivating Battle readiness. (Battle scene is asleep)");
                     Network.Emit("NextBattleReady");
                 }, time * 1000);
             }
@@ -239,6 +229,8 @@ class Battle extends SceneTransition {
     Awaken(sys, battleData) {
         //console.log("WAKE EVENT, BATTLE WITH ENEMY: ", battleData.enemyID)
         var scene = sys.scene;
+
+        scene.battleOver = false;
 
         // Blow up background
         const propertyConfigX = { ease: 'Back', from: 0, start: 0, to: scene.scaleFactorX };
@@ -283,18 +275,32 @@ class Battle extends SceneTransition {
         }
     }
 
+    LosePlayer(battleIndex) {
+        var listIdx = this.playerIdxObj.others.indexOf(battleIndex);
+        this.playerIdxObj.others.splice(listIdx, 1);
+        this.spritePlayers[battleIndex].ExitBattle(this.LAUNCH_TIME * 0.25, this.LAUNCH_TIME * 0.75);
+        console.log(`Player at battle index ${battleIndex} left`);
+        console.log(`playerIdxObj remaining:`, this.playerIdxObj);
+    }
+
     SetActionReady(beReady) {
         this.actionReady = beReady;
         this.menuCont.alpha = beReady ? 1 : 0.5;
     }
 
-    PlayerAnimationEndCallback(scene, battlePosIndex) {
-        var action = scene.actionDataQueue.shift();
+    //* This can be fired immediately when an action comes in, but also used as a post-animation callback, so as to ensure we see those first.
+    ProcessAction(scene, battlePosIndex, actionObj) {
+        scene.spriteEnemy.UpdateHP(actionObj.enemyHPPct);
 
-        scene.spriteEnemy.UpdateHP(action.enemyHPPct);
+        if(actionObj.enemyHPPct == 0) {
+            console.log("Battle won!");
+            scene.SetActionReady(false);
+            Main.DispMessage("You won!", 2);
+            Main.DispMessage("Got x exp!", 2);
 
-        if(action.enemyHPPct == 0) {
-            scene.EndBattleScene(scene, true);
+            scene.spriteEnemy.Die(250, 1500, () => {
+                scene.EndBattleScene(scene, true);
+            });            
         }
         else {
             if(battlePosIndex == scene.playerIdxObj.self) {
@@ -304,9 +310,7 @@ class Battle extends SceneTransition {
     }
 
     // Needs the scene passed into it if it's going to be used as a Network response
-    EndBattleScene(scene, battleWon = false) {
-        scene.SetActionReady(false);
-
+    EndBattleScene(scene, battleWon) {
         // Shrink bg back down
         const propertyConfigX = { ease: 'Expo.easeInOut', from: scene.scaleFactorX, start: scene.scaleFactorX, to: 0 };
         const propertyConfigY = { ease: 'Expo.easeInOut', from: scene.scaleFactorY, start: scene.scaleFactorY, to: 0 };
@@ -318,15 +322,10 @@ class Battle extends SceneTransition {
             targets: scene.bg,
             onComplete: () => {
                 Main.player.inBattle = false;
-
-                if(battleWon) {
-                    console.log("Battle won!");
-                    Main.DispMessage("You won!", 2);
-                    Main.DispMessage("Got x exp!", 2);
-                }
-
+                // TODO: These don't seem to be resetting the sprite's HP dial to full, as they should...?
+                //scene.spriteEnemy.UpdateHP(100);
+                //scene.spriteEnemy.DrawHP(100);
                 scene.scene.sleep("Battle", { battleWon: battleWon });
-                console.log("Battle scene sleep called");
             }
         });
 
@@ -349,8 +348,6 @@ class Battle extends SceneTransition {
         // TODO: A different closing animation for if "battleWon", one in which the enemy and other player do not actually leave, as they are of course still be in battle.
         // Perhaps just the player runs and the whole scene fades/drops away...?
         //if(battleWon) {
-            console.log(scene.playerIdxObj);
-
             scene.spriteEnemy.ExitBattle(scene.LAUNCH_TIME * 0.25, scene.LAUNCH_TIME * 0.75);
             for(let i = 0; i < scene.playerIdxObj.others.length; i++) {
                 scene.spritePlayers[scene.playerIdxObj.others[i]].ExitBattle(scene.LAUNCH_TIME * 0.25, scene.LAUNCH_TIME * 0.75);
@@ -359,7 +356,6 @@ class Battle extends SceneTransition {
 
         scene.playerIdxObj.self = -1;
         scene.playerIdxObj.others = [];
-        scene.actionDataQueue = [];
     }
 
     EndGame() {

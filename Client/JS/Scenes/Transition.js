@@ -26,7 +26,7 @@ class SceneTransition extends Phaser.Scene {
         var scene = this;
         this.events.on(Phaser.Scenes.Events.TRANSITION_OUT, () => {
 
-            console.log("Scene transition out event");
+            //console.log("Scene transition out event");
 
             // TODO: This was heavily messing up the transitions - Find some other way to freeze the game when transitions start
             //scene.scene.pause();

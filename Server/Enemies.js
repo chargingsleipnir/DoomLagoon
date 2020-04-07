@@ -188,7 +188,7 @@ module.exports = function(sprites) {
             return idx;
         }
 
-        RemovePlayerFromBattle(battlePosIdx) {
+        RemovePlayerFromBattleOnServer(battlePosIdx) {
             if(this.playerBattleCount > 0) {
                 if(battlePosIdx > -1) {
                     //console.log(`Removed player ${this.playersInBattle[battlePosIdx].socketID}`);
@@ -202,14 +202,14 @@ module.exports = function(sprites) {
                         this.hpCurr = this.hpMax;
                         this.RunMoveTimer();
                     }
-                    // If still in battle, let every other player know of the one that left
-                    else {
-                        for(let i = 0; i < Consts.MAX_PLAYERS_PER_BATTLE; i++) {
-                            if(this.playersInBattle[i].socketID != null)
-                                this.io.to(this.playersInBattle[i].socketID).emit('RecLosePlayer', battlePosIdx);
-                        }
-                    }
                 }
+            }
+        }
+
+        RemovePlayerFromBattleOnClient(battlePosIdx) {
+            for(let i = 0; i < Consts.MAX_PLAYERS_PER_BATTLE; i++) {
+                if(this.playersInBattle[i].socketID != null)
+                    this.io.to(this.playersInBattle[i].socketID).emit('RecLosePlayer', battlePosIdx);
             }
         }
 
@@ -247,13 +247,14 @@ module.exports = function(sprites) {
                     for(let i = 0; i < this.playersInBattle.length; i++) {
                         // TODO: Pass through anything that the enemy might hold. Enemy could be the keeper of exp, if there will be any...?
                         if(this.playersInBattle[i].socketID != null)
-                            sprites.allData[Consts.spriteTypes.PLAYER][this.playersInBattle[i].socketID].LeaveBattle();
+                            sprites.allData[Consts.spriteTypes.PLAYER][this.playersInBattle[i].socketID].LeaveBattle(false);
                     }
     
+                    // Remove this enemy for now
                     delete sprites.allData[Consts.spriteTypes.ENEMY][this.id];
                     delete sprites.updatePack[Consts.spriteTypes.ENEMY][this.id];
     
-                    // Tell everyone in the game to remove this sprite until further notice
+                    // Tell everyone in the game to remove this enemy sprite until further notice
                     this.io.emit("RemoveSprite", this.mapSprite);
     
                     //console.log(`Enemy removed: ${this.id}`);
