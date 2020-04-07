@@ -214,6 +214,13 @@ module.exports = function(sprites) {
         }
 
         ReceiveAction(actionObj) {
+
+            //* In the event that 2 or more players input the finishing blow on the enemy at nearly the same time, this should prevent both actions from registering, as the block is created just a few lines away.
+            //! Still not perfect though :<
+            if(this.hpCurr <= 0) {
+                return;
+            }
+
             // This is necessary to be able to emit a signal to all battle members after they are removed from the battle and their socketID is lost
             var socketIDListCopy = [];
             for(let i = 0; i < this.playersInBattle.length; i++) {
@@ -240,7 +247,7 @@ module.exports = function(sprites) {
                     for(let i = 0; i < this.playersInBattle.length; i++) {
                         // TODO: Pass through anything that the enemy might hold. Enemy could be the keeper of exp, if there will be any...?
                         if(this.playersInBattle[i].socketID != null)
-                            sprites.allData[Consts.spriteTypes.PLAYER][this.playersInBattle[i].socketID].WinBattle();
+                            sprites.allData[Consts.spriteTypes.PLAYER][this.playersInBattle[i].socketID].LeaveBattle();
                     }
     
                     delete sprites.allData[Consts.spriteTypes.ENEMY][this.id];
@@ -279,14 +286,18 @@ module.exports = function(sprites) {
                 sprites.allData[Consts.spriteTypes.PLAYER][actionObj.fromSocketID].LeaveBattle();
             }
 
+
+            // console.log(`Battle won for player ${this.socket.client.id}`);
+            // TODO: database update as needed
+            // TODO: Send win object/information to client through here if there was a win.
             for(let i = 0; i < socketIDListCopy.length; i++) {
-                if(socketIDListCopy[i] != null) {
-                    this.io.to(socketIDListCopy[i]).emit('RecPlayerAction', { 
+                if(socketIDListCopy[i].socketID != null) {
+                    this.io.to(socketIDListCopy[i].socketID).emit('RecPlayerAction', { 
                         socketID: actionObj.fromSocketID,
                         playerBattleIdx: actionObj.playerBattleIdx,
                         command: actionObj.command,
                         damage: actionObj.damage,
-                        enemyHP: this.hpCurr
+                        enemyHPPct: this.hpCurr / this.hpMax
                     });
                 }
             }

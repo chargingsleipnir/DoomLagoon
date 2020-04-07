@@ -110,13 +110,15 @@ module.exports = function(sprites) {
 
             // JUST FOR TESTING - TODO: EXPAND SERVER TESTING FUNCTIONS
             socket.on("BattleAction", function (actionObj) {
+                console.log(`Received battle action, enemyID: ${self.enemyID}, canAct: ${self.canAct}`);
+
                 if(self.enemyID == -1)
                     return;
 
-                if(!this.canAct)
+                if(!self.canAct)
                     return;
 
-                this.canAct = false;
+                self.canAct = false;
 
                 sprites.allData[Consts.spriteTypes.ENEMY][self.enemyID].ReceiveAction({
                     command: actionObj.command,
@@ -124,6 +126,13 @@ module.exports = function(sprites) {
                     damage: self.strength,
                     fromSocketID: socket.client.id
                 });
+            });
+
+            socket.on("ResetActionTimer", function () {
+                if(!self.inBattle)
+                    return;
+
+                self.RunActionTimer();
             });
 
             socket.on("NextBattleReady", function () {
@@ -189,9 +198,6 @@ module.exports = function(sprites) {
                 
 
                 if(this.inBattle) {
-
-                    // TODO: Start player action timer
-
                     this.nextBattleReady = false;
                     this.enemyID = enemy.id;
                     var playerIdxObj = enemy.AddPlayerToBattle(this.socket.client.id);
@@ -199,6 +205,7 @@ module.exports = function(sprites) {
                     this.RunActionTimer(); // Calls ActionReady() upon timer completing
                     this.socket.emit('RecCommenceBattle', { 
                         enemyID: this.enemyID,
+                        enemyHPPct: enemy.hpCurr / enemy.hpMax,
                         playerIdxObj: playerIdxObj,
                     });
                 }
@@ -230,14 +237,6 @@ module.exports = function(sprites) {
                 return;
 
             this.socket.emit("RecActionReady");
-        }
-
-        WinBattle() {
-            // console.log(`Battle won for player ${this.socket.client.id}`);
-            // TODO: database update as needed
-            // TODO: Send win information to local player.
-            this.LeaveBattle();
-            this.socket.emit("RecBattleWon");
         }
 
         // Update() {

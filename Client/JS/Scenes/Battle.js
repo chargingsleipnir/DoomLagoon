@@ -20,6 +20,9 @@ class Battle extends SceneTransition {
     spritePlayers = [];
 
     playerIdxObj;
+
+    actionDataQueue;
+    battleOver;
     
     constructor() {
         super("Battle");
@@ -29,6 +32,8 @@ class Battle extends SceneTransition {
             self: -1,
             others: []
         };
+        this.actionDataQueue = [];
+        this.battleOver = false;
     }
 
     preload() {
@@ -81,6 +86,7 @@ class Battle extends SceneTransition {
         // X is set perfectly, y being just barely off screen
         this.menuCont.setPosition((this.menuBG.width * 0.5) + 10, Main.phaserConfig.height + (this.menuBG.height * 0.5) + 10);
 
+        this.SetActionReady(false);
 
         // ANIMATIONS
         this.anims.create({ key	: 'FighterAxeBlue_Battle_Idle', frames : this.anims.generateFrameNumbers('ssBattleIdle_FighterAxeBlue', { start: 0, end: 23 }), repeat : -1, frameRate : 12 });
@@ -94,10 +100,10 @@ class Battle extends SceneTransition {
         this.anims.create({ key	: 'KnightAxeRed_Battle_Chop', frames : this.anims.generateFrameNumbers('ssBattleChop_KnightAxeRed', { start: 0, end: 24 }), repeat : 0, frameRate : 20 });
 
         // 4 sprites to hold here permanently, 1 enemy and 3 players to use as needed.
-        this.spriteEnemy = new BattleSprite(this, { x: 250, y: 325 }, -100, 'KnightAxeRed', true);
-        this.spritePlayers[0] = new BattleSprite(this, { x: 700, y: 350 }, Main.phaserConfig.width + 100, 'FighterAxeBlue');
-        this.spritePlayers[1] = new BattleSprite(this, { x: 775, y: 275 }, Main.phaserConfig.width + 100, 'FighterAxeBlue');
-        this.spritePlayers[2] = new BattleSprite(this, { x: 800, y: 425 }, Main.phaserConfig.width + 100, 'FighterAxeBlue');
+        this.spriteEnemy = new BattleSprite(this, -1, { x: 250, y: 325 }, -100, 'KnightAxeRed', this.PlayerAnimationEndCallback, true);
+        this.spritePlayers[0] = new BattleSprite(this, 0, { x: 700, y: 350 }, Main.phaserConfig.width + 100, 'FighterAxeBlue', this.PlayerAnimationEndCallback);
+        this.spritePlayers[1] = new BattleSprite(this, 1, { x: 775, y: 275 }, Main.phaserConfig.width + 100, 'FighterAxeBlue', this.PlayerAnimationEndCallback);
+        this.spritePlayers[2] = new BattleSprite(this, 2, { x: 800, y: 425 }, Main.phaserConfig.width + 100, 'FighterAxeBlue', this.PlayerAnimationEndCallback);
 
         var self = this;
 
@@ -117,16 +123,21 @@ class Battle extends SceneTransition {
         });
 
         Network.CreateResponse("RecPlayerAction", (actionObj) => {
-            // TODO: Do everything graphically here. This could be my own actions, or one of the other players
+            // Don't take on any more actions past the one that kills the enemy.
+            if(this.battleOver)
+                return;
+
+            if(actionObj.enemyHPPct == 0)
+                this.battleOver = true;
+
+            this.actionDataQueue.push(actionObj);
 
             if(actionObj.command == Consts.battleCommands.FIGHT) {
-                console.log(`Player ${actionObj.playerBattleIdx} (${actionObj.socketID}) fought, doing ${actionObj.damage} damage. Enemy HP: ${actionObj.enemyHP}`);
+                console.log(`Player ${actionObj.playerBattleIdx} (${actionObj.socketID}) fought, doing ${actionObj.damage} damage. Enemy HP pct: ${actionObj.enemyHPPct}`);
                 
                 if(this.spritePlayers[actionObj.playerBattleIdx].inBattle) {
                     this.spritePlayers[actionObj.playerBattleIdx].Swing();
                 }
-
-                // TODO: Match sprite with socketID and have that sprite run it's fight animation
             }
             else { // RUN, only other option for now.
                 console.log(`Player ${actionObj.socketID} ran.`);
@@ -139,11 +150,6 @@ class Battle extends SceneTransition {
                     // TODO: Someone else fled, animate their sprite leaving the battle scene
                 }
             }
-        });
-
-        // TODO: Get win data
-        Network.CreateResponse('RecBattleWon', () => {
-            this.EndBattleScene(self, true);
         });
 
         // TODO: Implement
@@ -162,8 +168,7 @@ class Battle extends SceneTransition {
         });
 
         Network.CreateResponse("RecActionReady", () => {
-            self.actionReady = true;
-            console.log(`Action ready: ${self.actionReady}`);
+            self.SetActionReady(true);
         });
 
         // BATTLE INPUT
@@ -183,6 +188,7 @@ class Battle extends SceneTransition {
             if(!self.actionReady)
                 return;
 
+            self.SetActionReady(false);
             Network.Emit("BattleAction", {
                 command: this.menuOptionIdx,
                 playerBattleIdx: this.playerIdxObj.self
@@ -253,6 +259,7 @@ class Battle extends SceneTransition {
         });
 
         // Slide in characters
+        scene.spriteEnemy.UpdateHP(battleData.enemyHPPct);
         scene.spriteEnemy.EnterBattle(scene.LAUNCH_TIME, scene.LAUNCH_TIME * 0.5);
         
         scene.playerIdxObj.self = battleData.playerIdxObj.self;
@@ -266,9 +273,29 @@ class Battle extends SceneTransition {
         }
     }
 
+    SetActionReady(beReady) {
+        this.actionReady = beReady;
+        this.menuCont.alpha = beReady ? 1 : 0.5;
+    }
+
+    PlayerAnimationEndCallback(scene, battlePosIndex) {
+        var action = scene.actionDataQueue.shift();
+
+        scene.spriteEnemy.UpdateHP(action.enemyHPPct);
+
+        if(action.enemyHPPct == 0) {
+            scene.EndBattleScene(scene, true);
+        }
+        else {
+            if(battlePosIndex == scene.playerIdxObj.self) {
+                Network.Emit("ResetActionTimer");
+            }
+        }
+    }
+
     // Needs the scene passed into it if it's going to be used as a Network response
     EndBattleScene(scene, battleWon = false) {
-        scene.actionReady = false;
+        scene.SetActionReady(false);
 
         // Shrink bg back down
         const propertyConfigX = { ease: 'Expo.easeInOut', from: scene.scaleFactorX, start: scene.scaleFactorX, to: 0 };
@@ -322,6 +349,7 @@ class Battle extends SceneTransition {
 
         scene.playerIdxObj.self = -1;
         scene.playerIdxObj.others = [];
+        scene.actionDataQueue = [];
     }
 
     EndGame() {

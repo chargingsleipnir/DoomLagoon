@@ -3,6 +3,8 @@ class BattleSprite {
     scene;
     sprite;
 
+    battlePosIndex;
+
     idlePos;
     offScreenX;
     spriteSkinName;
@@ -13,8 +15,9 @@ class BattleSprite {
     actionArc;
     hpArc;
 
-    constructor(scene, idlePos, offScreenX, spriteSkinName, flipX = false) {
+    constructor(scene, battlePosIndex, idlePos, offScreenX, spriteSkinName, AnimEndCB, flipX = false) {
         this.scene = scene;
+        this.battlePosIndex = battlePosIndex;
         this.idlePos = idlePos;
         this.offScreenX = offScreenX;
         this.spriteSkinName = spriteSkinName;
@@ -38,7 +41,7 @@ class BattleSprite {
 
         actionArcBG.fillStyle(0x222222, 1);
         actionArcBG.fillCircle(90, 20, 30);
-        hpArcBG.fillStyle(0xd10209, 1);
+        hpArcBG.fillStyle(0x800303, 1);
         hpArcBG.fillCircle(90, 20, 25);
 
         // TODO: Not sure if I should keep this, just showing a presumed full HP off the start.
@@ -58,6 +61,7 @@ class BattleSprite {
             // Anything that's not idle, return to idle after
             if(anim.key != self.spriteSkinName + '_Battle_Idle') {
                 self.sprite.anims.play(spriteSkinName + '_Battle_Idle');
+                AnimEndCB(this.scene, this.battlePosIndex);
             }
         }, this.scene);
     }
@@ -106,9 +110,10 @@ class BattleSprite {
         this.actionArc.fillPath();
     }
 
+    // TODO: This is a hard increase/drop. Get step updates or tweening in here.
     UpdateHP(percentage) {
         this.hpArc.clear();
-        this.hpArc.fillStyle(0x02d11e, 1);
+        this.hpArc.fillStyle(0x058003, 1);
         this.hpArc.moveTo(90, 20);
         this.hpArc.arc(90, 20, 25, Phaser.Math.DegToRad(0), Phaser.Math.DegToRad(-360 * percentage), true);
         this.hpArc.closePath();
