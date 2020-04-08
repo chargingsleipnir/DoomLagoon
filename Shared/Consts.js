@@ -1,6 +1,7 @@
 (function(exports){
 
     exports.DISP_NAME_STYLE = { font: "16px Arial", fill: "#FFFFFF" };
+    exports.DISP_DAMAGE_STYLE = { font: "20px Arial", fill: "#ff0000", fontStyle: "strong" };
     
     exports.dirIndex = { LEFT: 0, RIGHT: 1, UP: 2, DOWN: 3 };
     exports.dirDiff = [

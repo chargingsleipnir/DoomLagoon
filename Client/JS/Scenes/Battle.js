@@ -98,8 +98,8 @@ class Battle extends SceneTransition {
         // 4 sprites to hold here permanently, 1 enemy and 3 players to use as needed.
         this.spriteEnemy = new BattleSprite(this, -1, { x: 250, y: 325 }, -100, 'KnightAxeRed', true);
         this.spritePlayers[0] = new BattleSprite(this, 0, { x: 700, y: 350 }, Main.phaserConfig.width + 100, 'FighterAxeBlue');
-        this.spritePlayers[1] = new BattleSprite(this, 1, { x: 775, y: 275 }, Main.phaserConfig.width + 100, 'FighterAxeBlue');
-        this.spritePlayers[2] = new BattleSprite(this, 2, { x: 800, y: 425 }, Main.phaserConfig.width + 100, 'FighterAxeBlue');
+        this.spritePlayers[1] = new BattleSprite(this, 1, { x: 775, y: 250 }, Main.phaserConfig.width + 100, 'FighterAxeBlue');
+        this.spritePlayers[2] = new BattleSprite(this, 2, { x: 800, y: 450 }, Main.phaserConfig.width + 100, 'FighterAxeBlue');
 
         var self = this;
 
@@ -130,6 +130,7 @@ class Battle extends SceneTransition {
                 
                 if(this.spritePlayers[actionObj.actorBattleIdx].inBattle) {
                     this.spritePlayers[actionObj.actorBattleIdx].Swing(actionObj, () => {
+                        this.spriteEnemy.ShowDamageTaken(actionObj.damage);
                         this.spriteEnemy.UpdateHPByCurrMax(actionObj.targetHPCurr, actionObj.targetHPMax);
                         if(this.battleOver) {
                             console.log("Battle won!");
@@ -186,6 +187,7 @@ class Battle extends SceneTransition {
             // Only move for enemies right now.
             if(actionObj.command == Consts.battleCommands.FIGHT) {
                 this.spriteEnemy.Swing(actionObj, () => {
+                    this.spritePlayers[actionObj.targetBattleIdx].ShowDamageTaken(actionObj.damage);
                     this.spritePlayers[actionObj.targetBattleIdx].UpdateHPByCurrMax(actionObj.targetHPCurr, actionObj.targetHPMax);
                     if(actionObj.targetHPCurr <= 0) {
                         if(selfKilled) {

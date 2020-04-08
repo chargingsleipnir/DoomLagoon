@@ -2,7 +2,7 @@ class BattleSprite {
 
     scene;
 
-    name;
+    nameText;
     sprite;
 
     battlePosIndex;
@@ -20,11 +20,13 @@ class BattleSprite {
     flipXFactor;
 
     hpMax;
-    hpCurr;
+    hpCurrText;
     hpPctFrom;
     hpPctTo;
     hpChangeFactor;
     hpDispIncrement = 1;
+
+    damageText;
 
     AnimEndCB = () => {};
     actionObj = null;
@@ -52,27 +54,41 @@ class BattleSprite {
             this.flipXFactor = -1;
         }
 
+        // Add name above of the circle.
+        this.nameText = scene.add.text(90 * this.flipXFactor, -30, "", Consts.DISP_NAME_STYLE);
+        this.nameText.setOrigin(0.5);
+
+        this.damageText = scene.add.text(-50 * this.flipXFactor, -this.sprite.width - 10, "", Consts.DISP_DAMAGE_STYLE);
+        this.damageText.setOrigin(0.5);
+        this.damageText.alpha = 0;
+
         // Action timer and hp indicators.
         var actionArcBG = scene.add.graphics();
         this.actionArc = scene.add.graphics();
         var hpArcBG = scene.add.graphics();
         this.hpArc = scene.add.graphics();
 
+        // Add curr HP in the middle of the circle.
+        this.hpCurrText = scene.add.text(90 * this.flipXFactor, 20, "", Consts.DISP_NAME_STYLE);
+        this.hpCurrText.setOrigin(0.5);
+
         // TODO: Add number that pops up each time sprite takes damage or heals.
-        // TODO: Add current HP value in centre of dial.
+        this.gameObjCont.add(this.nameText);
+        this.gameObjCont.add(this.damageText);
         this.gameObjCont.add(actionArcBG);
         this.gameObjCont.add(this.actionArc);
         this.gameObjCont.add(hpArcBG);
         this.gameObjCont.add(this.hpArc);
+        this.gameObjCont.add(this.hpCurrText);
 
         actionArcBG.fillStyle(0x222222, 1);
-        actionArcBG.fillCircle(90 * this.flipXFactor, 20, 30);
+        actionArcBG.fillCircle(90 * this.flipXFactor, 20, 25);
         hpArcBG.fillStyle(0x800303, 1);
-        hpArcBG.fillCircle(90 * this.flipXFactor, 20, 25);
+        hpArcBG.fillCircle(90 * this.flipXFactor, 20, 20);
 
         this.hpPctFrom = this.hpPctTo = 100;
         this.hpChangeFactor = -1;
-        this.UpdateHPByPct(this.hpPctTo);
+        this.UpdateHPByCurrMax(1, 1);
         this.DrawHP(this.hpPctTo);
 
         this.sprite.anims.play(spriteSkinName + '_Battle_Idle');
@@ -97,9 +113,9 @@ class BattleSprite {
     }
 
     SetTemplate(name, hpMax, hpCurr) {
-        this.name = name;
+        this.nameText.text = name;
         this.hpMax = hpMax;
-        this.hpCurr = hpCurr;
+        this.hpCurrText.text = hpCurr;
 
         this.UpdateHPByCurrMax(hpCurr, hpMax);
     }
@@ -176,14 +192,34 @@ class BattleSprite {
         this.actionArc.clear();
         this.actionArc.fillStyle(0x004cff, 1);
         this.actionArc.moveTo(90 * this.flipXFactor, 20);
-        this.actionArc.arc(90 * this.flipXFactor, 20, 30, Phaser.Math.DegToRad(0), Phaser.Math.DegToRad(-360 * (percentage * 0.01)), true);
-        //this.actionProgressArc.slice(130, 0, 30, Phaser.Math.DegToRad(0), Phaser.Math.DegToRad(125));
+        this.actionArc.arc(90 * this.flipXFactor, 20, 25, Phaser.Math.DegToRad(0), Phaser.Math.DegToRad(-360 * (percentage * 0.01)), true);
         this.actionArc.closePath();
         this.actionArc.fillPath();
     }
 
+    ShowDamageTaken(damage) {
+        this.damageText.text = damage;
+
+        this.damageText.alpha = 1;
+        var startY = this.damageText.y;
+        var endY = startY - 20;
+
+        const damageTextDispConfig = { ease: 'Back', from: startY, start: startY, to: endY };
+        this.scene.tweens.add({
+            delay: 0,
+            duration: 500,
+            y:damageTextDispConfig,
+            targets: this.damageText,
+            onComplete: () => {
+                this.damageText.alpha = 0;
+                this.damageText.y = startY;
+            }
+        });
+    }
+
     // TODO: This is a hard increase/drop. Get step updates or tweening in here.
     UpdateHPByCurrMax(hpCurr, hpMax) {
+        this.hpCurrText.text = hpCurr;
         this.UpdateHPByPct(Math.floor((hpCurr / hpMax) * 100));
     }
     UpdateHPByPct(percentage) {
@@ -199,7 +235,7 @@ class BattleSprite {
         this.hpArc.clear();
         this.hpArc.fillStyle(0x058003, 1);
         this.hpArc.moveTo(90 * this.flipXFactor, 20);
-        this.hpArc.arc(90 * this.flipXFactor, 20, 25, Phaser.Math.DegToRad(0), Phaser.Math.DegToRad(360 * (percentage * 0.01)));
+        this.hpArc.arc(90 * this.flipXFactor, 20, 20, Phaser.Math.DegToRad(0), Phaser.Math.DegToRad(360 * (percentage * 0.01)));
         this.hpArc.closePath();
         this.hpArc.fillPath();
     }
