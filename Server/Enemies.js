@@ -295,7 +295,8 @@ module.exports = function(sprites) {
                         targetBattleIdx: -1,
                         command: actionObj.command,
                         damage: actionObj.damage,
-                        targetHPPct: Math.floor((this.hpCurr / this.hpMax) * 100)
+                        targetHPMax: this.hpMax,
+                        targetHPCurr: this.hpCurr
                     });
                 }
             }
@@ -319,32 +320,41 @@ module.exports = function(sprites) {
                 randPlayerCounter--;
                 if(randPlayerCounter > 0)
                     continue;
-                else
+                else {
                     attackIndex = i;
-            }
-
-            var player = sprites.allData[Consts.spriteTypes.PLAYER][this.playersInBattle[attackIndex].socketID];
-            player.ReceiveAttack(this.strength);
-
-            // This will either include the attacked player, simply resulting in a reduction of their hp, or
-            // not if they were killed, in which case they're calling their socket's "RecBattleLost".
-            for(let i = 0; i < this.playersInBattle.length; i++) {
-                if(this.playersInBattle[i].socketID != null) {
-                    this.io.to(this.playersInBattle[i].socketID).emit('RecEnemyAction', { 
-                        socketID: player.id, // Don't need to send this?
-                        actorBattleIdx: -1,
-                        targetBattleIdx: attackIndex,
-                        damage: this.strength,
-                        targetHPPct: Math.floor((player.hpCurr / player.hpMax) * 100)
-                    });
+                    break;
                 }
             }
 
+            var player = sprites.allData[Consts.spriteTypes.PLAYER][this.playersInBattle[attackIndex].socketID];
+            var attackKilled = player.ReceiveAttack(this.strength);
+
+            var actionObj = { 
+                socketID: player.id, //? Don't need to send this?
+                actorBattleIdx: -1,
+                targetBattleIdx: attackIndex,
+                command: Consts.battleCommands.FIGHT,
+                damage: this.strength,
+                targetHPMax: player.hpMax,
+                targetHPCurr: player.hpCurr
+            };
+            
+            // If killed, this player will not be included in the call below, so they need their own.
+            if(attackKilled) {
+                player.socket.emit("RecEnemyAction", actionObj);
+                player.Destroy();
+            }
+
+            // This will either include the attacked player, simply resulting in a reduction of their hp, or
+            // not if they were killed, in which case they're calling their socket's "RecBattleLost".
+            for(let i = 0; i < this.playersInBattle.length; i++)
+                if(this.playersInBattle[i].socketID != null)
+                    this.io.to(this.playersInBattle[i].socketID).emit('RecEnemyAction', actionObj);
+
             // Might have killed the last player (this.inBattle will toggle when player is removed [down line through player.Attack]), but if not, keep attacking.
             // Apply a small delay to allow for client animations. Although it'd be best to let an animation run and hear back, from which player? The multiplayer setup is not conducive to that.
-            if(this.inBattle) {
+            if(this.inBattle)
                 this.actionCooldownTimeoutRef = setTimeout(() => { this.RunActionTimer(); }, 2000);
-            }
         }
 
         // Tell all battle players of the given player's action timer percentage

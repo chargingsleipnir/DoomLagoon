@@ -26,12 +26,13 @@ class BattleSprite {
     hpChangeFactor;
     hpDispIncrement = 1;
 
+    AnimEndCB = () => {};
     actionObj = null;
 
     // TODO: Bettter tie-in with map sprites
     // TODO: I need to put their names on the battle field!!!
 
-    constructor(scene, battlePosIndex, idlePos, offScreenX, spriteSkinName, AnimEndCB, flipX = false) {
+    constructor(scene, battlePosIndex, idlePos, offScreenX, spriteSkinName, flipX = false) {
         this.scene = scene;
         this.battlePosIndex = battlePosIndex;
         this.idlePos = idlePos;
@@ -71,7 +72,7 @@ class BattleSprite {
 
         this.hpPctFrom = this.hpPctTo = 100;
         this.hpChangeFactor = -1;
-        this.UpdateHP(this.hpPctTo);
+        this.UpdateHPByPct(this.hpPctTo);
         this.DrawHP(this.hpPctTo);
 
         this.sprite.anims.play(spriteSkinName + '_Battle_Idle');
@@ -90,7 +91,7 @@ class BattleSprite {
             // Anything that's not idle, return to idle after
             if(anim.key != self.spriteSkinName + '_Battle_Idle') {
                 self.sprite.anims.play(spriteSkinName + '_Battle_Idle');
-                AnimEndCB(this.scene, this.battlePosIndex, this.actionObj);
+                this.AnimEndCB(this.scene, this.battlePosIndex, this.actionObj);
             }
         }, this.scene);
     }
@@ -100,7 +101,7 @@ class BattleSprite {
         this.hpMax = hpMax;
         this.hpCurr = hpCurr;
 
-        this.UpdateHP(Math.floor((hpCurr / hpMax) * 100));
+        this.UpdateHPByCurrMax(hpCurr, hpMax);
     }
 
     EnterBattle(delay, duration) {
@@ -128,18 +129,21 @@ class BattleSprite {
         });
     }
 
-    Dodge(actionObj) {
+    Dodge(actionObj, AnimEndCB) {
         this.actionObj = actionObj;
+        this.AnimEndCB = AnimEndCB;
         this.sprite.anims.play(this.spriteSkinName + '_Battle_Dodge');
     }
 
-    Swing(actionObj) {
+    Swing(actionObj, AnimEndCB) {
         this.actionObj = actionObj;
+        this.AnimEndCB = AnimEndCB;
         this.sprite.anims.play(this.spriteSkinName + '_Battle_Swing');
     }
 
-    Chop(actionObj) {
+    Chop(actionObj, AnimEndCB) {
         this.actionObj = actionObj;
+        this.AnimEndCB = AnimEndCB;
         this.sprite.anims.play(this.spriteSkinName + '_Battle_Chop');
     }
 
@@ -179,7 +183,10 @@ class BattleSprite {
     }
 
     // TODO: This is a hard increase/drop. Get step updates or tweening in here.
-    UpdateHP(percentage) {
+    UpdateHPByCurrMax(hpCurr, hpMax) {
+        this.UpdateHPByPct(Math.floor((hpCurr / hpMax) * 100));
+    }
+    UpdateHPByPct(percentage) {
         this.hpPctFrom = this.hpPctTo;
         this.hpPctTo = percentage;
 

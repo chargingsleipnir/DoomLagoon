@@ -270,17 +270,18 @@ module.exports = function(sprites) {
             if(this.hpCurr <= 0) {
                 this.hpCurr = 0;
 
-                var tempBattlePosIdx = this.battlePosIndex;
-
                 this.LeaveBattle(false);
                 this.RemoveSelfFromMap();
 
                 this.socket.broadcast.emit("RemoveMapSprite", this.mapSprite);
-                delete sprites.allData[Consts.spriteTypes.PLAYER][this.id];
-                delete sprites.updatePack[Consts.spriteTypes.PLAYER][this.id];
-
-                this.socket.emit("RecBattleLost", tempBattlePosIdx);
+                return true;
             }
+            return false;
+        }
+
+        Destroy() {
+            delete sprites.allData[Consts.spriteTypes.PLAYER][this.id];
+            delete sprites.updatePack[Consts.spriteTypes.PLAYER][this.id];
         }
 
         // Update() {
