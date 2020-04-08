@@ -148,6 +148,7 @@ module.exports = function(sprites) {
                 if(!this.inBattle) {
                     this.canAct = false;
                     this.StopActionTimer();
+                    return;
                 }
 
                 this.actionIntervalCounter += Consts.INTERVAL_STEP;

@@ -127,53 +127,49 @@ module.exports = function(sprites) {
             return this.playerBattleCount < Consts.MAX_PLAYERS_PER_BATTLE;
         }
 
-        AddPlayerToBattle(socketID) {
-            var playerIdxObj = {
-                self: -1,
-                others: []
-            };
+        AddPlayerToBattle(player) {
+            if(!this.CanAddPlayerToBattle())
+                return;
 
+            var battlePosIndex = -1;
             var battleJustStarted = false;
 
-            if(this.CanAddPlayerToBattle()) {
-                //console.log(`Socket ID pushed into battle group: ${socketID}`);
-                for(let i = 0; i < Consts.MAX_PLAYERS_PER_BATTLE; i++) {
-                    if(this.playersInBattle[i].socketID == null) {
-                        // Self has been set (added to one of the first-found "null" spot), so skip the rest
-                        if(playerIdxObj.self > -1)
+            //console.log(`Socket ID pushed into battle group: ${player.id}`);
+            for(let i = 0; i < Consts.MAX_PLAYERS_PER_BATTLE; i++) {
+                if(this.playersInBattle[i].socketID == null) {
+                    this.playersInBattle[i].socketID = player.id;
+                    this.playerBattleCount++;
+
+                    this.inBattle = true;
+                    battlePosIndex = i;
+
+                    // First player added means battle just started - launch action timer
+                    battleJustStarted = this.playerBattleCount == 1;
+
+                    // Let all other active battle participants know to add this player
+                    for(let j = 0; j < Consts.MAX_PLAYERS_PER_BATTLE; j++) {
+                        if(j == i)
                             continue;
 
-                        this.playersInBattle[i].socketID = socketID;
-                        playerIdxObj.self = i;
-                        this.playerBattleCount++;
-
-                        // First player added means battle just started - launch action timer
-                        if(this.playerBattleCount == 1)
-                            battleJustStarted = true;
-
-                        // Let all other active battle participants know to add this player
-                        for(let j = 0; j < Consts.MAX_PLAYERS_PER_BATTLE; j++) {
-                            if(j == i)
-                                continue;
-
-                            if(this.playersInBattle[j].socketID != null)
-                                this.io.to(this.playersInBattle[j].socketID).emit('RecAddPlayer', i);
+                        if(this.playersInBattle[j].socketID != null) {
+                            this.io.to(this.playersInBattle[j].socketID).emit('RecAddPlayer', {
+                                name: player.name,
+                                battlePosIndex: battlePosIndex,
+                                hpMax: player.hpMax,
+                                hpCurr: player.hpCurr
+                            });
                         }
                     }
-                    else {
-                        playerIdxObj.others.push(i);
-                    }
-                }
-            }
-            this.inBattle = this.playerBattleCount > 0;
-            if(this.inBattle) {
-                clearTimeout(this.moveTimeoutRef);
-                if(battleJustStarted) {
-                    this.RunActionTimer();
+                    break;
                 }
             }
 
-            return playerIdxObj;
+            if(battleJustStarted) {
+                clearTimeout(this.moveTimeoutRef);
+                this.RunActionTimer();
+            }
+
+            return battlePosIndex;
         }
 
         GetBattlePosIndex(socketID) {
@@ -327,15 +323,15 @@ module.exports = function(sprites) {
                     attackIndex = i;
             }
 
-            var player = sprites[Consts.spriteTypes.PLAYER][this.playersInBattle[attackIndex].socketID];
-            player.Attack(this.strength);
+            var player = sprites.allData[Consts.spriteTypes.PLAYER][this.playersInBattle[attackIndex].socketID];
+            player.ReceiveAttack(this.strength);
 
             // This will either include the attacked player, simply resulting in a reduction of their hp, or
             // not if they were killed, in which case they're calling their socket's "RecBattleLost".
             for(let i = 0; i < this.playersInBattle.length; i++) {
                 if(this.playersInBattle[i].socketID != null) {
                     this.io.to(this.playersInBattle[i].socketID).emit('RecEnemyAction', { 
-                        socketID: player.socketID, // Don't need to send this?
+                        socketID: player.id, // Don't need to send this?
                         actorBattleIdx: -1,
                         targetBattleIdx: attackIndex,
                         damage: this.strength,
@@ -347,7 +343,7 @@ module.exports = function(sprites) {
             // Might have killed the last player (this.inBattle will toggle when player is removed [down line through player.Attack]), but if not, keep attacking.
             // Apply a small delay to allow for client animations. Although it'd be best to let an animation run and hear back, from which player? The multiplayer setup is not conducive to that.
             if(this.inBattle) {
-                this.actionCooldownTimeoutRef = setTimeout(this.RunActionTimer, 2000);
+                this.actionCooldownTimeoutRef = setTimeout(() => { this.RunActionTimer(); }, 2000);
             }
         }
 

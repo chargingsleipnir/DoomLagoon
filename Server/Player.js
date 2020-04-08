@@ -200,14 +200,39 @@ module.exports = function(sprites) {
                 if(this.inBattle) {
                     this.nextBattleReady = false;
                     this.enemyID = enemy.id;
-                    var playerIdxObj = enemy.AddPlayerToBattle(this.socket.client.id);
-                    this.battlePosIndex = playerIdxObj.self;
+
+                    this.battlePosIndex = enemy.AddPlayerToBattle(this);
+                    // This index object divides up the position indicies among the players, so everyone knows exactly which player in the battle they are.
+                    var playerIdxObj = {
+                        self: this.battlePosIndex,
+                        others: []
+                    };
+
+                    var playersInBattleData = {};
+                    // Get updated info of all current players
+                    for(let i = 0; i < Consts.MAX_PLAYERS_PER_BATTLE; i++) {
+                        if(enemy.playersInBattle[i].socketID != null) {
+                            var player = sprites.allData[Consts.spriteTypes.PLAYER][enemy.playersInBattle[i].socketID];
+                            playersInBattleData[i] = {
+                                name: player.name,
+                                hpMax: player.hpMax,
+                                hpCurr: player.hpCurr
+                            }
+
+                            if(playerIdxObj.self != i) {
+                                playerIdxObj.others.push(i);
+                            }
+                        }
+                    }
+                    
                     this.RunActionTimer(); // Calls ActionReady() upon timer completing
-                    // TODO: Send full hp data and display current HP number in centre of dial or something
-                    // Low priority but it could always be made to look a little nicer.
+
                     this.socket.emit('RecCommenceBattle', { 
                         enemyID: this.enemyID,
-                        enemyHPPct: Math.floor((enemy.hpCurr / enemy.hpMax) * 100),
+                        enemyName: enemy.name,
+                        enemyHPMax: enemy.hpMax,
+                        enemyHPCurr: enemy.hpCurr,
+                        playerData: playersInBattleData,
                         playerIdxObj: playerIdxObj,
                     });
                 }
@@ -244,6 +269,9 @@ module.exports = function(sprites) {
             // Player was killed
             if(this.hpCurr <= 0) {
                 this.hpCurr = 0;
+
+                var tempBattlePosIdx = this.battlePosIndex;
+
                 this.LeaveBattle(false);
                 this.RemoveSelfFromMap();
 
@@ -251,7 +279,7 @@ module.exports = function(sprites) {
                 delete sprites.allData[Consts.spriteTypes.PLAYER][this.id];
                 delete sprites.updatePack[Consts.spriteTypes.PLAYER][this.id];
 
-                this.socket.emit("RecBattleLost");
+                this.socket.emit("RecBattleLost", tempBattlePosIdx);
             }
         }
 

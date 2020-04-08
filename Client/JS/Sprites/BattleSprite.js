@@ -1,6 +1,8 @@
 class BattleSprite {
 
     scene;
+
+    name;
     sprite;
 
     battlePosIndex;
@@ -17,6 +19,8 @@ class BattleSprite {
 
     flipXFactor;
 
+    hpMax;
+    hpCurr;
     hpPctFrom;
     hpPctTo;
     hpChangeFactor;
@@ -89,6 +93,14 @@ class BattleSprite {
                 AnimEndCB(this.scene, this.battlePosIndex, this.actionObj);
             }
         }, this.scene);
+    }
+
+    SetTemplate(name, hpMax, hpCurr) {
+        this.name = name;
+        this.hpMax = hpMax;
+        this.hpCurr = hpCurr;
+
+        this.UpdateHP(Math.floor((hpCurr / hpMax) * 100));
     }
 
     EnterBattle(delay, duration) {

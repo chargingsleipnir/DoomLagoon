@@ -86,14 +86,14 @@ class Battle extends SceneTransition {
 
         // ANIMATIONS
         this.anims.create({ key	: 'FighterAxeBlue_Battle_Idle', frames : this.anims.generateFrameNumbers('ssBattleIdle_FighterAxeBlue', { start: 0, end: 23 }), repeat : -1, frameRate : 12 });
-        this.anims.create({ key	: 'FighterAxeBlue_Battle_Dodge', frames : this.anims.generateFrameNumbers('ssBattleDodge_FighterAxeBlue', { start: 0, end: 13 }), repeat : 0, frameRate : 20 });
-        this.anims.create({ key	: 'FighterAxeBlue_Battle_Swing', frames : this.anims.generateFrameNumbers('ssBattleSwing_FighterAxeBlue', { start: 0, end: 25 }), repeat : 0, frameRate : 20 });
-        this.anims.create({ key	: 'FighterAxeBlue_Battle_Chop', frames : this.anims.generateFrameNumbers('ssBattleChop_FighterAxeBlue', { start: 0, end: 30 }), repeat : 0, frameRate : 20 });
+        this.anims.create({ key	: 'FighterAxeBlue_Battle_Dodge', frames : this.anims.generateFrameNumbers('ssBattleDodge_FighterAxeBlue', { start: 0, end: 13 }), repeat : 0, frameRate : 12 });
+        this.anims.create({ key	: 'FighterAxeBlue_Battle_Swing', frames : this.anims.generateFrameNumbers('ssBattleSwing_FighterAxeBlue', { start: 0, end: 25 }), repeat : 0, frameRate : 12 });
+        this.anims.create({ key	: 'FighterAxeBlue_Battle_Chop', frames : this.anims.generateFrameNumbers('ssBattleChop_FighterAxeBlue', { start: 0, end: 30 }), repeat : 0, frameRate : 12 });
         
         this.anims.create({ key	: 'KnightAxeRed_Battle_Idle', frames : this.anims.generateFrameNumbers('ssBattleIdle_KnightAxeRed', { start: 0, end: 23 }), repeat : -1, frameRate : 12 });
-        this.anims.create({ key	: 'KnightAxeRed_Battle_Dodge', frames : this.anims.generateFrameNumbers('ssBattleDodge_KnightAxeRed', { start: 0, end: 13 }), repeat : 0, frameRate : 20 });
-        this.anims.create({ key	: 'KnightAxeRed_Battle_Swing', frames : this.anims.generateFrameNumbers('ssBattleSwing_KnightAxeRed', { start: 0, end: 20 }), repeat : 0, frameRate : 20 });
-        this.anims.create({ key	: 'KnightAxeRed_Battle_Chop', frames : this.anims.generateFrameNumbers('ssBattleChop_KnightAxeRed', { start: 0, end: 24 }), repeat : 0, frameRate : 20 });
+        this.anims.create({ key	: 'KnightAxeRed_Battle_Dodge', frames : this.anims.generateFrameNumbers('ssBattleDodge_KnightAxeRed', { start: 0, end: 13 }), repeat : 0, frameRate : 12 });
+        this.anims.create({ key	: 'KnightAxeRed_Battle_Swing', frames : this.anims.generateFrameNumbers('ssBattleSwing_KnightAxeRed', { start: 0, end: 20 }), repeat : 0, frameRate : 12 });
+        this.anims.create({ key	: 'KnightAxeRed_Battle_Chop', frames : this.anims.generateFrameNumbers('ssBattleChop_KnightAxeRed', { start: 0, end: 24 }), repeat : 0, frameRate : 12 });
 
         // 4 sprites to hold here permanently, 1 enemy and 3 players to use as needed.
         this.spriteEnemy = new BattleSprite(this, -1, { x: 250, y: 325 }, -100, 'KnightAxeRed', this.ProcessAction, true);
@@ -103,10 +103,11 @@ class Battle extends SceneTransition {
 
         var self = this;
 
-        Network.CreateResponse('RecAddPlayer', (battleIndex) => {
-            this.playerIdxObj.others.push(battleIndex);
-            this.spritePlayers[battleIndex].EnterBattle(this.LAUNCH_TIME, this.LAUNCH_TIME * 0.5);
-            console.log(`Player at battle index ${battleIndex} added`);
+        Network.CreateResponse('RecAddPlayer', (playerObj) => {
+            this.playerIdxObj.others.push(playerObj.battlePosIndex);
+            this.spritePlayers[playerObj.battlePosIndex].SetTemplate(playerObj.name, playerObj.hpMax, playerObj.hpCurr);
+            this.spritePlayers[playerObj.battlePosIndex].EnterBattle(this.LAUNCH_TIME, this.LAUNCH_TIME * 0.5);
+            console.log(`Player ${playerObj.name} added at battle posiiton index ${playerObj.battlePosIndex}. HP: ${playerObj.hpCurr} of ${playerObj.hpMax}`);
             console.log(`playerIdxObj now:`, this.playerIdxObj);
         });
 
@@ -149,16 +150,21 @@ class Battle extends SceneTransition {
         Network.CreateResponse("RecEnemyAction", (actionObj) => {
             // TODO: This will get any other player, or myself only if not killed.
             // If I'm killed, RecBattleLost called instead.
-            console.log(`Enemy attacked player ${actionObj.targetBattleIdx} (${actionObj.socketID}), doing ${actionObj.damage} damage. Player HP pct: ${actionObj.playerHPPct}`);
+            console.log(`Enemy attacked player ${actionObj.targetBattleIdx} (${actionObj.socketID}), doing ${actionObj.damage} damage. Player HP pct: ${actionObj.targetHPPct}`);
                 
             if(this.spritePlayers[actionObj.targetBattleIdx].inBattle) {
                 this.spriteEnemy.Swing(actionObj);
             }
         });
 
-        // TODO: Implement
-        Network.CreateResponse("RecBattleLost", () => {
+        // TODO: FORGOTTEN TO MAKE ENEMY UNLEASH HIS LAST ATTACK!!
+        Network.CreateResponse("RecBattleLost", (battlePosIdx) => {
             console.log("PLAYER KILLED")
+            this.SetActionReady(false);
+            this.spritePlayers[battlePosIdx].UpdateHP(0);
+            this.spritePlayers[battlePosIdx].Die(250, 1500, () => {
+                console.log("Battle ended, reset game right here/now");
+            });
             // TODO: Everything has been taken care of on the server, just need to figure this out now.
             // For now, just a menu pop-up with a single "Restart" button, which would ideally not refresh the page,
             // but essentially restart everything else (just put the player back at the inital spawn point... or Title scene?)
@@ -241,7 +247,6 @@ class Battle extends SceneTransition {
     }
 
     Awaken(sys, battleData) {
-        //console.log("WAKE EVENT, BATTLE WITH ENEMY: ", battleData.enemyID)
         var scene = sys.scene;
 
         scene.battleOver = false;
@@ -275,16 +280,20 @@ class Battle extends SceneTransition {
         });
 
         // Slide in characters
-        scene.spriteEnemy.UpdateHP(battleData.enemyHPPct);
+        scene.spriteEnemy.SetTemplate(battleData.enemyName, battleData.enemyHPMax, battleData.enemyHPCurr);
         scene.spriteEnemy.EnterBattle(scene.LAUNCH_TIME, scene.LAUNCH_TIME * 0.5);
         
         scene.playerIdxObj.self = battleData.playerIdxObj.self;
         scene.playerIdxObj.others = battleData.playerIdxObj.others.slice();
 
         if(scene.playerIdxObj.self > -1) {
+            var selfData = battleData.playerData[scene.playerIdxObj.self];
+            scene.spritePlayers[scene.playerIdxObj.self].SetTemplate(selfData.name, selfData.hpMax, selfData.hpCurr);
             scene.spritePlayers[scene.playerIdxObj.self].EnterBattle(scene.LAUNCH_TIME, scene.LAUNCH_TIME * 0.5);
         }
         for(let i = 0; i < scene.playerIdxObj.others.length; i++) {
+            var playerData = battleData.playerData[scene.playerIdxObj.others[i]];
+            scene.spritePlayers[scene.playerIdxObj.others[i]].SetTemplate(playerData.name, playerData.hpMax, playerData.hpCurr);
             scene.spritePlayers[scene.playerIdxObj.others[i]].EnterBattle(scene.LAUNCH_TIME, scene.LAUNCH_TIME * 0.5);
         }
     }
