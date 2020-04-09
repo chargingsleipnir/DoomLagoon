@@ -67,6 +67,7 @@ var Main = (() => {
                 // Phaser Game starts in MainMenu on Play button
                 MainMenu.Init();
                 OptionsMenu.Init();
+                RestartMenu.Init();
 
                 Network.CreateResponse("RecSave", (success) => {
                     if(success) {

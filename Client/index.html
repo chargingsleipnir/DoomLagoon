@@ -26,6 +26,7 @@
     <!-- Site flow, non-scenes -->
     <script type="text/javascript" src="JS/MainMenu.js"></script>
     <script type="text/javascript" src="JS/OptionsMenu.js"></script>
+    <script type="text/javascript" src="JS/RestartMenu.js"></script>
 
     <!-- SCENES -->
     <!-- "Abstract" classes -->
@@ -93,7 +94,7 @@
         </div>
     </div>
 
-    <div id="OptionsMenu" class="menuPanel bg_Paper512 deadCentreOfScreen">
+    <div id="OptionsMenu" class="menuPanel bg_Paper512 deadCentreOfScreen hide">
         <button alt="close" id="CloseOptionsBtn"><i class="fas fa-window-close fa-2x"></i></button>
         <div class="flexFlowRightTop">
             <ul id="OptionsMenuTabs">
@@ -125,7 +126,13 @@
         </div>
     </div>
 
-    <div id="FullGameContainer">
+    <div id="GameOverMenu" class="menuPanel bg_Paper512 deadCentreOfScreen flexFlowDownCentre hidden">
+        <h1>YOU DIED!</h1>
+        <div class="margTop10">Well that sure sucks. Give it another try!</div>
+        <div class="bg_Button285x60 flexCentreChild margTop25"><input id="ResetGameBtn" type="button" value="Restart" /></div>
+    </div>
+
+    <div id="FullGameContainer" class="hide">
         <div id="GameMessageBox" class="centredBlock">This is a potential message from game to player.</div>
         <ul id="ChatLog" class="hide"></ul>
         <div id="CanvasContainer"></div>

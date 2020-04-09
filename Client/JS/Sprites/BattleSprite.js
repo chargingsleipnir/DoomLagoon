@@ -44,6 +44,7 @@ class BattleSprite {
         // TODO: Start off screen
         this.gameObjCont = scene.add.container(this.offScreenX, this.idlePos.y);
         this.sprite = scene.add.sprite(0, 0, Main.animData.battle.skinPrefix + spriteSkinName , 0);
+        this.sprite.setOrigin(0.5);
         this.sprite.setScale(1.75);
         this.gameObjCont.add(this.sprite);
 
@@ -91,11 +92,9 @@ class BattleSprite {
         this.UpdateHPByCurrMax(1, 1);
         this.DrawHP(this.hpPctTo);
 
-        this.sprite.anims.play(spriteSkinName + '_Battle_Idle');
+        this.sprite.anims.play(`${this.spriteSkinName}_${Main.animData.battle.moveKeys[0]}`);
 
         this.inBattle = false;
-
-        var self = this;
 
         // TODO: Should be able to do this for any animation, to read frames, and launch events specifically on them.
         // this.sprite.on('animationupdate-' + this.spriteSkinName + '_Battle_Swing', (anim, frame, gameObj) => {
@@ -105,10 +104,22 @@ class BattleSprite {
             //console.log(anim);
             //console.log(frame);
             // Anything that's not idle, return to idle after
-            if(anim.key != self.spriteSkinName + '_Battle_Idle') {
-                self.sprite.anims.play(spriteSkinName + '_Battle_Idle');
+            if(anim.key != `${this.spriteSkinName}_${Main.animData.battle.moveKeys[0]}`) {
+                this.sprite.anims.play(`${this.spriteSkinName}_${Main.animData.battle.moveKeys[0]}`);
                 this.AnimEndCB(this.scene, this.battlePosIndex, this.actionObj);
             }
+        }, this.scene);
+
+        //* Change sprite origins to get animations all aligned
+        this.sprite.on('animationstart', (anim, frame) => {
+            //console.log("On anim start event: ", anim);
+            var moveKey = anim.key.replace(`${this.spriteSkinName}_`, "");
+            let skinIdx = Main.animData.skins.indexOf(this.spriteSkinName);
+            let moveIdx = Main.animData.battle.moveKeys.indexOf(moveKey);
+            //console.log(`Origin object loacted at ${skinIdx}, ${moveIdx}`)
+            let originObj = Main.animData.battle["skin-move-origins"][skinIdx][moveIdx];
+            //console.log(`Origin is ${originObj.x}, ${originObj.y}`);
+            this.sprite.setOrigin(originObj.x, originObj.y);
         }, this.scene);
     }
 
@@ -148,19 +159,19 @@ class BattleSprite {
     Dodge(actionObj, AnimEndCB) {
         this.actionObj = actionObj;
         this.AnimEndCB = AnimEndCB;
-        this.sprite.anims.play(this.spriteSkinName + '_Battle_Dodge');
+        this.sprite.anims.play(`${this.spriteSkinName}_${Main.animData.battle.moveKeys[1]}`);
     }
 
     Swing(actionObj, AnimEndCB) {
         this.actionObj = actionObj;
         this.AnimEndCB = AnimEndCB;
-        this.sprite.anims.play(this.spriteSkinName + '_Battle_Swing');
+        this.sprite.anims.play(`${this.spriteSkinName}_${Main.animData.battle.moveKeys[2]}`);
     }
 
     Chop(actionObj, AnimEndCB) {
         this.actionObj = actionObj;
         this.AnimEndCB = AnimEndCB;
-        this.sprite.anims.play(this.spriteSkinName + '_Battle_Chop');
+        this.sprite.anims.play(`${this.spriteSkinName}_${Main.animData.battle.moveKeys[3]}`);
     }
 
     // TODO: Sounds, graphics, sprite jitter and any other effects

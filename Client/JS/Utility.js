@@ -3,15 +3,15 @@ var Utility = (() => {
     return {
         html: {
             ElemHideRear: function (elem) {
-                elem.style.display = 'none';
+                elem.classList.add("hide");
                 elem.style.zIndex = -1;
             },
             ElemShowMiddle: function (elem) {
-                elem.style.display = 'block';
+                elem.classList.remove("hide");
                 elem.style.zIndex = 0;
             },
             ElemShowFront: function (elem, zIndex = 1) {
-                elem.style.display = 'block';
+                elem.classList.remove("hide");
                 elem.style.zIndex = zIndex;
             },
             ElemPos: function(elem) {

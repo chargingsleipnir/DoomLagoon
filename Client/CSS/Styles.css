@@ -314,10 +314,6 @@ ul {
     margin: 50px auto 0px auto;
     border: 5px solid darkorchid;
 
-    /*Start off not displaying*/
-    display: none;
-    z-index: -1;
-
     box-shadow: 3px 3px 5px 0 black;
 }
 
@@ -405,13 +401,9 @@ canvas {
 }
 
 #OptionsMenu {
-
     display: block;
     text-align: center;
     padding: 25px;
-
-    /*Start off not displaying*/
-    display:none;
 }
 
 /*
@@ -457,4 +449,15 @@ button {
 #SaveSlotMessage {
     min-height: 1.25em;
     line-height: 1.25;
+}
+
+#GameOverMenu {
+    opacity: 1;
+    transition: all 0.5s ease-out;
+    z-index: 3;
+}
+#GameOverMenu.hidden {
+    opacity: 0;
+    transform: translate(0%, -50%);
+    pointer-events: none;
 }

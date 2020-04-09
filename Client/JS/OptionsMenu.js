@@ -44,6 +44,8 @@ var OptionsMenu = (() => {
                 Main.userPrefs.volumePct = e.currentTarget.value;
                 // TODO: Adjust audio output right here
             });
+
+            Utility.html.ElemHideRear(elem_Container);
         },
         Open: () => {
             Utility.html.ElemShowFront(elem_Container, 2);

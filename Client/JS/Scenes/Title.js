@@ -21,11 +21,16 @@ class Title extends SceneTransition {
     preload ()
     {
         this.load.json('AnimData', '../../JS/Sprites/AnimationData.json');
+        this.load.image('TitleBG', '../../Assets/Overworld.png');
     }
 
     create ()
     {
         super.create();
+        
+        let bg = this.add.image(Main.phaserConfig.width * 0.5, Main.phaserConfig.height * 0.5, 'TitleBG');
+        bg.displayWidth = Main.phaserConfig.width;
+        bg.scaleY = bg.scaleX;
 
         // TODO: This can't really reference the file this deeply once I'm getting other animations in play
         Main.animData = this.cache.json.get('AnimData');
@@ -33,7 +38,7 @@ class Title extends SceneTransition {
         // Increase the size just for this openner.
         this.mask.setScale(this.MASK_MAX_SCALE);
 
-        this.add.text(20, 20, "Loading game...");
+        this.add.text(400, 100, "Loading game...");
 
         var scene = this;
         // Check local storage, database info, etc. to pass to play state

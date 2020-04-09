@@ -174,6 +174,8 @@ var MainMenu = (() => {
                     password: input_Password.value
                 });
             });
+
+            MainMenu.Open();
         },
         GetDispName: () => {
             return dispName || "I am Error";

@@ -246,15 +246,12 @@ module.exports = function(sprites) {
                             sprites.allData[Consts.spriteTypes.PLAYER][this.playersInBattle[i].socketID].LeaveBattle(false);
                     }
     
+                    // Tell everyone in the game to remove this enemy sprite until further notice
+                    this.io.emit("RemoveMapSprite", this.mapSprite);
+
                     // Remove this enemy for now
                     delete sprites.allData[Consts.spriteTypes.ENEMY][this.id];
-                    delete sprites.updatePack[Consts.spriteTypes.ENEMY][this.id];
-    
-                    // Tell everyone in the game to remove this enemy sprite until further notice
-                    this.io.emit("RemoveSprite", this.mapSprite);
-    
-                    //console.log(`Enemy removed: ${this.id}`);
-    
+                    delete sprites.updatePack[Consts.spriteTypes.ENEMY][this.id];    
                     // REVIVE SELF
                     
                     var self = this;
