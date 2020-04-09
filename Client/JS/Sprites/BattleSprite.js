@@ -156,22 +156,10 @@ class BattleSprite {
         });
     }
 
-    Dodge(actionObj, AnimEndCB) {
+    Act(moveIndex, actionObj, AnimEndCB) {
         this.actionObj = actionObj;
         this.AnimEndCB = AnimEndCB;
-        this.sprite.anims.play(`${this.spriteSkinName}_${Main.animData.battle.moveKeys[1]}`);
-    }
-
-    Swing(actionObj, AnimEndCB) {
-        this.actionObj = actionObj;
-        this.AnimEndCB = AnimEndCB;
-        this.sprite.anims.play(`${this.spriteSkinName}_${Main.animData.battle.moveKeys[2]}`);
-    }
-
-    Chop(actionObj, AnimEndCB) {
-        this.actionObj = actionObj;
-        this.AnimEndCB = AnimEndCB;
-        this.sprite.anims.play(`${this.spriteSkinName}_${Main.animData.battle.moveKeys[3]}`);
+        this.sprite.anims.play(`${this.spriteSkinName}_${Main.animData.battle.moveKeys[moveIndex]}`);
     }
 
     // TODO: Sounds, graphics, sprite jitter and any other effects

@@ -37,17 +37,15 @@ class Battle extends SceneTransition {
         this.load.image('battleMenuBG', '../../Assets/GUI/Menu_450x100.png');
         this.load.image('battleMenuCursor', '../../Assets/GUI/arrowRight_32x32.png');
 
-        // Fighter
-        this.load.spritesheet('ssBattleIdle_FighterAxeBlue', '../../Assets/Sprites/Fighter/Idle_72x80_23frames.png', { frameWidth: 72, frameHeight: 80, margin: 0, spacing: 0 });
-        this.load.spritesheet('ssBattleDodge_FighterAxeBlue', '../../Assets/Sprites/Fighter/Dodge_72x80_13frames.png', { frameWidth: 72, frameHeight: 80, margin: 0, spacing: 0 });
-        this.load.spritesheet('ssBattleSwing_FighterAxeBlue', '../../Assets/Sprites/Fighter/Swing_96x80_25frames.png', { frameWidth: 96, frameHeight: 80, margin: 0, spacing: 0 });
-        this.load.spritesheet('ssBattleChop_FighterAxeBlue', '../../Assets/Sprites/Fighter/Chop_96x88_30frames.png', { frameWidth: 96, frameHeight: 88, margin: 0, spacing: 0 });
-
-        // Warrior
-        this.load.spritesheet('ssBattleIdle_KnightAxeRed', '../../Assets/Sprites/KnightAxeRed/Idle_64x72_23frames.png', { frameWidth: 64, frameHeight: 72, margin: 0, spacing: 0 });
-        this.load.spritesheet('ssBattleDodge_KnightAxeRed', '../../Assets/Sprites/KnightAxeRed/Dodge_72x72_13frames.png', { frameWidth: 72, frameHeight: 72, margin: 0, spacing: 0 });
-        this.load.spritesheet('ssBattleSwing_KnightAxeRed', '../../Assets/Sprites/KnightAxeRed/Swing_104x112_20frames.png', { frameWidth: 104, frameHeight: 112, margin: 0, spacing: 0 });
-        this.load.spritesheet('ssBattleChop_KnightAxeRed', '../../Assets/Sprites/KnightAxeRed/Chop_120x152_24frames.png', { frameWidth: 120, frameHeight: 152, margin: 0, spacing: 0 });
+        //* Being able to loop through this depends on very specific naming conventions using the "skin" and "move" names.
+        for(let i = 0; i < Main.animData.skins.length; i++) {
+            let skin = Main.animData.skins[i];
+            for(let j = 0; j < Main.animData.battle.moveKeys.length; j++) {
+                let move = Main.animData.battle.moveKeys[j];
+                let frame = Main.animData.battle.frameDetails[i][j];
+                this.load.spritesheet(`${Main.animData.battle.skinPrefix}_${move}_${skin}`, `../../Assets/Sprites/${skin}/${move}.png`, { frameWidth: frame.w, frameHeight: frame.h, margin: 0, spacing: 0 });
+            }
+        }
     }
 
     create() {
@@ -85,15 +83,15 @@ class Battle extends SceneTransition {
         this.SetActionReady(false);
 
         // ANIMATIONS
-        this.anims.create({ key	: 'FighterAxeBlue_IDLE', frames : this.anims.generateFrameNumbers('ssBattleIdle_FighterAxeBlue', { start: 0, end: 23 }), repeat : -1, frameRate : 12 });
-        this.anims.create({ key	: 'FighterAxeBlue_DODGE', frames : this.anims.generateFrameNumbers('ssBattleDodge_FighterAxeBlue', { start: 0, end: 13 }), repeat : 0, frameRate : 12 });
-        this.anims.create({ key	: 'FighterAxeBlue_SWING', frames : this.anims.generateFrameNumbers('ssBattleSwing_FighterAxeBlue', { start: 0, end: 25 }), repeat : 0, frameRate : 12 });
-        this.anims.create({ key	: 'FighterAxeBlue_CHOP', frames : this.anims.generateFrameNumbers('ssBattleChop_FighterAxeBlue', { start: 0, end: 30 }), repeat : 0, frameRate : 12 });
-        
-        this.anims.create({ key	: 'KnightAxeRed_IDLE', frames : this.anims.generateFrameNumbers('ssBattleIdle_KnightAxeRed', { start: 0, end: 23 }), repeat : -1, frameRate : 12 });
-        this.anims.create({ key	: 'KnightAxeRed_DODGE', frames : this.anims.generateFrameNumbers('ssBattleDodge_KnightAxeRed', { start: 0, end: 13 }), repeat : 0, frameRate : 12 });
-        this.anims.create({ key	: 'KnightAxeRed_SWING', frames : this.anims.generateFrameNumbers('ssBattleSwing_KnightAxeRed', { start: 0, end: 20 }), repeat : 0, frameRate : 12 });
-        this.anims.create({ key	: 'KnightAxeRed_CHOP', frames : this.anims.generateFrameNumbers('ssBattleChop_KnightAxeRed', { start: 0, end: 24 }), repeat : 0, frameRate : 12 });
+        //* Being able to loop through this depends on very specific naming conventions using the "skin" and "move" names.
+        for(let i = 0; i < Main.animData.skins.length; i++) {
+            let skin = Main.animData.skins[i];
+            for(let j = 0; j < Main.animData.battle.moveKeys.length; j++) {
+                let move = Main.animData.battle.moveKeys[j];
+                let frame = Main.animData.battle.frameDetails[i][j];
+                this.anims.create({ key	: `${skin}_${move}`, frames : this.anims.generateFrameNumbers(`${Main.animData.battle.skinPrefix}_${move}_${skin}`, { start: 0, end: frame.count }), repeat: move == 'IDLE' ? -1 : 0, frameRate: 12 });
+            }
+        }
 
         // 4 sprites to hold here permanently, 1 enemy and 3 players to use as needed.
         this.spriteEnemy = new BattleSprite(this, -1, { x: 250, y: 325 }, -100, 'KnightAxeRed', true);
@@ -129,7 +127,7 @@ class Battle extends SceneTransition {
                 console.log(`Player ${actionObj.actorBattleIdx} (${actionObj.socketID}) fought, doing ${actionObj.damage} damage. Enemy HP: ${actionObj.targetHPCurr} of ${actionObj.targetHPMax}`);
                 
                 if(this.spritePlayers[actionObj.actorBattleIdx].inBattle) {
-                    this.spritePlayers[actionObj.actorBattleIdx].Swing(actionObj, () => {
+                    this.spritePlayers[actionObj.actorBattleIdx].Act(2, actionObj, () => {
                         this.spriteEnemy.ShowDamageTaken(actionObj.damage);
                         this.spriteEnemy.UpdateHPByCurrMax(actionObj.targetHPCurr, actionObj.targetHPMax);
                         if(this.battleOver) {
@@ -186,7 +184,7 @@ class Battle extends SceneTransition {
 
             // Only move for enemies right now.
             if(actionObj.command == Consts.battleCommands.FIGHT) {
-                this.spriteEnemy.Swing(actionObj, () => {
+                this.spriteEnemy.Act(2, actionObj, () => {
                     this.spritePlayers[actionObj.targetBattleIdx].ShowDamageTaken(actionObj.damage);
                     this.spritePlayers[actionObj.targetBattleIdx].UpdateHPByCurrMax(actionObj.targetHPCurr, actionObj.targetHPMax);
                     if(actionObj.targetHPCurr <= 0) {
