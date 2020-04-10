@@ -118,7 +118,8 @@ class Battle extends SceneTransition {
             if(this.battleOver)
                 return;
 
-            if(actionObj.targetHPCurr <= 0) {
+            var playerWon = actionObj.targetHPCurr <= 0;
+            if(playerWon) {
                 this.battleOver = true;
                 this.SetActionReady(false);
             }
@@ -130,7 +131,8 @@ class Battle extends SceneTransition {
                     this.spritePlayers[actionObj.actorBattleIdx].Act(2, actionObj, () => {
                         this.spriteEnemy.ShowDamageTaken(actionObj.damage);
                         this.spriteEnemy.UpdateHPByCurrMax(actionObj.targetHPCurr, actionObj.targetHPMax);
-                        if(this.battleOver) {
+                        // Cannot use "this.battleOver" as this check, as "this.battleOver" is set in mutiple places for multiple reasons, including my own death
+                        if(playerWon) {
                             console.log("Battle won!");
                             Main.DispMessage("You won!", 2);
                             Main.DispMessage("Got x exp!", 2);

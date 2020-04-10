@@ -31,12 +31,14 @@ enemyList.forEach(enemy => {
 module.exports = function(dbHdlr) {
 
     return {
-        InitSocketCalls: (io, socket) => {
+        PassIoObj: (io) => {
+            mapData.SetIoObjs(io);
 
             enemyList.forEach(enemy => {
                 enemy.SetIoObj(io);
             });
-
+        },
+        InitSocketCalls: (io, socket) => {
             socket.on("ReqBuildPlayer", async function (initData) {
                 // TAG: Save location disabled
                 // Well I can still save the locations, I'm just not loading them right now.

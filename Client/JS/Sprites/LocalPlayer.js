@@ -184,14 +184,31 @@ class LocalPlayer extends Sprite {
             self.assessRequestConfirmed = true;
             //console.log(`From server, data at cell x: ${data.gridX}, y: ${data.gridY} is: `, data.cellValue);
             if(data.cellValue == Consts.tileTypes.SIGN) {
-                //console.log(`Sign post reads: ${data.interactionObj.msg}`);
-                Main.DispMessage(data.interactionObj.msg, 3);                
+                Main.DispMessage(data.interactionObj.msg, 3);
             }
             else if(data.cellValue == Consts.tileTypes.CHEST) {
-                // TODO: If chest is closed and of lesser upgrade, get what's in it
-                // TODO: Swap closed chest for open.
+                // Chest already open.
+                if(data.interactionObj == null) {
+                    console.log(`This chest is currently empty, will fill back up soon.`);
+                    return;
+                }
                 
-                console.log(`Chest type: ${data.interactionObj.chestType} hold upgrade: ${data.interactionObj.upgrade}`);             
+                // Display message no matter what, covers non-upgrades
+                Main.DispMessage(data.interactionObj.upgradeMsg, 3);
+                if(!data.interactionObj.wasUpgraded)
+                    return;
+
+                console.log(`Chest type: ${data.interactionObj.contents.chestType} holds upgrade: ${data.interactionObj.contents.upgrade}`);
+                if(data.interactionObj.contents.chestType == Consts.chestTypes.EQUIPMENT) {
+                    self.upgrades.equip = data.interactionObj.upgrade;
+                    // TODO: Hold up icons for new equipment based on upgrade level
+                    self.assetKey = data.interactionObj.updatedAssetKey;
+                    self.UpdateTexture();
+                }
+                else {
+                    self.upgrades.ability = data.interactionObj.upgrade;
+                    // TODO: Hold up icon (book/scroll) for new ability
+                }
             }
         });
 

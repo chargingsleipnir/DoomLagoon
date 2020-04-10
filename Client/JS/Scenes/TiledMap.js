@@ -61,6 +61,15 @@ class TiledMapScene extends SceneTransition {
             }
         }
 
+        Network.CreateResponse("OpenChest", (intCoord) => {
+            var coords = SuppFuncs.IntToCoords(intCoord, this.map.width);
+            console.log("Need to open chest located at: " + intCoord, coords);
+        });
+        Network.CreateResponse("CloseChest", (intCoord) => {
+            var coords = SuppFuncs.IntToCoords(intCoord, this.map.width);
+            console.log("Need to close chest located at: " + intCoord, coords);
+        });
+
         //Foreground Layer
         //var dynamicLayer = this.map.createDynamicLayer('Tile Layer 1', tileset, 0, 0);
     

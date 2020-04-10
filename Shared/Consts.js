@@ -1,7 +1,12 @@
-(function(exports){
+(function(exports) {
 
     exports.DISP_NAME_STYLE = { font: "16px Arial", fill: "#FFFFFF" };
-    exports.DISP_DAMAGE_STYLE = { font: "20px Arial", fill: "#ff0000", fontStyle: "strong" };
+    exports.DISP_DAMAGE_STYLE = { 
+        font: "24px Arial", 
+        stroke: "#000000",
+        strokeThickness: 4,
+        fill: "#ff0000", 
+        fontStyle: "strong" };
     
     exports.dirIndex = { LEFT: 0, RIGHT: 1, UP: 2, DOWN: 3 };
     exports.dirDiff = [
@@ -39,6 +44,7 @@
     exports.MAP_MOVE_SPEED = 2;
     exports.MAX_PLAYERS_PER_BATTLE = 3;
     exports.ENEMY_DEATH_COOLDOWN = 10;
+    exports.CHEST_REFILL_COOLDOWN = 30;
     exports.BATTLE_WON_NEXT_COOLDOWN = 1;
     exports.BATTLE_RAN_NEXT_COOLDOWN = 4;
 

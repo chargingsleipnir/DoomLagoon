@@ -75,7 +75,7 @@ module.exports = function(sprites) {
                 };
                 const value = mapData.GetValue(newPos);
         
-                var interactionObj;
+                var interactionObj = null;
         
                 if(value == Consts.tileTypes.SIGN) {
                     interactionObj = {
@@ -83,7 +83,61 @@ module.exports = function(sprites) {
                     }
                 }
                 else if(value == Consts.tileTypes.CHEST) {
-                    interactionObj = mapData.GetChestContents(newPos)
+                    var chest = mapData.GetChest(newPos);
+                    if(chest) {
+                        if(!chest.GetIsOpen()) {
+                            interactionObj = { wasUpgraded: false, upgradeMsg: "" };
+                            if(chest.CheckSameUpgradeType(Consts.chestTypes.EQUIPMENT)) {
+                                if(interactionObj["wasUpgraded"] = chest.CheckHigherUpgradeValue(self.equipLevel))
+                                    interactionObj["upgradeMsg"] = "Found some new equipment!";
+                                else
+                                    interactionObj["upgradeMsg"] = "Your equipment is the same or better than this.";
+                            }
+                            else {
+                                if(interactionObj["wasUpgraded"] = chest.CheckHigherUpgradeValue(self.abilityLevel))
+                                    interactionObj["upgradeMsg"] = "Learned a new technique!";
+                                else
+                                    interactionObj["upgradeMsg"] = "You've already mastered this technique.";
+                            }
+
+                            if(interactionObj["wasUpgraded"]) {
+                                interactionObj["contents"] = chest.Open();
+                                if(interactionObj["contents"].chestType == Consts.chestTypes.EQUIPMENT) {
+                                    self.equipLevel = interactionObj["contents"].upgrade;
+                                    self.ChangeAssetKey();
+                                    interactionObj["updatedAssetKey"] = self.assetKey;
+                                }
+                                else {
+                                    self.abilityLevel = interactionObj["contents"].upgrade;
+                                }
+                            }
+                        }
+                    }
+
+                    // var betterUpgrade = mapData.CompareChestContents(newPos, self.equipLevel, self.abilityLevel);
+                    // interactionObj["wasUpgraded"] = betterUpgrade;
+
+                    // if(betterUpgrade) {
+                    //     var contents = mapData.GetChestContents(newPos);
+                    //     if(interactionObj != null) {
+                    //         interactionObj["wasUpgraded"] = false;
+                    //         if(interactionObj.chestType == Consts.chestTypes.EQUIPMENT) {
+                    //             if(self.equipLevel < interactionObj.upgrade) {
+                    //                 self.equipLevel = interactionObj.upgrade;
+                    //                 interactionObj["wasUpgraded"] = true;
+
+                    //                 self.ChangeAssetKey();
+                    //                 interactionObj["updatedAssetKey"] = self.assetKey;
+                    //             }
+                    //         }
+                    //         else {
+                    //             if(self.abilityLevel < interactionObj.upgrade) {
+                    //                 self.abilityLevel = interactionObj.upgrade;
+                    //                 interactionObj["wasUpgraded"] = true;
+                    //             }
+                    //         }
+                    //     }
+                    // }
                 }
         
                 socket.emit("RecCellInteraction", {
@@ -133,7 +187,7 @@ module.exports = function(sprites) {
                 sprites.allData[Consts.spriteTypes.ENEMY][self.enemyID].ReceiveAction({
                     command: actionObj.command,
                     battleIdx: actionObj.playerBattleIdx,
-                    damage: self.strength,
+                    damage: self.strength + self.equipLevel,
                     fromSocketID: socket.client.id
                 });
             });
@@ -150,6 +204,8 @@ module.exports = function(sprites) {
             });
         }
 
+        // TODO: Make further character adjustments based on this.
+        // Equipement level is currenlt being added to strength as is. Alter/continue as requierd.
         ChangeAssetKey() {
             switch(this.equipLevel) {
                 case Consts.equipmentUpgrades.FIGHTER:

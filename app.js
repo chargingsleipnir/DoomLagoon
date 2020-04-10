@@ -80,6 +80,7 @@ io.sockets.on("connection", function (socket) {
   dbHdlr.InitSocketCalls(socket);
   objHdlrs.InitSocketCalls(io, socket);
 });
+objHdlrs.PassIoObj(io);
 
 // Update to Clients
 var tick = 1000 / 30;

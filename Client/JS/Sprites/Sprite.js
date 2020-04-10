@@ -46,4 +46,9 @@ class Sprite {
         this.sprite.anims.play(this.assetKey + "-" + Main.animData.overworld.keys[dirIndex]);
         this.prevDirIndex = this.dirIndex;
     }
+
+    UpdateTexture() {
+        var frameKey = Main.animData.overworld.keys[this.dirIndex];
+        this.sprite.setTexture(Main.animData.overworld.skinPrefix + this.assetKey, Main.animData.overworld.frames[frameKey].start);
+    }
 }

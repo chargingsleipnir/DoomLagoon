@@ -1,4 +1,4 @@
-(function(exports){
+(function(exports) {
 
     var days = ['Sun', 'Mon', 'Tues', 'Wed', 'Thurs', 'Fri', 'Sat'],
     months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
@@ -11,6 +11,16 @@
         if(hrs < 10) hrs = '0' + hrs;
         if(mins < 10) mins = '0' + mins;
         return days[dateObj.getDay()] + ' ' + months[dateObj.getMonth()] + ' ' + day + ' ' + dateObj.getFullYear() + ', ' + hrs + ':' + mins;
+    };
+    exports.CoordsToInt = function(x, y, maxDimLength) {
+        return (x * maxDimLength) + y;
+    };
+    exports.IntToCoords = function(int, maxDimLength) {
+        var y = int % maxDimLength;
+        return {
+            x: (int - y) / maxDimLength,
+            y: y
+        }
     };
 
 })(typeof exports === 'undefined' ? this['SuppFuncs'] = {} : exports);

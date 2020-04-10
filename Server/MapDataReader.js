@@ -1,20 +1,7 @@
 
 var Consts = require('../Shared/Consts.js');
+var SuppFuncs = require('../Shared/SupportFuncs.js');
 var JSON_Overworld = require('../Shared/DataFiles/OverworldTilesetsEmbeded.json');
-
-function CoordsToInt(x, y) {
-    return (x * JSON_Overworld.width) + y;
-}
-
-function IntToCoords(int) {
-    var y = int % JSON_Overworld.width;
-    return {
-        x: (int - y) / JSON_Overworld.width,
-        y: y
-    }
-}
-
-//console.log(JSON_Overworld);
 
 var JSON_tilesets = {};
 for(var i = 0; i < JSON_Overworld.tilesets.length; i++) {
@@ -25,10 +12,56 @@ for(var i = 0; i < JSON_Overworld.tilesets.length; i++) {
 var playerSpawns = [];
 var enemySpawns = [];
 var mapObjectsByGridPos = [];
-var signsByGridPos = [];
-var chestsByGridPos = [];
+var signCoordObjMap = {};
+var chestCoordObjMap = {};
 var walkableMap = [];
 var bridgeCoordList = [];
+
+class Chest {
+
+    intCoord;
+    isOpen;
+    type;
+    upgrade;
+    io;
+
+    constructor(intCoord, type, upgrade) {
+        this.isOpen = false;
+        this.intCoord = intCoord;
+        this.type = type;
+        this.upgrade = upgrade;
+    }
+    SetIoObj(io) {
+        this.io = io;
+    }
+    GetIsOpen() {
+        return this.isOpen;
+    }
+    CheckSameUpgradeType (upgradeType) {
+        return this.type == upgradeType;
+    }
+    CheckHigherUpgradeValue(upgradeValue) {
+        return this.upgrade > upgradeValue;
+    }
+    Open() {
+        if(this.isOpen)
+            return null;
+
+        this.isOpen = true;
+        this.io.emit("CloseOpen", this.intCoord);
+        this.StartResetTimer();
+        return {
+            chestType: this.type,
+            upgrade: this.upgrade
+        };
+    }
+    StartResetTimer() {
+        setTimeout(() => {
+            this.isOpen = false;
+            this.io.emit("CloseChest", this.intCoord);
+        }, Consts.CHEST_REFILL_COOLDOWN * 1000);
+    }
+}
 
 // Read the data directly, at least just to make the work required on the various layers nicely explicit.
 
@@ -109,7 +142,7 @@ for (var i = 0; i < layerObj.width; i++) {
                 walkableMap[i][j] = Consts.tileTypes.BLOCK;
             else {
                 walkableMap[i][j] = Consts.tileTypes.WALK;
-                bridgeCoordList.push(CoordsToInt(i, j));
+                bridgeCoordList.push(SuppFuncs.CoordsToInt(i, j, JSON_Overworld.width));
             }
         }
         // p++;
@@ -117,7 +150,6 @@ for (var i = 0; i < layerObj.width; i++) {
         //     console.log(walkableMap[i][j]);
     }
 }
-
 
 //* Object layer - Get the coorinates occupied by every object, overlap the walkable cell data from previous loops, and set interactable object data (treasure chests, etc.) on map.
 layerObj = JSON_Overworld.layers[3];
@@ -157,6 +189,8 @@ for(var i = 0; i < layerObj.objects.length; i++) {
                     type: obj.type
                 };
 
+                var coordAsInt = SuppFuncs.CoordsToInt(mapObj.gridX, mapObj.gridY, JSON_Overworld.width);
+
                 mapObjectsByGridPos.push(mapObj);
                 walkableMap[mapObj.gridX][mapObj.gridY] = obj.type;
 
@@ -166,19 +200,21 @@ for(var i = 0; i < layerObj.objects.length; i++) {
                     for(var z = 0; z < obj.properties.length; z++) {
                         mapObj["props"][obj.properties[z].name] = obj.properties[z].value;
                     }
-                    signsByGridPos.push(mapObj);
+                    signCoordObjMap[coordAsInt] = mapObj["props"]["Message"];
                 }
                 else if(obj.type == Consts.tileTypes.CHEST) {
                     mapObj["props"] = {};
                     for(var z = 0; z < obj.properties.length; z++) {
                         mapObj["props"][obj.properties[z].name] = obj.properties[z].value;
                     }
-                    chestsByGridPos.push(mapObj);
+                    chestCoordObjMap[coordAsInt] = new Chest(coordAsInt, mapObj["props"]["chestType"], mapObj["props"]["upgrade"]);
                 }
             }
         }
     }
 }
+
+
 
 // Purely for testing!
 // var r = 0;
@@ -199,21 +235,37 @@ module.exports = function() {
             return mapObjectsByGridPos;
         },
         GetSignMessage: (gridPos) => {
-            for (var i = 0; i < signsByGridPos.length; i++) {
-                if(signsByGridPos[i].gridX == gridPos.x && signsByGridPos[i].gridY == gridPos.y) {
-                    return signsByGridPos[i]["props"]["Message"];
-                }
+            let coordAsInt = SuppFuncs.CoordsToInt(gridPos.x, gridPos.y, JSON_Overworld.width);
+            return signCoordObjMap[coordAsInt] || "Roy was here.";
+        },
+        SetIoObjs: (io) => {
+            for(let intCoord in chestCoordObjMap) {
+                chestCoordObjMap[intCoord].SetIoObj(io);
             }
         },
+        GetChest: (gridPos) => {
+            return chestCoordObjMap[SuppFuncs.CoordsToInt(gridPos.x, gridPos.y, JSON_Overworld.width)];
+        },
+        CheckChestOpen: (gridPos) => {
+            var chest = chestCoordObjMap[SuppFuncs.CoordsToInt(gridPos.x, gridPos.y, JSON_Overworld.width)];
+            if(chest == null)
+                false;
+
+            return chest.GetIsOpen();
+        },
+        CompareChestContents: (gridPos, equipLevel, abilityLevel) => {
+            var chest = chestCoordObjMap[SuppFuncs.CoordsToInt(gridPos.x, gridPos.y, JSON_Overworld.width)];
+            if(chest == null)
+                false;
+
+            return chest.CheckHigherUpgradeValue(Consts.chestTypes.EQUIPMENT, equipLevel) || chest.CheckHigherUpgradeValue(Consts.chestTypes.ABILITY, abilityLevel);
+        },
         GetChestContents: (gridPos) => {
-            for (var i = 0; i < chestsByGridPos.length; i++) {
-                if(chestsByGridPos[i].gridX == gridPos.x && chestsByGridPos[i].gridY == gridPos.y) {
-                    return {
-                        chestType: chestsByGridPos[i]["props"]["chestType"],
-                        upgrade: chestsByGridPos[i]["props"]["upgrade"]
-                    };
-                }
-            }
+            var chest = chestCoordObjMap[SuppFuncs.CoordsToInt(gridPos.x, gridPos.y, JSON_Overworld.width)];
+            if(chest == null)
+                return chest;
+
+            return chest.Open();
         },
         GetPlayerSpawns: () => {
             return playerSpawns;
@@ -243,7 +295,7 @@ module.exports = function() {
             return JSON_Overworld.tileheight;
         },
         CheckForBridgeTile: (x, y) => {
-            return bridgeCoordList.indexOf(CoordsToInt(x, y)) != -1;
+            return bridgeCoordList.indexOf(SuppFuncs.CoordsToInt(x, y, JSON_Overworld.width)) != -1;
         }
     }
 }

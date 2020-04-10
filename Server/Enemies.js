@@ -240,7 +240,7 @@ module.exports = function(sprites) {
                     this.ResetPosData();
     
                     for(let i = 0; i < this.playersInBattle.length; i++) {
-                        // TODO: Pass through anything that the enemy might hold. Enemy could be the keeper of exp, if there will be any...?
+                        // TODO: Pass through anything that the enemy might hold like exp, if there will be any...?
                         if(this.playersInBattle[i].socketID != null)
                             sprites.allData[Consts.spriteTypes.PLAYER][this.playersInBattle[i].socketID].LeaveBattle(false);
                     }
