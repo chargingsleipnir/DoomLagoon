@@ -18,7 +18,9 @@
     };
 
     exports.spriteTypes = { PLAYER: 0, ENEMY: 1, NPC: 2 };
-    exports.enemyTypes = { KNIGHT_AXE_RED: 0 };
+    exports.enemyAssetKeys = { 
+        KNIGHT_AXE_RED: "KnightAxeRed"
+    };
     exports.moveCacheSlots = { FROM: 0, TO: 1, NEXT: 2 };
     exports.spawnTypes = { PLAYER: 0, ENEMY: 1, NPC: 2 };
     exports.battleCommands = { FIGHT: 0, RUN: 1 }
@@ -28,6 +30,8 @@
     exports.tileTypes = { BLOCK: 0, WALK: 1, SIGN: 2, SPRING: 3, CHEST: 4, CAVERN: 5 };
     exports.terrainTypes = { BRIDGE: 0 } // Grass, Sand, Dirt, etc...
     exports.chestTypes = { EQUIPMENT: 0, ABILITY: 1 };
+
+    //* Although this could be player "assetKeys", keep this as numeric values here to use in calculating strength bonuses.
     exports.equipmentUpgrades = { FIGHTER: 0, LORD: 1, KNIGHT: 2 };
     exports.abilityUpgrades = { INIT: 0, LEVEL1: 1, LEVEL2: 2 };
     // If both server and client read the same map data independently, perhaps nothing needs to be noted here?

@@ -44,6 +44,9 @@ module.exports = function(sprites) {
         actionIntervalCounter;
         canAct;
 
+        abilityLevel;
+        assetKey;
+
         constructor(initData) {
             this.id = initData.id;
             this.name = initData.name;
@@ -130,10 +133,11 @@ module.exports = function(sprites) {
         GetInitPack() {
             return {
                 type: this.mapSprite.spriteType,
-                id: this.id,
-                name: this.name,
                 gridPos: this.gridPos,
-                dir: this.dir  
+                assetKey: this.assetKey,
+                dir: this.dir,
+                name: this.name,
+                id: this.id
             }
         }
 

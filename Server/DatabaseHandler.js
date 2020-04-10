@@ -62,13 +62,16 @@ module.exports = function() {
             socket.on("ReqLoadSlot", async function (data) {
                 var success = await CheckLoginCreds(data);
                 var orient = null;
+                var upgrades = null;
                 if (success) {
                     try {
                         DeactivateSlots(socket.client.id);
                         await client.query("UPDATE players SET socketID = $1 WHERE username = $2", [socket.client.id, data.username]);
-                        const {rows} = await client.query(`SELECT orientation FROM players WHERE username = $1`, [data.username]);
-                        if(rows.length == 1)
+                        const {rows} = await client.query(`SELECT orientation, upgrades FROM players WHERE username = $1`, [data.username]);
+                        if(rows.length == 1) {
                             orient = rows[0]["orientation"];
+                            upgrades = rows[0]["upgrades"];
+                        }
                     }
                     catch(e) {
                         console.error(`Exception thrown in ReqEraseSlot socket call: ${e}`);
@@ -77,7 +80,8 @@ module.exports = function() {
                 }
                 socket.emit("RecLoadSlot", {
                     success: success,
-                    gridPos: orient ? { x: orient.x, y: orient.y } : orient
+                    gridPos: orient ? { x: orient.x, y: orient.y } : orient,
+                    upgrades: upgrades
                 });
             });
 
@@ -89,10 +93,11 @@ module.exports = function() {
                     try {
                         // First, see if this user is already signed into another slot
                         DeactivateSlots(socket.client.id);
-                        await client.query("INSERT INTO players VALUES (DEFAULT, $1, $2, $3, $4)", [
+                        await client.query("INSERT INTO players VALUES (DEFAULT, $1, $2, $3, $4, $5)", [
                             socket.client.id,
                             data.username,
                             bcrypt.hashSync(data.password, Consts.SALT_ROUNDS),
+                            null,
                             null
                         ]);
                     }
@@ -129,7 +134,7 @@ module.exports = function() {
             socket.on("ReqSave", async function (data) {
                 var success = true;
                 try {
-                    await client.query("UPDATE players SET orientation = $1 WHERE socketID = $2", [data.orientation, socket.client.id]);
+                    await client.query("UPDATE players SET orientation = $1, upgrades = $2 WHERE socketID = $3", [data.orientation, data.upgrades, socket.client.id]);
                 }
                 catch(e) {
                     console.error(`Exception thrown in ReqSave socket call: ${e}`);
@@ -142,7 +147,7 @@ module.exports = function() {
         },
         GetPlayerData: async (socketID) => {
             try {
-                const {rows} = await client.query(`SELECT orientation FROM players WHERE socketID = $1`, [socketID]);
+                const {rows} = await client.query(`SELECT orientation, upgrades FROM players WHERE socketID = $1`, [socketID]);
                 if(rows.length == 1)
                     return rows[0];
 
@@ -153,23 +158,23 @@ module.exports = function() {
                 return null;
             }
         },
-        SaveOrientation: async (socketID, orientObj) => {
+        SaveObjects: async (socketID, orientObj, upgradeObj) => {
             var entryFound = await CheckSingleRow("socketID", socketID);
             if(entryFound) {
                 try {
-                    await client.query("UPDATE players SET orientation = $1", [orientObj]);
+                    await client.query("UPDATE players SET orientation = $1, upgrades = $2 WHERE socketid = $3", [orientObj, upgradeObj, socketID]);
                 }
                 catch(e) {
-                    console.error(`Exception thrown in SaveOrientation: ${e}`);
+                    console.error(`Exception thrown in SaveObjects: ${e}`);
                 }
             }
         },
-        SaveAndExit: async (socketID, orientObj) => {
+        SaveAndExit: async (socketID, orientObj, upgradeObj) => {
             var entryFound = await CheckSingleRow("socketID", socketID);
             if(entryFound) {
                 try {
-                    if(orientObj)
-                        await client.query("UPDATE players SET socketID = null, orientation = $1 WHERE socketid = $2", [orientObj, socketID]);
+                    if(orientObj && upgradeObj)
+                        await client.query("UPDATE players SET socketID = null, orientation = $1, upgrades = $2 WHERE socketid = $3", [orientObj, upgradeObj, socketID]);
                     else
                         await client.query("UPDATE players SET socketID = null WHERE socketid = $1", [socketID]);
                 }
@@ -190,14 +195,16 @@ CREATE TABLE players (
 	socketID character varying(100),
 	username character varying(25) NOT NULL,
 	passHash character varying(100) NOT NULL,
-	gridPos jsonb NOT NULL
+    orientation jsonb NOT NULL,
+    upgrades jsonb NOT NULL
 );
 
-INSERT INTO players (socketID, username, passHash, gridPos) VALUES (
+INSERT INTO players (socketID, username, passHash, orientation, upgrades) VALUES (
 	'abcd1234SocketIDSample',
 	'username Sample',
 	'xyz890passHashSample',
-	'{"x": 3, "y": 2}'
+    '{"x": 3, "y": 2}',
+    '{"equip": 0, "ability": 1}'
 );
 
 INSERT INTO players VALUES (
@@ -205,6 +212,7 @@ INSERT INTO players VALUES (
 	'efgh5678SocketIDSample',
 	'username Sample 2',
 	'lmn567passHashSample2',
-	'{"x": 4, "y": 1}'
+    '{"x": 4, "y": 1}',
+    '{"equip": 1, "ability": 2}'
 );
 */

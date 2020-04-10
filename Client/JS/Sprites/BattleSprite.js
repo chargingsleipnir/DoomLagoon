@@ -9,7 +9,7 @@ class BattleSprite {
 
     idlePos;
     offScreenX;
-    spriteSkinName;
+    assetKey;
 
     inBattle;
     gameObjCont;
@@ -34,16 +34,16 @@ class BattleSprite {
     // TODO: Bettter tie-in with map sprites
     // TODO: I need to put their names on the battle field!!!
 
-    constructor(scene, battlePosIndex, idlePos, offScreenX, spriteSkinName, flipX = false) {
+    constructor(scene, battlePosIndex, idlePos, offScreenX, assetKey, flipX = false) {
         this.scene = scene;
         this.battlePosIndex = battlePosIndex;
         this.idlePos = idlePos;
         this.offScreenX = offScreenX;
-        this.spriteSkinName = spriteSkinName;
+        this.assetKey = assetKey;
 
         // TODO: Start off screen
         this.gameObjCont = scene.add.container(this.offScreenX, this.idlePos.y);
-        this.sprite = scene.add.sprite(0, 0, Main.animData.battle.skinPrefix + spriteSkinName , 0);
+        this.sprite = scene.add.sprite(0, 0, Main.animData.battle.skinPrefix + assetKey , 0);
         this.sprite.setOrigin(0.5);
         this.sprite.setScale(1.75);
         this.gameObjCont.add(this.sprite);
@@ -92,20 +92,20 @@ class BattleSprite {
         this.UpdateHPByCurrMax(1, 1);
         this.DrawHP(this.hpPctTo);
 
-        this.sprite.anims.play(`${this.spriteSkinName}_${Main.animData.battle.moveKeys[0]}`);
+        this.sprite.anims.play(`${this.assetKey}_${Main.animData.battle.moveKeys[0]}`);
 
         this.inBattle = false;
 
         // TODO: Should be able to do this for any animation, to read frames, and launch events specifically on them.
-        // this.sprite.on('animationupdate-' + this.spriteSkinName + '_Battle_Swing', (anim, frame, gameObj) => {
+        // this.sprite.on('animationupdate-' + this.assetKey + '_Battle_Swing', (anim, frame, gameObj) => {
         // }, this.scene);
 
         this.sprite.on('animationcomplete', (anim, frame) => {
             //console.log(anim);
             //console.log(frame);
             // Anything that's not idle, return to idle after
-            if(anim.key != `${this.spriteSkinName}_${Main.animData.battle.moveKeys[0]}`) {
-                this.sprite.anims.play(`${this.spriteSkinName}_${Main.animData.battle.moveKeys[0]}`);
+            if(anim.key != `${this.assetKey}_${Main.animData.battle.moveKeys[0]}`) {
+                this.sprite.anims.play(`${this.assetKey}_${Main.animData.battle.moveKeys[0]}`);
                 this.AnimEndCB(this.scene, this.battlePosIndex, this.actionObj);
             }
         }, this.scene);
@@ -113,8 +113,8 @@ class BattleSprite {
         //* Change sprite origins to get animations all aligned
         this.sprite.on('animationstart', (anim, frame) => {
             //console.log("On anim start event: ", anim);
-            var moveKey = anim.key.replace(`${this.spriteSkinName}_`, "");
-            let skinIdx = Main.animData.skins.indexOf(this.spriteSkinName);
+            var moveKey = anim.key.replace(`${this.assetKey}_`, "");
+            let skinIdx = Main.animData.skins.indexOf(this.assetKey);
             let moveIdx = Main.animData.battle.moveKeys.indexOf(moveKey);
             //console.log(`Origin object loacted at ${skinIdx}, ${moveIdx}`)
             let originObj = Main.animData.battle["skin-move-origins"][skinIdx][moveIdx];
@@ -159,7 +159,7 @@ class BattleSprite {
     Act(moveIndex, actionObj, AnimEndCB) {
         this.actionObj = actionObj;
         this.AnimEndCB = AnimEndCB;
-        this.sprite.anims.play(`${this.spriteSkinName}_${Main.animData.battle.moveKeys[moveIndex]}`);
+        this.sprite.anims.play(`${this.assetKey}_${Main.animData.battle.moveKeys[moveIndex]}`);
     }
 
     // TODO: Sounds, graphics, sprite jitter and any other effects

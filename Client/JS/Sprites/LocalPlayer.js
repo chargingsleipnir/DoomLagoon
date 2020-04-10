@@ -31,8 +31,10 @@ class LocalPlayer extends Sprite {
 
     inBattle;
 
-    constructor(scene, initOrientation, spriteSkinName) {
-        super(scene, { x: initOrientation.x, y: initOrientation.y }, spriteSkinName, initOrientation.dir, MainMenu.GetDispName());
+    upgrades = {};
+
+    constructor(scene, serverData) {
+        super(scene, { x: serverData.orientation.x, y: serverData.orientation.y }, serverData.assetKey, serverData.orientation.dir, MainMenu.GetDispName());
 
         // Anchor display name overhead
         var dispName = scene.add.text((this.sprite.width * 0.5), -(this.sprite.height), MainMenu.GetDispName(), Consts.DISP_NAME_STYLE);
@@ -42,8 +44,8 @@ class LocalPlayer extends Sprite {
         // but that doesn't seem possible, so I'm just moving the whole container up, and the highest tile map layer even higher.
 
         this.moveCache_Grid.push({
-            x: initOrientation.x,
-            y: initOrientation.y,
+            x: serverData.orientation.x,
+            y: serverData.orientation.y,
             dir: this.dirIndex
         });
 
@@ -57,6 +59,11 @@ class LocalPlayer extends Sprite {
         this.assessRequestConfirmed = true;
 
         this.inBattle = false;
+
+        this.upgrades = {
+            equip: serverData.upgrades.equip,
+            ability: serverData.upgrades.ability
+        };
 
         var self = this;
 
@@ -229,20 +236,31 @@ class LocalPlayer extends Sprite {
                 Network.Emit("ReqCellInteraction", self.GetCellDiffByDir());
             }
         });
+
+        // Since local player is made AFTER servr player, these Network responses were not created when my map positioning was set.
+        // Get a local update of my neighbors.
+        Network.Emit("ReqNeighborUpdate");
     }
 
     Update() {
         this.gameObjCont.depth = this.gameObjCont.y;
 
+        //console.log("================================================");
+        //console.log(this.moveRequestConfrmed);
+        //console.log(this.inBattle);
         if(this.moveRequestConfrmed && !this.inBattle && this.elemFocusString != "INPUT") {
             // Check if we can move "to" a new cell, or cache the "next" one ahead
+            //console.log(this.moveCache_Grid.length <= Consts.moveCacheSlots.TO);
             if(this.moveCache_Grid.length <= Consts.moveCacheSlots.TO ||
                 this.moveCache_Grid.length <= Consts.moveCacheSlots.NEXT && this.canCacheNext) {
                 this.canCacheNext = false;
                 
+                //console.log(this.keys.left.isDown);
                 if(this.keys.left.isDown) {
+                    //console.log(this.neighbors.LEFT);
                     this.moveRequestConfrmed = false;
                     if(this.neighbors.LEFT == Consts.tileTypes.WALK) {
+                        //console.log("Walking left");
                         Network.Emit("ReqMoveToCell", Consts.dirDiff[Consts.dirIndex.LEFT]);
                     }
                     else {
@@ -339,6 +357,10 @@ class LocalPlayer extends Sprite {
                 x: this.moveCache_Grid[Consts.moveCacheSlots.FROM].x,
                 y: this.moveCache_Grid[Consts.moveCacheSlots.FROM].y,
                 dir: this.dirIndex
+            },
+            upgrades: {
+                equip: this.upgrades.equip,
+                ability: this.upgrades.ability
             }
         }
     }

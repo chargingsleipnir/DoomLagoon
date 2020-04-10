@@ -42,11 +42,11 @@ class Title extends SceneTransition {
 
         var scene = this;
         // Check local storage, database info, etc. to pass to play state
-        Network.CreateResponse("RecWorldInitData", function (data) {
+        Network.CreateResponse("RecBuiltPlayer", function (playerData) {
             scene.scene.transition({
                 duration: scene.TRANSITION_TIME,
                 target: 'Overworld',
-                data: data
+                data: playerData
             });            
         });
 
@@ -61,7 +61,10 @@ class Title extends SceneTransition {
 
         // TODO: I guess I'll have to adapt this to send all of the local storage data, not just orientation
         scene.input.on('pointerdown', () => {
-            Network.Emit("ReqWorldInitData", localStorageData);
+            Network.Emit("ReqBuildPlayer", {
+                localStorageData: localStorageData,
+                dispName: MainMenu.GetDispName()
+            });
         });
     }
 }

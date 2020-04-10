@@ -44,7 +44,7 @@ class Overworld extends TiledMapScene {
         this.load.image('chestGreenOpen', '../../Assets/Map/ChestGreenOpen.png');
     }
 
-    create(initData) {
+    create(serverPlayerData) {
         super.create();
 
         Main.animData.skins.forEach((skin) => {
@@ -58,8 +58,11 @@ class Overworld extends TiledMapScene {
             }, this);
         }, this);
 
-        // TODO: 'FighterAxeBlue' will actually come from save data first, default to this for new player
-        Main.player = new LocalPlayer(this, initData.orientation, 'FighterAxeBlue');
+        // TODO: localPlayerData.upgrades needs to effect which chests are open for this player.
+        // Open all chests with equal or lesser valued contents...?
+        // I suppose it would be OK if chests always started closed regardless....
+        // Whichever ultimately looks/seems better. (???)
+        Main.player = new LocalPlayer(this, serverPlayerData);
         
         this.cameras.main.startFollow(Main.player.gameObjCont);
         this.cameras.main.setZoom(1.5);
@@ -68,22 +71,7 @@ class Overworld extends TiledMapScene {
         // TODO: Institute a "HideSaveBtn" if there should ever be a "reset" functionality beyond rereshing the browser.
         OptionsMenu.ShowSaveBtn();
 
-        Network.Emit("Play", {
-            initPack: {
-                id: Network.GetSocketID(),
-                name: Main.player.name,
-                gridPos: {
-                    x: Main.player.moveCache_Grid[Consts.moveCacheSlots.FROM].x,
-                    y: Main.player.moveCache_Grid[Consts.moveCacheSlots.FROM].y
-                },
-                dir: Main.player.dirIndex
-            },
-            updatePack:{
-                x: Main.player.gameObjCont.x,
-                y: Main.player.gameObjCont.y,
-                dir: Main.player.dirIndex
-            }
-        });
+        Network.Emit("Play");
 
         var self = this;
         //------------------------ SETUP NETWORK CALLS
@@ -96,8 +84,8 @@ class Overworld extends TiledMapScene {
                 self.sprites[data.sprites[i].type][data.sprites[i].id] = new NetSprite(
                     self, 
                     data.sprites[i].gridPos, 
-                    isPlayer ? 'FighterAxeBlue' : data.sprites[i].name, // TODO: This includes existing players as well.
-                    data.sprites[i].dir,  
+                    data.sprites[i].assetKey,
+                    data.sprites[i].dir,
                     data.sprites[i].name, 
                     data.sprites[i].id, 
                     isPlayer
@@ -107,11 +95,11 @@ class Overworld extends TiledMapScene {
 
         // and tell everyone else about player. Adding new players after this player has joined
         Network.CreateResponse("AddNewPlayer", function (playerData) {
+            //console.log(playerData);
             self.sprites[Consts.spriteTypes.PLAYER][playerData.id] = new NetSprite(
                 self, 
                 playerData.gridPos,
-                // TODO: 'FighterAxeBlue' will actually come from that player's save data first, default to this for new player
-                'FighterAxeBlue', 
+                playerData.assetKey, 
                 playerData.dir,  
                 playerData.name, 
                 playerData.id, 

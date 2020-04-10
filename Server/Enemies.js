@@ -11,7 +11,6 @@ module.exports = function(sprites) {
     var enemyID = 100;
 
     class Enemy extends entityModule.Entity {
-        type = -1;
         spawnPos;
         pixelPosActive;
         pixelPosFrom;
@@ -40,19 +39,19 @@ module.exports = function(sprites) {
             enemySpawnObj.dir = Consts.dirIndex.DOWN;
 
             // Add the sub-typing into the cell data to reach the Client
-            var enemyType = enemySpawnObj.props['enemyType'];
+            var assetKey = enemySpawnObj.props['assetKey'];
             enemySpawnObj.cellData = { 
                 spriteType: Consts.spriteTypes.ENEMY,
                 id: enemySpawnObj.id,
-                enemyType: !isNaN(enemyType) ? enemyType : null
+                assetKey: assetKey != "" ? assetKey : null
             };
 
-            if(enemySpawnObj.cellData.enemyType == null)
-                console.error("Some Enemy not given an enemy type in Tiled");
+            if(enemySpawnObj.cellData.assetKey == null)
+                console.error("Some Enemy not given an asset Key in Tiled");
 
             super(enemySpawnObj);
 
-            this.type = enemyType;
+            this.assetKey = assetKey;
             this.spawnPos = {
                 x: this.gridPos.x,
                 y: this.gridPos.y
@@ -70,14 +69,14 @@ module.exports = function(sprites) {
             }
 
             this.actionReadyPct = 0;
-
             this.isAlive = true;
+            this.abilityLevel = Consts.abilityUpgrades.LEVEL2;
 
-            //* This might be more than sufficient to distinguish among each type of enemy for such a limited game sample
+            //* This switch statement might be more than sufficient to distinguish among each type of enemy for such a limited game sample
             // TODO: If not, Give each enemy type it's own class, "extended" from an "Enemy" base class, With "Enemy Factory" a separate thing (file or class) that creates the derived classes based on the map data.
-            switch(this.type) {
-                case Consts.enemyTypes.KNIGHT_AXE_RED:
-                    this.name = "KnightAxeRed";
+            switch(this.assetKey) {
+                case Consts.enemyAssetKeys.KNIGHT_AXE_RED:
+                    this.name = "Knight";
                     this.hpCurr = this.hpMax = 10;
                     this.strength = 3;
                     this.actionCooldown = 4000;

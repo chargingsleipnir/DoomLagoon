@@ -84,6 +84,8 @@ var MainMenu = (() => {
             var saveSlotData = document.getElementById("SaveSlotData");
             var saveSlotGridX = document.getElementById("SaveSlotGridX");
             var saveSlotGridY = document.getElementById("SaveSlotGridY");
+            var saveSlotEquip = document.getElementById("SaveSlotEquip");
+            var saveSlotAbility = document.getElementById("SaveSlotAbility");
 
             var timeoutHdlr;
             function ResetSlotInfo() {
@@ -93,9 +95,19 @@ var MainMenu = (() => {
                 }, 4000);
             }
 
-            function UpdateSlotData(gridPos) {
-                saveSlotGridX.innerHTML = gridPos.x;
-                saveSlotGridY.innerHTML = gridPos.y;
+            function UpdateSlotData(gridPos = { x: "-", y: "-"}, upgrades = { equip: 0, ability: 0 }) {
+                // TAG: Save location disabled
+                //saveSlotGridX.innerHTML = gridPos.x;
+                //saveSlotGridY.innerHTML = gridPos.y;
+
+                var rank = "Fighter"
+                if(upgrades.equip == Consts.equipmentUpgrades.LORD)
+                    rank = "Lord"
+                else if(upgrades.equip == Consts.equipmentUpgrades.KNIGHT)
+                    rank = "Knight"
+
+                saveSlotEquip.innerHTML = rank;
+                saveSlotAbility.innerHTML = upgrades.ability + 1;
             }
 
             // TODO: If they do this during gameplay, the player/game needs to be updated to match database information
@@ -105,7 +117,7 @@ var MainMenu = (() => {
                 if(recObj.success) {
                     Main.userPrefs.useDBStorage = true;
                     saveSlotData.classList.remove("hide");
-                    UpdateSlotData(recObj.gridPos || { x: "-", y: "-"});
+                    UpdateSlotData(recObj.gridPos || { x: "-", y: "-"}, recObj.upgrades || { equip: 0, ability: 0 });
 
                     saveSlotMsg.classList.add("success");
                     saveSlotMsg.innerHTML = "Loaded save data."
@@ -123,7 +135,7 @@ var MainMenu = (() => {
                 if(success) {
                     Main.userPrefs.useDBStorage = true;
                     saveSlotData.classList.remove("hide");
-                    UpdateSlotData({ x: "-", y: "-"});
+                    UpdateSlotData();
 
                     saveSlotMsg.classList.add("success");
                     saveSlotMsg.innerHTML = "New slot added."
@@ -141,7 +153,7 @@ var MainMenu = (() => {
                 if(recObj.activeSlot) {
                     Main.userPrefs.useDBStorage = false;
                     saveSlotData.classList.add("hide");
-                    UpdateSlotData({ x: "-", y: "-"});
+                    UpdateSlotData();
                 }
 
                 if(recObj.success) {

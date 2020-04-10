@@ -12,8 +12,8 @@ class NetSprite extends Sprite {
     moveFracCovered = { x: 0, y: 0 };
     distToCover = { x: 0, y: 0 };
 
-    constructor(scene, initGridPos, spriteSkinName, dirIndex, name, id, doDispName) {
-        super(scene, initGridPos, spriteSkinName, dirIndex, name);
+    constructor(scene, initGridPos, assetKey, dirIndex, name, id, doDispName) {
+        super(scene, initGridPos, assetKey, dirIndex, name);
 
         this.id = id;
 

@@ -14,6 +14,8 @@ module.exports = function(sprites) {
         battlePosIndex;
         nextBattleReady;
 
+        equipLevel;
+
         constructor(socket, playerData) {
 
             playerData.cellData = { 
@@ -31,10 +33,18 @@ module.exports = function(sprites) {
             this.nextBattleReady = true;
 
             this.actionCooldown = 3500;
+
+            this.equipLevel = playerData.upgrades.equip;
+            this.abilityLevel = playerData.upgrades.ability;
+            this.ChangeAssetKey(); // Must come after equip level set
         }
         
         SetupNetworkResponses(io, socket) {
             var self = this;
+
+            socket.on("ReqNeighborUpdate", function (cell) {
+                self.UpdateNeighbors();
+            });
         
             // JUST FOR TESTING - TODO: EXPAND SERVER TESTING FUNCTIONS
             socket.on("ReqCellValue", function (cell) {
@@ -139,6 +149,21 @@ module.exports = function(sprites) {
                 self.nextBattleReady = true;
             });
         }
+
+        ChangeAssetKey() {
+            switch(this.equipLevel) {
+                case Consts.equipmentUpgrades.FIGHTER:
+                    this.assetKey = "FighterAxeBlue";
+                    break;
+                case Consts.equipmentUpgrades.LORD:
+                    this.assetKey = "LordSwordBlue";
+                    break;
+                case Consts.equipmentUpgrades.KNIGHT:
+                    this.assetKey = "KnightLanceBlue";
+                    break;
+            }
+        }
+
         UpdateNeighbors() {
             // Get new neighbors
             this.neighbors.LEFT = mapData.GetValueOffset(this.gridPos, -1, 0);

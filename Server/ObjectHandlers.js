@@ -37,76 +37,99 @@ module.exports = function(dbHdlr) {
                 enemy.SetIoObj(io);
             });
 
-            socket.on("ReqWorldInitData", async function (localStorage) {
+            socket.on("ReqBuildPlayer", async function (initData) {
+                // TAG: Save location disabled
+                // Well I can still save the locations, I'm just not loading them right now.
+                // I'd rather use the spawn points until it's worth the time to develop a check for the saved coordinates
+                // actually being safe(unoccupied) to start on, and if not, check neighboring points recursively until a safe point is found.
 
                 //* Set up this player first
                 var orientObj = {};
+                var upgradeObj = {};
 
                 // Check database first
                 // Sign-in ahead of this call will populate socketID field in db, allowing check here to work.
                 var dbPlayer = await dbHdlr.GetPlayerData(socket.client.id);
-                if(dbPlayer && dbPlayer["orientation"]) {
-                    orientObj = dbPlayer["orientation"];
+                if(dbPlayer) {
+                    orientObj = dbPlayer["orientation"] || null;
+                    upgradeObj = dbPlayer["upgrades"] || null;
                 }
                 // If database isn't being used, use local storage if an object was sent up.
-                else if(localStorage != null) {
-                    orientObj = localStorage.orientation;
+                else if(initData.localStorage != null) {
+                    orientObj = initData.localStorage.orientation;
+                    upgradeObj = initData.localStorage.upgrades;
                 }
                 // Otherwise, create spawn point
                 else {
-                    // Get a spawn point
-                    var spawnIndex = 0;
-                    var spawnPoints = mapData.GetPlayerSpawns();
-                    for (var i = 0; i < spawnPoints.length; i++) {
-                        if (mapData.GetValue(spawnPoints[i]) == Consts.tileTypes.WALK) {
-                            spawnIndex = i;
-                            // The player has not yet been created, so just set to -1 for now to reserve the spot.
-                            mapData.SetValue(spawnPoints[i], -1);
-                            break;
-                        }
-                        // TODO: If none are available? Keep checking? Have way more? Overlap players? Hmmm....
-                    }
-
-                    orientObj =  {
-                        x: spawnPoints[spawnIndex].x,
-                        y: spawnPoints[spawnIndex].y,
-                        dir: Consts.dirIndex.DOWN
-                    };
-
-                    dbHdlr.SaveOrientation(socket.client.id, orientObj);
-                }
-
-                // TODO: Get and send all other word init data
-                socket.emit("RecWorldInitData", {
-                    orientation: orientObj
-                });
-            });
-
-            socket.on("Play", function (playerData) {
-                // TODO: Maybe make this perpetually up-to-date with all sprites, and only packs grabbed when needed, so it doesn't need to be recreated each time.
-                var spriteInitPack = []
-
-                for (var type in sprites.allData) {
-                    for (var id in sprites.allData[type]) {
-                        spriteInitPack.push(sprites.allData[type][id].GetInitPack());
+                    upgradeObj = {
+                        equip: Consts.equipmentUpgrades.FIGHTER,
+                        ability: Consts.abilityUpgrades.INIT
                     }
                 }
-                
-                socket.emit("GetServerGameData", { sprites: spriteInitPack });
-                
+                // TAG: Save location disabled
+                // TODO: Move this back into the "else" statement once I've committed to loading position data.
+                // ==================================================== FROM HERE
+                // Get a spawn point
+                var spawnIndex = 0;
+                var spawnPoints = mapData.GetPlayerSpawns();
+                for (var i = 0; i < spawnPoints.length; i++) {
+                    if (mapData.GetValue(spawnPoints[i]) == Consts.tileTypes.WALK) {
+                        spawnIndex = i;
+                        // The player has not yet been created, so just set to -1 for now to reserve the spot.
+                        mapData.SetValue(spawnPoints[i], -1);
+                        break;
+                    }
+                    // TODO: If none are available? Keep checking? Have way more? Overlap players? Hmmm....
+                }
+                orientObj =  {
+                    x: spawnPoints[spawnIndex].x,
+                    y: spawnPoints[spawnIndex].y,
+                    dir: Consts.dirIndex.DOWN
+                };
+                dbHdlr.SaveObjects(socket.client.id, orientObj, upgradeObj);
+                // ==================================================== TO HERE
+
                 // Player's been created, update their neighbors list right away, as this will always determine what their next move can be locally.
-                var player = new playerModule.Player(socket, playerData.initPack);
+                var player = new playerModule.Player(socket, {
+                    id: socket.client.id,
+                    name: initData.dispName,
+                    gridPos: { x: orientObj.x, y: orientObj.y },
+                    dir: orientObj.dir,
+                    upgrades: upgradeObj
+                });
+                // 
                 player.Init();
 
                 // Add player to lists
                 sprites.allData[Consts.spriteTypes.PLAYER][socket.client.id] = player;
-                sprites.updatePack[Consts.spriteTypes.PLAYER][socket.client.id] = playerData.updatePack;
+                sprites.updatePack[Consts.spriteTypes.PLAYER][socket.client.id] = {
+                    x: orientObj.x * mapData.GetTileWidth(),
+                    y: orientObj.y * mapData.GetTileHeight(),
+                    dir: orientObj.dir
+                };
                 
                 // Set up all other network responses
                 player.SetupNetworkResponses(io, socket);
 
                 // Send new player data to all other players
-                socket.broadcast.emit("AddNewPlayer", playerData.initPack);
+                socket.broadcast.emit("AddNewPlayer", player.GetInitPack());
+
+                socket.emit("RecBuiltPlayer", {
+                    orientation: orientObj,
+                    upgrades: upgradeObj,
+                    assetKey: player.assetKey
+                });
+            });
+
+            socket.on("Play", function () {
+                // TODO: Maybe make this perpetually up-to-date with all sprites, and only packs grabbed when needed, so it doesn't need to be recreated each time.
+                var spriteInitPack = []
+                for (var type in sprites.allData)
+                    for (var id in sprites.allData[type])
+                        if(id != socket.client.id) // Exclude myself
+                            spriteInitPack.push(sprites.allData[type][id].GetInitPack());
+                
+                socket.emit("GetServerGameData", { sprites: spriteInitPack });
             });
 
             // Not a user-made function
@@ -114,14 +137,13 @@ module.exports = function(dbHdlr) {
                 console.log(`Socket connection removed: ${socket.client.id} `);
                 
                 var player = sprites.allData[Consts.spriteTypes.PLAYER][socket.client.id];
-                
-                dbHdlr.SaveAndExit(socket.client.id, player ? {
-                    x: player.gridPos.x,
-                    y: player.gridPos.y,
-                    dir: player.dir
-                } : null);
-                
+                                
                 if (player) {
+                    dbHdlr.SaveAndExit(socket.client.id,
+                        { x: player.gridPos.x, y: player.gridPos.y, dir: player.dir }, 
+                        { equip: player.equipLevel, ability: player.abilityLevel }
+                    );
+
                     player.Disconnect();
 
                     // Take player off the map
@@ -132,6 +154,9 @@ module.exports = function(dbHdlr) {
                     // Remove player from server
                     delete sprites.allData[Consts.spriteTypes.PLAYER][socket.client.id];
                     delete sprites.updatePack[Consts.spriteTypes.PLAYER][socket.client.id];
+                }
+                else {
+                    dbHdlr.SaveAndExit(socket.client.id, null, null);
                 }
             });
         },

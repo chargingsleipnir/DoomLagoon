@@ -4,13 +4,13 @@ class Sprite {
 
     gameObjCont;
     sprite;
-    spriteSkinName;
+    assetKey;
     name;
 
     dirIndex;
     prevDirIndex;
 
-    constructor(scene, initGridSpawn, spriteSkinName, dirIndex, name) {
+    constructor(scene, initGridSpawn, assetKey, dirIndex, name) {
         this.scene = scene;
 
         this.gameObjCont = scene.add.container(
@@ -20,9 +20,9 @@ class Sprite {
         
         this.dirIndex = dirIndex;
 
-        this.spriteSkinName = spriteSkinName;
+        this.assetKey = assetKey;
         var frameKey = Main.animData.overworld.keys[dirIndex];
-        this.sprite = scene.add.sprite(16, 8, Main.animData.overworld.skinPrefix + spriteSkinName, Main.animData.overworld.frames[frameKey].start);
+        this.sprite = scene.add.sprite(16, 8, Main.animData.overworld.skinPrefix + assetKey, Main.animData.overworld.frames[frameKey].start);
 
         this.gameObjCont.add(this.sprite);
         this.name = name || 'I am Error';
@@ -43,11 +43,7 @@ class Sprite {
         if(this.prevDirIndex == this.dirIndex)
             return;
 
-        this.sprite.anims.play(this.spriteSkinName + "-" + Main.animData.overworld.keys[dirIndex]);
+        this.sprite.anims.play(this.assetKey + "-" + Main.animData.overworld.keys[dirIndex]);
         this.prevDirIndex = this.dirIndex;
-    }
-
-    SetSkin(skinID) {
-
     }
 }
