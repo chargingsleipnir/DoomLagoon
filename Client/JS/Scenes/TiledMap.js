@@ -111,7 +111,6 @@ class TiledMapScene extends SceneTransition {
             textureClosed: textureClosed,
             textureOpen: textureOpen
         };
-        console.log(this.chestsByCoordInt);
     }
 
     get MapTileWidth() {

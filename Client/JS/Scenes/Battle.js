@@ -321,7 +321,7 @@ class Battle extends SceneTransition {
         });
 
         // Slide in characters
-        scene.spriteEnemy.SetTemplate(battleData.enemyName, battleData.enemyHPMax, battleData.enemyHPCurr);
+        scene.spriteEnemy.SetTemplate(battleData.enemyName, battleData.enemyAssetKey, battleData.enemyHPMax, battleData.enemyHPCurr);
         scene.spriteEnemy.EnterBattle(scene.LAUNCH_TIME, scene.LAUNCH_TIME * 0.5);
         
         scene.playerIdxObj.self = battleData.playerIdxObj.self;
@@ -329,12 +329,12 @@ class Battle extends SceneTransition {
 
         if(scene.playerIdxObj.self > -1) {
             var selfData = battleData.playerData[scene.playerIdxObj.self];
-            scene.spritePlayers[scene.playerIdxObj.self].SetTemplate(selfData.name, selfData.hpMax, selfData.hpCurr);
+            scene.spritePlayers[scene.playerIdxObj.self].SetTemplate(selfData.name, selfData.assetKey, selfData.hpMax, selfData.hpCurr);
             scene.spritePlayers[scene.playerIdxObj.self].EnterBattle(scene.LAUNCH_TIME, scene.LAUNCH_TIME * 0.5);
         }
         for(let i = 0; i < scene.playerIdxObj.others.length; i++) {
             var playerData = battleData.playerData[scene.playerIdxObj.others[i]];
-            scene.spritePlayers[scene.playerIdxObj.others[i]].SetTemplate(playerData.name, playerData.hpMax, playerData.hpCurr);
+            scene.spritePlayers[scene.playerIdxObj.others[i]].SetTemplate(playerData.name, playerData.assetKey, playerData.hpMax, playerData.hpCurr);
             scene.spritePlayers[scene.playerIdxObj.others[i]].EnterBattle(scene.LAUNCH_TIME, scene.LAUNCH_TIME * 0.5);
         }
     }

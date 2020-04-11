@@ -123,12 +123,19 @@ class BattleSprite {
         }, this.scene);
     }
 
-    SetTemplate(name, hpMax, hpCurr) {
+    SetTemplate(name, assetKey, hpMax, hpCurr) {
         this.nameText.text = name;
+        this.UpdateAsset(assetKey);
+
         this.hpMax = hpMax;
         this.hpCurrText.text = hpCurr;
-
         this.UpdateHPByCurrMax(hpCurr, hpMax);
+    }
+
+    UpdateAsset(assetKey) {
+        this.assetKey = assetKey;
+        this.sprite.setTexture(Main.animData.battle.skinPrefix + assetKey , 0);
+        this.sprite.anims.play(`${this.assetKey}_${Main.animData.battle.moveKeys[0]}`);
     }
 
     EnterBattle(delay, duration) {

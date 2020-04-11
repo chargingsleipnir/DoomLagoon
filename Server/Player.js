@@ -271,6 +271,7 @@ module.exports = function(sprites) {
                             var player = sprites.allData[Consts.spriteTypes.PLAYER][enemy.playersInBattle[i].socketID];
                             playersInBattleData[i] = {
                                 name: player.name,
+                                assetKey: player.assetKey,
                                 hpMax: player.hpMax,
                                 hpCurr: player.hpCurr
                             }
@@ -286,6 +287,7 @@ module.exports = function(sprites) {
                     this.socket.emit('RecCommenceBattle', { 
                         enemyID: this.enemyID,
                         enemyName: enemy.name,
+                        enemyAssetKey: enemy.assetKey,
                         enemyHPMax: enemy.hpMax,
                         enemyHPCurr: enemy.hpCurr,
                         playerData: playersInBattleData,
