@@ -48,7 +48,7 @@ class Chest {
             return null;
 
         this.isOpen = true;
-        this.io.emit("CloseOpen", this.intCoord);
+        this.io.emit("OpenChest", this.intCoord);
         this.StartResetTimer();
         return {
             chestType: this.type,
@@ -180,7 +180,7 @@ for(var i = 0; i < layerObj.objects.length; i++) {
         var xLoops = obj.width / JSON_Overworld.tilewidth;
         var yLoops = obj.height / JSON_Overworld.tileheight;
 
-        // "gridY": subtracting the object height because the pivot point for Tiled tile-based objects is in the bottom-left. This will make it as though it's in the top-left.
+        // "gridY": Because the pivot point for Tiled tile-based objects is in the bottom-left, subtracting the object height will make it as though it's in the top-left.
         for(var x = 0; x < xLoops; x++) {
             for(var y = 0; y < yLoops; y++) {
                 var mapObj = {

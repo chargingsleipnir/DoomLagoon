@@ -1,6 +1,7 @@
 class TiledMapScene extends SceneTransition {
     
     map;
+    chestsByCoordInt;
 
     constructor(sceneName) {
         super(sceneName);
@@ -37,6 +38,8 @@ class TiledMapScene extends SceneTransition {
         
         // The only way to show object layer objects using Phaser, so keep them pretty unique wherever possible.
         //* The client is merely displaying these objects, it's the server that's handling interaction.
+        this.chestsByCoordInt = {};
+        
         this.map.createFromObjects('Objects', 11, { key: "volcano", frame: 0 });
         for(var i = 0; i < this.map.objects[0].objects.length; i++) {
             var obj = this.map.objects[0].objects[i];
@@ -51,23 +54,33 @@ class TiledMapScene extends SceneTransition {
                 for(var j = 0; j < obj.properties.length; j++) {
                     if(obj.properties[j].name == "chestType") {
                         if(obj.properties[j].value == Consts.chestTypes.EQUIPMENT) {
-                            this.map.createFromObjects('Objects', obj.id, { key: "chestBrownClosed", frame: 0 });
+                            this.AddChestObj(
+                                this.map.createFromObjects('Objects', obj.id, { key: "chestBrownClosed", frame: 0 })[0],
+                                "chestBrownClosed",
+                                "chestBrownOpen"
+                            );
                         }
                         else if(obj.properties[j].value == Consts.chestTypes.ABILITY) {
-                            this.map.createFromObjects('Objects', obj.id, { key: "chestGreenClosed", frame: 0 });
+                            this.AddChestObj(
+                                this.map.createFromObjects('Objects', obj.id, { key: "chestGreenClosed", frame: 0 })[0],
+                                "chestGreenClosed",
+                                "chestGreenOpen"
+                            );
                         }
                     }
                 }
             }
         }
-
+        
         Network.CreateResponse("OpenChest", (intCoord) => {
             var coords = SuppFuncs.IntToCoords(intCoord, this.map.width);
-            console.log("Need to open chest located at: " + intCoord, coords);
+            console.log(`Openning chest at ${intCoord}`, coords);
+            this.chestsByCoordInt[intCoord].sprite.setTexture(this.chestsByCoordInt[intCoord].textureOpen, 0);
         });
         Network.CreateResponse("CloseChest", (intCoord) => {
             var coords = SuppFuncs.IntToCoords(intCoord, this.map.width);
-            console.log("Need to close chest located at: " + intCoord, coords);
+            console.log(`Closing chest at ${intCoord}`, coords);
+            this.chestsByCoordInt[intCoord].sprite.setTexture(this.chestsByCoordInt[intCoord].textureClosed, 0);
         });
 
         //Foreground Layer
@@ -86,6 +99,19 @@ class TiledMapScene extends SceneTransition {
 
         this.map.setTileIndexCallback(1, testCallback, this);
         */
+    }
+
+    AddChestObj(chest, textureClosed, textureOpen) {
+        //* Object locations seem to be placed by their centre-points here, rather than their bottom-left corner as is the case when reading the raw data.
+        var moddedX = chest.x - (chest.width * 0.5);
+        var moddedY = chest.y - (chest.height * 0.5);
+        var intCoord = SuppFuncs.CoordsToInt(moddedX / this.map.tileWidth, moddedY / this.map.tileHeight, this.map.width);
+        this.chestsByCoordInt[intCoord] = {
+            sprite: chest,
+            textureClosed: textureClosed,
+            textureOpen: textureOpen
+        };
+        console.log(this.chestsByCoordInt);
     }
 
     get MapTileWidth() {

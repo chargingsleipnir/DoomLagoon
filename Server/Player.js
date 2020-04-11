@@ -113,31 +113,6 @@ module.exports = function(sprites) {
                             }
                         }
                     }
-
-                    // var betterUpgrade = mapData.CompareChestContents(newPos, self.equipLevel, self.abilityLevel);
-                    // interactionObj["wasUpgraded"] = betterUpgrade;
-
-                    // if(betterUpgrade) {
-                    //     var contents = mapData.GetChestContents(newPos);
-                    //     if(interactionObj != null) {
-                    //         interactionObj["wasUpgraded"] = false;
-                    //         if(interactionObj.chestType == Consts.chestTypes.EQUIPMENT) {
-                    //             if(self.equipLevel < interactionObj.upgrade) {
-                    //                 self.equipLevel = interactionObj.upgrade;
-                    //                 interactionObj["wasUpgraded"] = true;
-
-                    //                 self.ChangeAssetKey();
-                    //                 interactionObj["updatedAssetKey"] = self.assetKey;
-                    //             }
-                    //         }
-                    //         else {
-                    //             if(self.abilityLevel < interactionObj.upgrade) {
-                    //                 self.abilityLevel = interactionObj.upgrade;
-                    //                 interactionObj["wasUpgraded"] = true;
-                    //             }
-                    //         }
-                    //     }
-                    // }
                 }
         
                 socket.emit("RecCellInteraction", {
