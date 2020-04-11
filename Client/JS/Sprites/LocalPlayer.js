@@ -202,11 +202,11 @@ class LocalPlayer extends Sprite {
 
                 console.log(`Chest type: ${data.interactionObj.contents.chestType} holds upgrade: ${data.interactionObj.contents.upgrade}`);
                 if(data.interactionObj.contents.chestType == Consts.chestTypes.EQUIPMENT) {
-                    self.upgrades.equip = data.interactionObj.upgrade;
+                    self.upgrades.equip = data.interactionObj.contents.upgrade;
                     self.UpdateTexture(data.interactionObj.updatedAssetKey);
                 }
                 else {
-                    self.upgrades.ability = data.interactionObj.upgrade;
+                    self.upgrades.ability = data.interactionObj.contents.upgrade;
                 }
             }
         });

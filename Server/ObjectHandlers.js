@@ -47,14 +47,19 @@ module.exports = function(dbHdlr) {
 
                 //* Set up this player first
                 var orientObj = {};
-                var upgradeObj = {};
+                var upgradeObj = {
+                    equip: Consts.equipmentUpgrades.FIGHTER,
+                    ability: Consts.abilityUpgrades.INIT
+                };
 
                 // Check database first
                 // Sign-in ahead of this call will populate socketID field in db, allowing check here to work.
                 var dbPlayer = await dbHdlr.GetPlayerData(socket.client.id);
                 if(dbPlayer) {
-                    orientObj = dbPlayer["orientation"] || null;
-                    upgradeObj = dbPlayer["upgrades"] || null;
+                    if(dbPlayer["upgrades"])
+                        orientObj = dbPlayer["orientation"];
+                    if(dbPlayer["upgrades"])
+                        upgradeObj = dbPlayer["upgrades"];
                 }
                 // If database isn't being used, use local storage if an object was sent up.
                 else if(initData.localStorage != null) {
@@ -63,10 +68,7 @@ module.exports = function(dbHdlr) {
                 }
                 // Otherwise, create spawn point
                 else {
-                    upgradeObj = {
-                        equip: Consts.equipmentUpgrades.FIGHTER,
-                        ability: Consts.abilityUpgrades.INIT
-                    }
+
                 }
                 // TAG: Save location disabled
                 // TODO: Move this back into the "else" statement once I've committed to loading position data.

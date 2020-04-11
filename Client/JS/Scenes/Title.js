@@ -62,7 +62,7 @@ class Title extends SceneTransition {
         // TODO: I guess I'll have to adapt this to send all of the local storage data, not just orientation
         scene.input.on('pointerdown', () => {
             Network.Emit("ReqBuildPlayer", {
-                localStorageData: localStorageData,
+                localStorage: localStorageData,
                 dispName: MainMenu.GetDispName()
             });
         });

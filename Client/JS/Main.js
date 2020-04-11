@@ -90,6 +90,7 @@ var Main = (() => {
                 return;
 
             if(Main.userPrefs.useLocalStorage) {
+                console.log(`Saving data: `, Main.player.GetSavePack());
                 localStorage.setItem(Network.LOCAL_STORAGE_KEY, JSON.stringify(Main.player.GetSavePack()));
                 Main.DispMessage("Game saved locally.", 2);
             }
