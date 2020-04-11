@@ -47,7 +47,8 @@ class Sprite {
         this.prevDirIndex = this.dirIndex;
     }
 
-    UpdateTexture() {
+    UpdateTexture(newAssetKey) {
+        this.assetKey = newAssetKey;
         var frameKey = Main.animData.overworld.keys[this.dirIndex];
         this.sprite.setTexture(Main.animData.overworld.skinPrefix + this.assetKey, Main.animData.overworld.frames[frameKey].start);
     }

@@ -53,4 +53,8 @@
 
     exports.INTERVAL_STEP = 1000 / 60;
 
+    exports.CHEST_CONT_Y_GAP = 16;
+    exports.CHEST_CONT_PADDING = 5;
+    exports.CHEST_CONT_BG_ALPHA = 0.66;
+
 })(typeof exports === 'undefined' ? this['Consts'] = {} : exports);

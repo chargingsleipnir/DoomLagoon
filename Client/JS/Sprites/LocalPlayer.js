@@ -203,13 +203,10 @@ class LocalPlayer extends Sprite {
                 console.log(`Chest type: ${data.interactionObj.contents.chestType} holds upgrade: ${data.interactionObj.contents.upgrade}`);
                 if(data.interactionObj.contents.chestType == Consts.chestTypes.EQUIPMENT) {
                     self.upgrades.equip = data.interactionObj.upgrade;
-                    // TODO: Hold up icons for new equipment based on upgrade level
-                    self.assetKey = data.interactionObj.updatedAssetKey;
-                    self.UpdateTexture();
+                    self.UpdateTexture(data.interactionObj.updatedAssetKey);
                 }
                 else {
                     self.upgrades.ability = data.interactionObj.upgrade;
-                    // TODO: Hold up icon (book/scroll) for new ability
                 }
             }
         });

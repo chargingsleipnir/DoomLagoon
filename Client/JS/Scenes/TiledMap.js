@@ -51,23 +51,30 @@ class TiledMapScene extends SceneTransition {
             }
             // TODO: Check initial world data and set chests appropriately. (make it per player? So the chests aren't universally open/closed?)
             else if(obj.type == Consts.tileTypes.CHEST) {
-                for(var j = 0; j < obj.properties.length; j++) {
-                    if(obj.properties[j].name == "chestType") {
-                        if(obj.properties[j].value == Consts.chestTypes.EQUIPMENT) {
-                            this.AddChestObj(
-                                this.map.createFromObjects('Objects', obj.id, { key: "chestBrownClosed", frame: 0 })[0],
-                                "chestBrownClosed",
-                                "chestBrownOpen"
-                            );
-                        }
-                        else if(obj.properties[j].value == Consts.chestTypes.ABILITY) {
-                            this.AddChestObj(
-                                this.map.createFromObjects('Objects', obj.id, { key: "chestGreenClosed", frame: 0 })[0],
-                                "chestGreenClosed",
-                                "chestGreenOpen"
-                            );
-                        }
-                    }
+
+                let chest = new Chest(this, this.map.createFromObjects('Objects', obj.id, { key: "chestBrownClosed", frame: 0 })[0]);
+                let intCoord = chest.GetIntCoord(this.map.tileWidth, this.map.tileHeight, this.map.width);
+                this.chestsByCoordInt[intCoord] = chest;
+
+                // Fix up properties into far better object format
+                var propMap = {};
+                for(var j = 0; j < obj.properties.length; j++)
+                    propMap[obj.properties[j].name] = obj.properties[j].value;
+
+                // Determine contents based on properties
+                if(propMap["chestType"] == Consts.chestTypes.EQUIPMENT) {
+                    chest.AddTextures("chestBrownClosed", "chestBrownOpen");
+                    if(propMap["upgrade"] == Consts.equipmentUpgrades.LORD)
+                        chest.AddContents(["iconSword", "iconCape"]);
+                    else // Knight
+                        chest.AddContents(["iconLance", "iconShield", "iconArmour"]);
+                }
+                else { // Abilities
+                    chest.AddTextures("chestGreenClosed", "chestGreenOpen");
+                    if(propMap["upgrade"] == Consts.abilityUpgrades.LEVEL1)
+                        chest.AddContents(["iconBookGreen"]);
+                    else // Level2
+                        chest.AddContents(["iconBookRed"]);
                 }
             }
         }
@@ -75,12 +82,12 @@ class TiledMapScene extends SceneTransition {
         Network.CreateResponse("OpenChest", (intCoord) => {
             var coords = SuppFuncs.IntToCoords(intCoord, this.map.width);
             console.log(`Openning chest at ${intCoord}`, coords);
-            this.chestsByCoordInt[intCoord].sprite.setTexture(this.chestsByCoordInt[intCoord].textureOpen, 0);
+            this.chestsByCoordInt[intCoord].Open();
         });
         Network.CreateResponse("CloseChest", (intCoord) => {
             var coords = SuppFuncs.IntToCoords(intCoord, this.map.width);
             console.log(`Closing chest at ${intCoord}`, coords);
-            this.chestsByCoordInt[intCoord].sprite.setTexture(this.chestsByCoordInt[intCoord].textureClosed, 0);
+            this.chestsByCoordInt[intCoord].Close();
         });
 
         //Foreground Layer
@@ -99,18 +106,6 @@ class TiledMapScene extends SceneTransition {
 
         this.map.setTileIndexCallback(1, testCallback, this);
         */
-    }
-
-    AddChestObj(chest, textureClosed, textureOpen) {
-        //* Object locations seem to be placed by their centre-points here, rather than their bottom-left corner as is the case when reading the raw data.
-        var moddedX = chest.x - (chest.width * 0.5);
-        var moddedY = chest.y - (chest.height * 0.5);
-        var intCoord = SuppFuncs.CoordsToInt(moddedX / this.map.tileWidth, moddedY / this.map.tileHeight, this.map.width);
-        this.chestsByCoordInt[intCoord] = {
-            sprite: chest,
-            textureClosed: textureClosed,
-            textureOpen: textureOpen
-        };
     }
 
     get MapTileWidth() {

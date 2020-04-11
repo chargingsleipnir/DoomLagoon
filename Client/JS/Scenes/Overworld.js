@@ -38,10 +38,19 @@ class Overworld extends TiledMapScene {
         this.load.image('spring', '../../Assets/Map/Spring.png');
         this.load.image('volcano', '../../Assets/Map/VolcaonActive.png');
 
+        // Chests
         this.load.image('chestBrownClosed', '../../Assets/Map/ChestBrownClosed.png');
         this.load.image('chestBrownOpen', '../../Assets/Map/ChestBrownOpen.png');
         this.load.image('chestGreenClosed', '../../Assets/Map/ChestGreenClosed.png');
         this.load.image('chestGreenOpen', '../../Assets/Map/ChestGreenOpen.png');
+        // Icons for chest contents
+        this.load.image('iconSword', '../../Assets/Icons/Sword.png');
+        this.load.image('iconCape', '../../Assets/Icons/Cape.png');
+        this.load.image('iconLance', '../../Assets/Icons/Lance.png');
+        this.load.image('iconShield', '../../Assets/Icons/Shield.png');
+        this.load.image('iconArmour', '../../Assets/Icons/Armour.png');
+        this.load.image('iconBookGreen', '../../Assets/Icons/BookGreen.png');
+        this.load.image('iconBookRed', '../../Assets/Icons/BookRed.png');
     }
 
     create(serverPlayerData) {
@@ -110,7 +119,7 @@ class Overworld extends TiledMapScene {
         //------------------------ ALL OTHER NETWORK CALLS
 
         // Update all info (map, players, etc. as needed);
-        Network.CreateResponse("UpdateFromServer", function (serverSpriteUpdates) {
+        Network.CreateResponse("UpdateFromServer", (serverSpriteUpdates) => {
             // Use this format to exclude player without needing additional checks
             // TODO: Maybe make this safer? Make sure there is never a mismatch between sprite lists...
             for (var type in self.sprites) {
@@ -121,6 +130,12 @@ class Overworld extends TiledMapScene {
                     else
                         console.log("Tried to update non-existant " + type + ", id: " + id);
                 }
+            }
+        });
+
+        Network.CreateResponse("UpdateMapSpriteAssetKey", (mapSprite) => {
+            if (self.sprites[Consts.spriteTypes.PLAYER][mapSprite.id]) {
+                self.sprites[Consts.spriteTypes.PLAYER][mapSprite.id].UpdateTexture(mapSprite.assetKey);
             }
         });
 

@@ -116,7 +116,7 @@ class BattleSprite {
             var moveKey = anim.key.replace(`${this.assetKey}_`, "");
             let skinIdx = Main.animData.skins.indexOf(this.assetKey);
             let moveIdx = Main.animData.battle.moveKeys.indexOf(moveKey);
-            //console.log(`Origin object loacted at ${skinIdx}, ${moveIdx}`)
+            //console.log(`Origin object located at ${skinIdx}, ${moveIdx}`)
             let originObj = Main.animData.battle["skin-move-origins"][skinIdx][moveIdx];
             //console.log(`Origin is ${originObj.x}, ${originObj.y}`);
             this.sprite.setOrigin(originObj.x, originObj.y);
@@ -150,6 +150,11 @@ class BattleSprite {
     }
 
     ExitBattle(delay, duration) {
+        if(this.gameObjCont.x == this.offScreenX) {
+            this.gameObjCont.alpha = 1;
+            return;
+        }
+        
         this.inBattle = false;
         const battleEnterConfig = { ease: 'Back', from: this.idlePos.x, start: this.idlePos.x, to: this.offScreenX };
         this.scene.tweens.add({
@@ -178,7 +183,12 @@ class BattleSprite {
             duration: duration,
             alpha: spriteDieConfig,
             targets: this.gameObjCont,
-            onComplete: OnCompleteCB
+            onComplete: () => {
+                // Reset this BattleSprite slot to possibly still be commendeered by someone else.
+                this.gameObjCont.x = this.offScreenX;
+                this.gameObjCont.alpha = 1;
+                OnCompleteCB();
+            }
         });
     }
 

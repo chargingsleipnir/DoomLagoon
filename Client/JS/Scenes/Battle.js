@@ -103,8 +103,9 @@ class Battle extends SceneTransition {
 
         Network.CreateResponse('RecAddPlayer', (playerObj) => {
             this.playerIdxObj.others.push(playerObj.battlePosIndex);
-            this.spritePlayers[playerObj.battlePosIndex].SetTemplate(playerObj.name, playerObj.hpMax, playerObj.hpCurr);
+            this.spritePlayers[playerObj.battlePosIndex].SetTemplate(playerObj.name, playerObj.assetKey, playerObj.hpMax, playerObj.hpCurr);
             this.spritePlayers[playerObj.battlePosIndex].EnterBattle(this.LAUNCH_TIME, this.LAUNCH_TIME * 0.5);
+
             console.log(`Player ${playerObj.name} added at battle posiiton index ${playerObj.battlePosIndex}. HP: ${playerObj.hpCurr} of ${playerObj.hpMax}`);
             console.log(`playerIdxObj now:`, this.playerIdxObj);
         });
@@ -202,8 +203,11 @@ class Battle extends SceneTransition {
                             });
                         }
                         else {
+                            // BOOKMARK
                             console.log(`Lost player ${actionObj.targetBattleIdx} (${actionObj.socketID})`);
                             Main.DispMessage("Player died!", 2);
+                            var listIdx = this.playerIdxObj.others.indexOf(actionObj.targetBattleIdx);
+                            this.playerIdxObj.others.splice(listIdx, 1);
                             this.spritePlayers[actionObj.targetBattleIdx].Die(250, 1500, () => {});            
                         }
                     }
@@ -339,6 +343,7 @@ class Battle extends SceneTransition {
         }
     }
 
+    // BOOKMARK
     LosePlayer(battleIndex) {
         var listIdx = this.playerIdxObj.others.indexOf(battleIndex);
         this.playerIdxObj.others.splice(listIdx, 1);

@@ -153,6 +153,7 @@ module.exports = function(sprites) {
                         if(this.playersInBattle[j].socketID != null) {
                             this.io.to(this.playersInBattle[j].socketID).emit('RecAddPlayer', {
                                 name: player.name,
+                                assetKey: player.assetKey,
                                 battlePosIndex: battlePosIndex,
                                 hpMax: player.hpMax,
                                 hpCurr: player.hpCurr

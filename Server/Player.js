@@ -106,6 +106,10 @@ module.exports = function(sprites) {
                                     self.equipLevel = interactionObj["contents"].upgrade;
                                     self.ChangeAssetKey();
                                     interactionObj["updatedAssetKey"] = self.assetKey;
+                                    socket.broadcast.emit("UpdateMapSpriteAssetKey", {
+                                        id: self.id,
+                                        assetKey: self.assetKey
+                                    })
                                 }
                                 else {
                                     self.abilityLevel = interactionObj["contents"].upgrade;
