@@ -387,6 +387,16 @@ canvas {
     vertical-align: middle;
 }
 
+#PlayerChatViewBtn {
+    position: relative;
+}
+#ChatNotifDot {
+    color: red;
+    position: absolute;
+    top: -3px;
+    right: 10px;
+}
+
 .menuPanel {
     width: 512px;
     height: 512px;

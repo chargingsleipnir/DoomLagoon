@@ -125,6 +125,8 @@ class LocalPlayer extends Sprite {
         Main.game.canvas.addEventListener("click", (event) => {
             //* NOTE: Not debug, very important!
             self.elemFocusString = event.currentTarget.tagName;
+            elem_ChatTextInput.blur();
+
             Main.game.input.keyboard.enabled = true;
 
             var posParent = Utility.html.ElemPos(event.currentTarget);
@@ -213,12 +215,16 @@ class LocalPlayer extends Sprite {
         });
 
         var elem_ChatLog = document.getElementById("ChatLog");
+        var elem_NewChatNotif = document.getElementById("ChatNotifDot");
         Network.CreateResponse('RecChatLogUpdate', (data) => {
             var className = data.name == self.name ? "chatLogNameSelf" : "chatLogName";
             var htmlString = `<li><span class="${className}">${data.name}:</span> ${data.msg}</li>`;
             var node = Utility.html.FromString(htmlString);
             elem_ChatLog.appendChild(node);
             elem_ChatLog.scrollTop = elem_ChatLog.scrollHeight;
+            if(elem_ChatLog.classList.contains('hide')) {
+                elem_NewChatNotif.classList.remove("hide");
+            }
         });
 
         // CHAT MESSAGES - Send if button clicked OR if enter pressed while text field is focused.
@@ -240,9 +246,17 @@ class LocalPlayer extends Sprite {
                 elem_ChatTextInput.value = "";
             }
         }
-        document.getElementById("PlayerChatSendMsgBtn").addEventListener('click', SendMsgToServer);
-        document.getElementById("PlayerChatViewBtn").addEventListener('click', () => {
+
+        function ToggleOpenChatView() {
             elem_ChatLog.classList.toggle('hide');
+            elem_NewChatNotif.classList.add("hide");
+        }
+
+        document.getElementById("PlayerChatSendMsgBtn").addEventListener('click', SendMsgToServer);
+        document.getElementById("PlayerChatViewBtn").addEventListener('click', ToggleOpenChatView);
+        scene.input.keyboard.on('keydown_SPACE', () => {
+            if(self.elemFocusString != "INPUT")
+                ToggleOpenChatView();
         });
 
         // Single-time key press, only repeats if held after about a second
