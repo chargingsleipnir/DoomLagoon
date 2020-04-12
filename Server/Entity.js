@@ -38,6 +38,7 @@ module.exports = function(sprites) {
         hpCurr;
 
         strength;
+        attackOption;
 
         actionCooldown;
         actionIntervalRef;
@@ -64,6 +65,7 @@ module.exports = function(sprites) {
             this.canAct = true;
             this.actionCooldown = 0;
             this.actionIntervalCounter = 0;
+            this.attackOption = 0;
         }
 
         Init() {

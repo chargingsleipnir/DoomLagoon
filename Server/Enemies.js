@@ -70,7 +70,6 @@ module.exports = function(sprites) {
 
             this.actionReadyPct = 0;
             this.isAlive = true;
-            this.abilityLevel = Consts.abilityUpgrades.LEVEL2;
 
             //* This switch statement might be more than sufficient to distinguish among each type of enemy for such a limited game sample
             // TODO: If not, Give each enemy type it's own class, "extended" from an "Enemy" base class, With "Enemy Factory" a separate thing (file or class) that creates the derived classes based on the map data.
@@ -79,6 +78,7 @@ module.exports = function(sprites) {
                     this.name = "Knight";
                     this.hpCurr = this.hpMax = 10;
                     this.strength = 3;
+                    this.abilityLevel = Consts.abilityUpgrades.LEVEL2;
                     this.actionCooldown = 4000;
                     break;
             }
@@ -291,6 +291,7 @@ module.exports = function(sprites) {
                         actorBattleIdx: actionObj.battleIdx,
                         targetBattleIdx: -1,
                         command: actionObj.command,
+                        ability: 0, // TODO: Change based on input
                         damage: actionObj.damage,
                         targetHPMax: this.hpMax,
                         targetHPCurr: this.hpCurr
@@ -304,6 +305,9 @@ module.exports = function(sprites) {
         }
         // Enemy attack
         ActionReady() {
+            // Pick a random attack from what's available per enemy. (Based on ability upgrade)
+            var randAbility = Math.floor(Math.random() * (this.abilityLevel + 1));
+
             // Because of the dispersal of actual players in "this.playersInBattle", get a random number limited by how many active players there are (wherever in the list they may be),
             // and loop through that many active players to hit the random one. Hence using the random number as a negative counter.
             var randPlayerCounter = 1 + Math.floor(Math.random() * this.playerBattleCount);
@@ -331,6 +335,7 @@ module.exports = function(sprites) {
                 actorBattleIdx: -1,
                 targetBattleIdx: attackIndex,
                 command: Consts.battleCommands.FIGHT,
+                ability: randAbility,
                 damage: this.strength,
                 targetHPMax: player.hpMax,
                 targetHPCurr: player.hpCurr

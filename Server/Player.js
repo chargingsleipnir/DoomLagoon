@@ -296,6 +296,7 @@ module.exports = function(sprites) {
                         enemyHPCurr: enemy.hpCurr,
                         playerData: playersInBattleData,
                         playerIdxObj: playerIdxObj,
+                        abilityLevel: this.abilityLevel
                     });
                 }
             }

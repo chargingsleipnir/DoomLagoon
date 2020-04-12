@@ -1,12 +1,19 @@
 (function(exports) {
 
-    exports.DISP_NAME_STYLE = { font: "16px Arial", fill: "#FFFFFF" };
-    exports.DISP_DAMAGE_STYLE = { 
+    exports.STYLE_DISP_NAME = { 
+        font: "16px Arial",
+        stroke: "#000000",
+        strokeThickness: 4, 
+        fill: "#FFFFFF",
+        fontStyle: "strong"
+    };
+    exports.STYLE_DISP_DAMAGE = { 
         font: "24px Arial", 
         stroke: "#000000",
         strokeThickness: 4,
         fill: "#ff0000", 
-        fontStyle: "strong" };
+        fontStyle: "strong"
+    };
     
     exports.dirIndex = { LEFT: 0, RIGHT: 1, UP: 2, DOWN: 3 };
     exports.dirDiff = [
@@ -56,5 +63,8 @@
     exports.CHEST_CONT_Y_GAP = 16;
     exports.CHEST_CONT_PADDING = 5;
     exports.CHEST_CONT_BG_ALPHA = 0.66;
+
+    // This represents the difference between the "abilityUpgrade" (above) and it's index in the list of animation keys
+    exports.ANIM_ABILITY_DIFF = 2;
 
 })(typeof exports === 'undefined' ? this['Consts'] = {} : exports);

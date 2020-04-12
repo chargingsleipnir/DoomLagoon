@@ -37,7 +37,7 @@ class LocalPlayer extends Sprite {
         super(scene, { x: serverData.orientation.x, y: serverData.orientation.y }, serverData.assetKey, serverData.orientation.dir, MainMenu.GetDispName());
 
         // Anchor display name overhead
-        var dispName = scene.add.text((this.sprite.width * 0.5), -(this.sprite.height), MainMenu.GetDispName(), Consts.DISP_NAME_STYLE);
+        var dispName = scene.add.text((this.sprite.width * 0.5), -(this.sprite.height), MainMenu.GetDispName(), Consts.STYLE_DISP_NAME);
         dispName.setOrigin(0.5);
         this.gameObjCont.add(dispName);
         // TODO: Works for now, but is really not good. I need the depth of the display name to NOT be restriced by the parent container,

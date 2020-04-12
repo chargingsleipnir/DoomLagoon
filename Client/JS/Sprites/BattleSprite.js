@@ -56,10 +56,10 @@ class BattleSprite {
         }
 
         // Add name above of the circle.
-        this.nameText = scene.add.text(90 * this.flipXFactor, -30, "", Consts.DISP_NAME_STYLE);
+        this.nameText = scene.add.text(90 * this.flipXFactor, -30, "", Consts.STYLE_DISP_NAME);
         this.nameText.setOrigin(0.5);
 
-        this.damageText = scene.add.text(-50 * this.flipXFactor, -this.sprite.width - 10, "", Consts.DISP_DAMAGE_STYLE);
+        this.damageText = scene.add.text(-50 * this.flipXFactor, -this.sprite.width - 10, "", Consts.STYLE_DISP_DAMAGE);
         this.damageText.setOrigin(0.5);
         this.damageText.alpha = 0;
 
@@ -70,7 +70,7 @@ class BattleSprite {
         this.hpArc = scene.add.graphics();
 
         // Add curr HP in the middle of the circle.
-        this.hpCurrText = scene.add.text(90 * this.flipXFactor, 20, "", Consts.DISP_NAME_STYLE);
+        this.hpCurrText = scene.add.text(90 * this.flipXFactor, 20, "", Consts.STYLE_DISP_NAME);
         this.hpCurrText.setOrigin(0.5);
 
         // TODO: Add number that pops up each time sprite takes damage or heals.
@@ -154,7 +154,7 @@ class BattleSprite {
             this.gameObjCont.alpha = 1;
             return;
         }
-        
+
         this.inBattle = false;
         const battleEnterConfig = { ease: 'Back', from: this.idlePos.x, start: this.idlePos.x, to: this.offScreenX };
         this.scene.tweens.add({
@@ -168,10 +168,10 @@ class BattleSprite {
         });
     }
 
-    Act(moveIndex, actionObj, AnimEndCB) {
+    Act(actionObj, AnimEndCB) {
         this.actionObj = actionObj;
         this.AnimEndCB = AnimEndCB;
-        this.sprite.anims.play(`${this.assetKey}_${Main.animData.battle.moveKeys[moveIndex]}`);
+        this.sprite.anims.play(`${this.assetKey}_${Main.animData.battle.moveKeys[actionObj.ability + Consts.ANIM_ABILITY_DIFF]}`);
     }
 
     // TODO: Sounds, graphics, sprite jitter and any other effects

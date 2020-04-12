@@ -65,11 +65,11 @@ class Battle extends SceneTransition {
 
         // TODO: Make these menu options images instead of text, or find way to stylize fairly well here.
         // TODO: For so long as there's only 2 menu options, this works well enough for now.
-        this.menuOptionTexts.push(this.add.text(0, -15, "FIGHT", Consts.DISP_NAME_STYLE));
+        this.menuOptionTexts.push(this.add.text(0, -15, "FIGHT", Consts.STYLE_DISP_NAME));
         this.menuOptionTexts[Consts.battleCommands.FIGHT].setOrigin(0.5);
         this.menuCont.add(this.menuOptionTexts[Consts.battleCommands.FIGHT]);
 
-        this.menuOptionTexts.push(this.add.text(0, 15, "RUN", Consts.DISP_NAME_STYLE));
+        this.menuOptionTexts.push(this.add.text(0, 15, "RUN", Consts.STYLE_DISP_NAME));
         this.menuOptionTexts[Consts.battleCommands.RUN].setOrigin(0.5);
         this.menuCont.add(this.menuOptionTexts[Consts.battleCommands.RUN]);
 
@@ -129,7 +129,7 @@ class Battle extends SceneTransition {
                 console.log(`Player ${actionObj.actorBattleIdx} (${actionObj.socketID}) fought, doing ${actionObj.damage} damage. Enemy HP: ${actionObj.targetHPCurr} of ${actionObj.targetHPMax}`);
                 
                 if(this.spritePlayers[actionObj.actorBattleIdx].inBattle) {
-                    this.spritePlayers[actionObj.actorBattleIdx].Act(2, actionObj, () => {
+                    this.spritePlayers[actionObj.actorBattleIdx].Act(actionObj, () => {
                         this.spriteEnemy.ShowDamageTaken(actionObj.damage);
                         this.spriteEnemy.UpdateHPByCurrMax(actionObj.targetHPCurr, actionObj.targetHPMax);
                         // Cannot use "this.battleOver" as this check, as "this.battleOver" is set in mutiple places for multiple reasons, including my own death
@@ -187,7 +187,7 @@ class Battle extends SceneTransition {
 
             // Only move for enemies right now.
             if(actionObj.command == Consts.battleCommands.FIGHT) {
-                this.spriteEnemy.Act(2, actionObj, () => {
+                this.spriteEnemy.Act(actionObj, () => {
                     this.spritePlayers[actionObj.targetBattleIdx].ShowDamageTaken(actionObj.damage);
                     this.spritePlayers[actionObj.targetBattleIdx].UpdateHPByCurrMax(actionObj.targetHPCurr, actionObj.targetHPMax);
                     if(actionObj.targetHPCurr <= 0) {
@@ -309,6 +309,9 @@ class Battle extends SceneTransition {
                 // Had "actionReady", but now that just waits for the ATB to fill
             }
         });
+
+        // TODO: Make available all commands consistent with ability level
+        //battleData.abilityLevel
 
         // Slide in menu
         const menuPropertyConfig = {

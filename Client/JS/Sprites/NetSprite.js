@@ -31,7 +31,7 @@ class NetSprite extends Sprite {
         //* Until there would seem to be greater differences between a net "sprite" and net "player", just leave as one object with different toggles for now.
         if(doDispName) {
             // Anchor display name overhead
-            var dispName = scene.add.text((this.sprite.width * 0.5), -(this.sprite.height), name, Consts.DISP_NAME_STYLE);
+            var dispName = scene.add.text((this.sprite.width * 0.5), -(this.sprite.height), name, Consts.STYLE_DISP_NAME);
             dispName.setOrigin(0.5);
             this.gameObjCont.add(dispName);
         }
