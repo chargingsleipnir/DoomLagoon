@@ -153,9 +153,21 @@ input[type="range"]::-moz-range-track {
 }
 
 
-
-
-
+.bg_KeysWASD {
+    background-image: url("../Assets/GUI/controls_WASD.png");
+    width: 210px;
+    height: 140px;
+}
+.bg_KeysEnter {
+    background-image: url("../Assets/GUI/controls_Enter.png");
+    width: 150px;
+    height: 75px;
+}
+.bg_KeysSpace {
+    background-image: url("../Assets/GUI/controls_Space.png");
+    width: 300px;
+    height: 75px;
+}
 
 
 .bg_LightGrey {
@@ -192,6 +204,10 @@ input {
 
 .centered {
     display: block;
+    margin: 0 auto;
+}
+
+.marg0Auto {
     margin: 0 auto;
 }
 
@@ -245,6 +261,14 @@ h4 {
 
 .margLeft10 {
     margin-left: 10px;
+}
+
+.margLeft25 {
+    margin-left: 25px;
+}
+
+.margLeft40 {
+    margin-left: 40px;
 }
 
 .flexFlowRight {

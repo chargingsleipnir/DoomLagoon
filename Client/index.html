@@ -106,7 +106,8 @@
         <div class="flexFlowRightTop">
             <ul id="OptionsMenuTabs">
                 <li id="OptionsTab_General" class="hide"><button class="bg_Button80 tabButton" data-panel-Id="GeneralOptions"><i class="fas fa-folder-open fa-3x"></i></button></li>
-                <li><button class="bg_Button80 tabButton margTop10 active" data-panel-Id="ControlOptions"><i class="fas fa-gamepad fa-3x"></i></button></li>
+                <li><button class="bg_Button80 tabButton margTop10 active" data-panel-Id="Controls"><i class="fas fa-gamepad fa-3x"></i></button></li>
+                <li><button class="bg_Button80 tabButton margTop10" data-panel-Id="Gameplay"><i class="fas fa-globe fa-3x"></i></button></li>
                 <li><button class="bg_Button80 tabButton margTop10" data-panel-Id="AudioOptions"><i class="fas fa-headphones fa-3x"></i></button></li>
             </ul>
 
@@ -118,10 +119,38 @@
                     </button>
                 </div>
             </div>
-            <!-- TODO: Controls, just a display of what they are --> 
-            <!-- TODO: Include images of sign, chest, spring, if they're not going to stand-out otherwise on the tile map --> 
-            <div id="ControlOptions" class="optionPanel active">
-                <span class="margLeft10 forceFont">To complete</span>
+            <div id="Controls" class="optionPanel active flexFlowDownCentre">
+                <div>
+                    <div class="bgImg bg_KeysWASD centredBlock"></div>
+                    <div>Move / Switch battle command</div>
+                </div>
+                <div class="margTop25">
+                    <div class="bgImg bg_KeysEnter centredBlock"></div>
+                    <div>Interact / Select battle command</div>
+                </div>
+                <div class="margTop25">
+                    <div class="bgImg bg_KeysSpace centredBlock"></div>
+                    <div>(Spacebar) Open chat log</div>
+                </div>
+            </div>
+            <div id="Gameplay" class="optionPanel flexFlowDownCentre">
+                <h4>Move beside an enemy to engage:</h4>
+                <img src="Assets/GUI/KnightOnMap.PNG" alt="Engagement" class="centered" />
+                <h4>Interact with these map objects:</h4>
+                <div class="flexFlowDownLeft margLeft40">
+                    <div class="flexFlowRightCentre">
+                        <img src="Assets/Map/Sign.png" alt="Signs" width="64" height="64" />
+                        <div>Signs</div>
+                    </div>
+                    <div class="flexFlowRightCentre">
+                        <img src="Assets/Map/ChestBrownClosed.png" alt="Chests" width="64" height="64" />
+                        <div>Treasure chests</div>
+                    </div>
+                    <div class="flexFlowRightCentre">
+                        <img src="Assets/Map/Spring.png" alt="Springs" width="64" height="64" />
+                        <div>Fresh water springs</div>
+                    </div> 
+                </div>               
             </div>
             <div id="AudioOptions" class="optionPanel">
                 <label for="VolumeSlider" class="centredBlock">Volume</label>
