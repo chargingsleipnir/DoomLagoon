@@ -173,7 +173,7 @@ class Overworld extends TiledMapScene {
 
         // BATTLE SCENE!
         Network.CreateResponse("RecCommenceBattle", function (battleData) {
-            console.log("From overworld, starting battle scene: ", battleData);
+            console.log("From overworld, starting battle scene, received data: ", battleData);
             self.scene.wake("Battle", battleData);
         });
 

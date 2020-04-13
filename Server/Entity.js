@@ -152,7 +152,6 @@ module.exports = function(sprites) {
             var pctFrac = (100 / this.actionCooldown) || 0;
             this.actionIntervalRef = setInterval(() => {
                 if(!this.inBattle) {
-                    this.canAct = false;
                     this.StopActionTimer();
                     return;
                 }

@@ -118,6 +118,12 @@ module.exports = function(sprites) {
                         }
                     }
                 }
+                else if(value == Consts.tileTypes.SPRING) {
+                    self.hpCurr = self.hpMax;
+                    interactionObj = {
+                        msg: "Recovered full health!"
+                    }
+                }
         
                 socket.emit("RecCellInteraction", {
                     gridX: newPos.x,
@@ -153,7 +159,7 @@ module.exports = function(sprites) {
 
             // JUST FOR TESTING - TODO: EXPAND SERVER TESTING FUNCTIONS
             socket.on("BattleAction", function (actionObj) {
-                //console.log(`Received battle action, enemyID: ${self.enemyID}, canAct: ${self.canAct}`);
+                console.log(`Received battle action, canAct: ${self.canAct}, against enemyID: ${self.enemyID}`);
 
                 if(self.enemyID == -1)
                     return;
@@ -163,14 +169,17 @@ module.exports = function(sprites) {
 
                 self.canAct = false;
 
-                // TODO: Implement ability as speed factor.
-                sprites.allData[Consts.spriteTypes.ENEMY][self.enemyID].ReceiveAction({
+                var actionToEnemy = {
                     command: actionObj.command,
                     ability: actionObj.ability,
                     battleIdx: actionObj.playerBattleIdx,
                     damage: self.strength + self.equipLevel + actionObj.ability,
                     fromSocketID: socket.client.id
-                });
+                };
+                console.log(`Enemy receiving action: `, actionToEnemy);
+
+                // TODO: Implement ability as speed factor.
+                sprites.allData[Consts.spriteTypes.ENEMY][self.enemyID].ReceiveAction(actionToEnemy);
             });
 
             socket.on("ResetActionTimer", function () {
@@ -288,6 +297,7 @@ module.exports = function(sprites) {
                         }
                     }
                     
+                    console.log("Call to first run action timer of battle.");
                     this.RunActionTimer(); // Calls ActionReady() upon timer completing
 
                     this.socket.emit('RecCommenceBattle', { 
@@ -306,8 +316,10 @@ module.exports = function(sprites) {
         }
 
         LeaveBattle(wasDisconnected) {
-            if(!this.inBattle)
+            if(!this.inBattle) {
+                console.warn("LeaveBattle() was called, but this.inBattle is: ", this.inBattle);
                 return;
+            }
                 
             //console.log(`Reseting player battle props: enemyID: ${this.enemyID}, inBattle: ${this.inBattle}`);
             
@@ -326,6 +338,7 @@ module.exports = function(sprites) {
         }
 
         ActionReady() {
+            console.log("Action ready.");
             this.socket.emit("RecActionReady");
         }
 
@@ -337,6 +350,7 @@ module.exports = function(sprites) {
                 this.hpCurr = 0;
 
                 this.LeaveBattle(false);
+                this.StopActionTimer();
                 this.RemoveSelfFromMap();
 
                 this.socket.broadcast.emit("RemoveMapSprite", this.mapSprite);
@@ -349,10 +363,6 @@ module.exports = function(sprites) {
             delete sprites.allData[Consts.spriteTypes.PLAYER][this.id];
             delete sprites.updatePack[Consts.spriteTypes.PLAYER][this.id];
         }
-
-        // Update() {
-        //     console.log("Player update");
-        // }
 
         Disconnect() {
             this.LeaveBattle(true);

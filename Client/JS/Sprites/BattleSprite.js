@@ -89,7 +89,6 @@ class BattleSprite {
 
         this.hpPctFrom = this.hpPctTo = 100;
         this.hpChangeFactor = -1;
-        this.UpdateHPByCurrMax(1, 1);
         this.DrawHP(this.hpPctTo);
 
         this.sprite.anims.play(`${this.assetKey}_${Main.animData.battle.moveKeys[0]}`);
@@ -124,6 +123,8 @@ class BattleSprite {
     }
 
     SetTemplate(name, assetKey, hpMax, hpCurr) {
+        this.inBattle = true;
+
         this.nameText.text = name;
         this.UpdateAsset(assetKey);
 
@@ -139,7 +140,6 @@ class BattleSprite {
     }
 
     EnterBattle(delay, duration) {
-        this.inBattle = true;
         const battleEnterConfig = { ease: 'Back', from: this.offScreenX, start: this.offScreenX, to: this.idlePos.x };
         this.scene.tweens.add({
             delay: delay,
@@ -233,20 +233,23 @@ class BattleSprite {
         });
     }
 
-    // TODO: This is a hard increase/drop. Get step updates or tweening in here.
     UpdateHPByCurrMax(hpCurr, hpMax) {
+        if(!this.inBattle) {
+            console.warn("Tried to update hp when battleSprite this.inBattle: ", this.inBattle);
+            return;
+        }
+
         this.hpCurrText.text = hpCurr;
-        this.UpdateHPByPct(Math.floor((hpCurr / hpMax) * 100));
-    }
-    UpdateHPByPct(percentage) {
+
         this.hpPctFrom = this.hpPctTo;
-        this.hpPctTo = percentage;
+        this.hpPctTo = Math.floor((hpCurr / hpMax) * 100);
 
         // Presume to show losing health, but if hp is gained, show increasing health.
         this.hpChangeFactor = -1;
         if(this.hpPctTo > this.hpPctFrom)
             this.hpChangeFactor = 1;
     }
+
     DrawHP(percentage) {
         this.hpArc.clear();
         this.hpArc.fillStyle(0x058003, 1);

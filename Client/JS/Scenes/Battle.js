@@ -181,6 +181,7 @@ class Battle extends SceneTransition {
                         else {
                             // I was the player who just went - get my next turn ready.
                             if(actionObj.actorBattleIdx == this.playerIdxObj.self) {
+                                console.log("Calling server to reset action timer.");
                                 Network.Emit("ResetActionTimer");
                             }
                         }
@@ -201,12 +202,16 @@ class Battle extends SceneTransition {
         });
 
         Network.CreateResponse("RecEnemyAction", (actionObj) => {
-            if(this.battleOver)
+            if(this.battleOver) {
+                console.warn(`Received an enemy action from the server even though this.battleOver is ${this.battleOver}`);
                 return;
+            }
 
             // If through some latency or disconnect issue the player is already gone, do nothing.
-            if(!this.spritePlayers[actionObj.targetBattleIdx].inBattle)
+            if(!this.spritePlayers[actionObj.targetBattleIdx].inBattle) {
+                console.warn(`Received an enemy action from the server even though this.battleOver is ${this.battleOver}`);
                 return;
+            }
 
             console.log(`Enemy attacked player ${actionObj.targetBattleIdx} (${actionObj.socketID}), doing ${actionObj.damage} damage. Player HP: ${actionObj.targetHPCurr} of ${actionObj.targetHPMax}`);
 
@@ -360,6 +365,7 @@ class Battle extends SceneTransition {
         });
 
         scene.SetMenuOption(Consts.battleCommands.FIGHT);
+
         // Make available all commands consistent with ability level
         this.menuAbilityOptIndex = Consts.abilityUpgrades.INIT;
         for(let i = 0; i < battleData.abilityLevel + 1; i++) {
@@ -367,6 +373,8 @@ class Battle extends SceneTransition {
             scene.menuAbilityOpts[i].alpha = 1;
             scene.menuAbilityOpts[i].text = Main.animData.battle["skin-move-actionNames"][battleData.equipLevel][i];
         }
+
+        console.log(`Menu options avaiable: `, scene.menuAbilityOpts);
 
         // Slide in menu
         const menuPropertyConfig = {

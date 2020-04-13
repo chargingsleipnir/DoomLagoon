@@ -231,6 +231,8 @@ module.exports = function(sprites) {
                     this.hpCurr = 0;
                     this.isAlive = false;
                     this.inBattle = false;
+                    // Stop action timer if it was running, and action cooldown (small gap to allow for client animations) if that was.
+                    this.StopActionTimer();
                     clearTimeout(this.actionCooldownTimeoutRef);
                     // Deactivate self from map
                     this.RemoveSelfFromMap();

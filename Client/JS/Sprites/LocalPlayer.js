@@ -209,6 +209,9 @@ class LocalPlayer extends Sprite {
                     self.upgrades.ability = data.interactionObj.contents.upgrade;
                 }
             }
+            if(data.cellValue == Consts.tileTypes.SPRING) {
+                Main.DispMessage(data.interactionObj.msg, 3);
+            }
         });
 
         var elem_ChatLog = document.getElementById("ChatLog");
