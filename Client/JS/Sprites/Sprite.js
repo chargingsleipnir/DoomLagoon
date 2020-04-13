@@ -22,7 +22,7 @@ class Sprite {
 
         this.assetKey = assetKey;
         var frameKey = Main.animData.overworld.keys[dirIndex];
-        this.sprite = scene.add.sprite(16, 8, Main.animData.overworld.skinPrefix + assetKey, Main.animData.overworld.frames[frameKey].start);
+        this.sprite = scene.add.sprite(16, 8, `${Main.animData.overworld.skinPrefix}_${assetKey}`, Main.animData.overworld.frames[frameKey].start);
 
         this.gameObjCont.add(this.sprite);
         this.name = name || 'I am Error';
@@ -50,6 +50,6 @@ class Sprite {
     UpdateTexture(newAssetKey) {
         this.assetKey = newAssetKey;
         var frameKey = Main.animData.overworld.keys[this.dirIndex];
-        this.sprite.setTexture(Main.animData.overworld.skinPrefix + this.assetKey, Main.animData.overworld.frames[frameKey].start);
+        this.sprite.setTexture(`${Main.animData.overworld.skinPrefix}_${this.assetKey}`, Main.animData.overworld.frames[frameKey].start);
     }
 }

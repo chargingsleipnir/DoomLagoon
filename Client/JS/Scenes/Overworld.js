@@ -18,7 +18,7 @@ class Overworld extends TiledMapScene {
 
     preload() {
         Main.animData.skins.forEach((skin) => {
-            this.load.spritesheet(Main.animData.overworld.skinPrefix + skin, '../../Assets/Sprites/' + Main.animData.overworld.skinPrefix + skin + '.png', { frameWidth: 32, frameHeight: 32, margin: 1, spacing: 1 });
+            this.load.spritesheet(`${Main.animData.overworld.skinPrefix}_${skin}`, `../../Assets/Sprites/${skin}/WALK.png`, { frameWidth: 32, frameHeight: 32, margin: 1, spacing: 1 });
         }, this);
 
         this.LoadMapData('DataFiles/OverworldTilesetsEmbeded.json');
@@ -60,7 +60,7 @@ class Overworld extends TiledMapScene {
             Main.animData.overworld.keys.forEach((key) => {
                 this.anims.create({
                     key	: skin + '-' + key,
-                    frames : this.anims.generateFrameNumbers(Main.animData.overworld.skinPrefix + skin, { start: Main.animData.overworld.frames[key].start, end: Main.animData.overworld.frames[key].end }),
+                    frames : this.anims.generateFrameNumbers(`${Main.animData.overworld.skinPrefix}_${skin}`, { start: Main.animData.overworld.frames[key].start, end: Main.animData.overworld.frames[key].end }),
                     repeat : Main.animData.overworld.repeat,
                     frameRate : Main.animData.overworld.frameRate
                 });

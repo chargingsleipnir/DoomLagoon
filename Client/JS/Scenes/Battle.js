@@ -180,7 +180,7 @@ class Battle extends SceneTransition {
                         if(playerWon) {
                             console.log("Battle won!");
                             Main.DispMessage("You won!", 2);
-                            Main.DispMessage("Got x exp!", 2);
+                            //Main.DispMessage("Got x exp!", 2);
                 
                             this.spriteEnemy.Die(250, 1500, () => {
                                 this.EndBattleScene(true, null);

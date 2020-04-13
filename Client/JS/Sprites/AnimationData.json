@@ -6,7 +6,7 @@
         "KnightAxeRed"
     ],
     "overworld": {
-        "skinPrefix": "ssOverworld_",
+        "skinPrefix": "ssOverworld",
         "keys": [
             "LEFT",
             "RIGHT",
