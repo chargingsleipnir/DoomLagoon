@@ -8,7 +8,7 @@
         fontStyle: "strong"
     };
     exports.STYLE_BATTLE_GUI_SUBTITLE = { 
-        font: "10px Arial",
+        font: "11px Arial",
         stroke: "#000000",
         strokeThickness: 4, 
         fill: "#FFFFFF",
@@ -73,5 +73,8 @@
 
     // This represents the difference between the "abilityUpgrade" (above) and it's index in the list of animation keys
     exports.ANIM_ABILITY_DIFF = 2;
+    exports.ABILITY_LEVEL_MAX = 5;
+    exports.ABILITY_LEVEL_GAP = 2;
+    exports.ABILITY_LEVEL_EMPTY_FILL = 0xAAAAAA;
 
 })(typeof exports === 'undefined' ? this['Consts'] = {} : exports);

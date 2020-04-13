@@ -57,8 +57,10 @@ module.exports = function(sprites) {
 
             socket.on("ReqMoveToCell", function (dirData) {
                 // This should sufficiently lock out player movement controls and keep them in place regardless of timing.
-                if(self.inBattle)
+                if(self.inBattle) {
+                    console.warn(`Client requested to move to new cell, but self.inBattle is ${self.inBattle}`);
                     return;
+                }
 
                 self.MoveToCell(dirData);
                 socket.emit("RecMoveToCell", self.GetMoveData());
@@ -66,8 +68,10 @@ module.exports = function(sprites) {
         
             socket.on("ReqCellInteraction", function (cellDiff) {
                 // This should sufficiently lock out player command control until battle ends.
-                if(self.inBattle)
+                if(self.inBattle) {
+                    console.warn(`Client requested to interact with cell, but self.inBattle is ${self.inBattle}`);
                     return;
+                }
 
                 var newPos = { 
                     x: self.gridPos.x + cellDiff.x,
@@ -157,15 +161,23 @@ module.exports = function(sprites) {
                 io.emit("RecChatLogUpdate", data);
             });
 
-            // JUST FOR TESTING - TODO: EXPAND SERVER TESTING FUNCTIONS
             socket.on("BattleAction", function (actionObj) {
                 console.log(`Received battle action, canAct: ${self.canAct}, against enemyID: ${self.enemyID}`);
 
-                if(self.enemyID == -1)
+                if(!self.inBattle) {
+                    console.warn(`Command received from client, but self.inBattle is ${self.inBattle}`);
                     return;
+                }
 
-                if(!self.canAct)
+                if(self.enemyID == -1) {
+                    console.warn(`Command received from client, but self.enemyID is ${self.enemyID}`);
                     return;
+                }
+
+                if(!self.canAct) {
+                    console.warn(`Command received from client, but self.canAct is ${self.canAct}`);
+                    return;
+                }
 
                 self.canAct = false;
 
@@ -183,8 +195,10 @@ module.exports = function(sprites) {
             });
 
             socket.on("ResetActionTimer", function () {
-                if(!self.inBattle)
+                if(!self.inBattle) {
+                    console.warn(`Resetting action timer from client, but self.inBattle is ${self.inBattle}`);
                     return;
+                }
 
                 self.RunActionTimer();
             });
@@ -238,11 +252,15 @@ module.exports = function(sprites) {
             this.socket.emit('RecUpdateNeighbor', { side: side, occupancy: occupancy, inBattle: this.inBattle });
         };
         CheckForBattle(neighbor) {
-            if(!this.nextBattleReady)
+            if(!this.nextBattleReady) {
+                console.warn(`Checking neighbors for battle, but this.nextBattleReady is ${this.nextBattleReady}`);
                 return;
+            }
 
-            if(this.inBattle)
+            if(this.inBattle) {
+                console.warn(`Checking neighbors for battle, but this.inBattle is ${this.inBattle}`);
                 return;
+            }
 
             if(isNaN(neighbor)) {
 

@@ -208,6 +208,8 @@ class LocalPlayer extends Sprite {
                 else {
                     self.upgrades.ability = data.interactionObj.contents.upgrade;
                 }
+
+                Main.Save();
             }
             if(data.cellValue == Consts.tileTypes.SPRING) {
                 Main.DispMessage(data.interactionObj.msg, 3);

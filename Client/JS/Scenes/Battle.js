@@ -21,6 +21,10 @@ class Battle extends SceneTransition {
     menuAbilityOptIndex;
     MENU_ABILITY_OPT_SPACE = 35;
 
+    equipLevel = 0;
+    powerIndicator;
+    speedIndicator;
+
     LAUNCH_TIME = 1000;
 
     scaleFactorX;
@@ -102,6 +106,10 @@ class Battle extends SceneTransition {
         var menuBitmapMask = new Phaser.Display.Masks.BitmapMask(this, this.menuAbilityMaskSprite);
 
         this.menuAbilityCmdCont.mask = menuBitmapMask;
+
+        // Ability level indicators
+        this.powerIndicator = new LevelIndicator(this, this.menuCont, -10, "Power", 0xff7b00, 1);
+        this.speedIndicator = new LevelIndicator(this, this.menuCont, 40, "Speed", 0xfffb00, 3);
 
         // Run command sits independent of the three attack options
         var runCmd = this.add.text(150, 0, "Run", Consts.STYLE_DISP_NAME);
@@ -373,6 +381,11 @@ class Battle extends SceneTransition {
             scene.menuAbilityOpts[i].alpha = 1;
             scene.menuAbilityOpts[i].text = Main.animData.battle["skin-move-actionNames"][battleData.equipLevel][i];
         }
+        scene.equipLevel = battleData.equipLevel;
+
+        // Not incorporating ability as the default ability entering battle is the first.
+        scene.powerIndicator.FillFromBaseline(scene.equipLevel);
+        scene.speedIndicator.FillFromBaseline(scene.equipLevel);
 
         console.log(`Menu options avaiable: `, scene.menuAbilityOpts);
 
@@ -500,6 +513,9 @@ class Battle extends SceneTransition {
         // Option is inactive if the player doesn't have the given ability available.
         if(!this.menuAbilityOpts[tempIndex].active)
             return;
+
+        this.powerIndicator.FillFromBaseline(this.equipLevel + tempIndex);
+        this.speedIndicator.FillFromBaseline(this.equipLevel - tempIndex);
 
         this.menuAbilityOptIndex = tempIndex;
         this.SwitchMenuAbility();

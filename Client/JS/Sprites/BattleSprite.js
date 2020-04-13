@@ -245,8 +245,8 @@ class BattleSprite {
 
     UpdateHPByCurrMax(hpCurr, hpMax) {
         if(!this.inBattle) {
-            console.warn("Tried to update hp when battleSprite this.inBattle: ", this.inBattle);
-            return;
+            console.warn("Updating hp when battleSprite this.inBattle: ", this.inBattle);
+            //return;
         }
 
         this.hpCurrText.text = hpCurr;
