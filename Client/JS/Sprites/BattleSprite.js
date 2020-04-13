@@ -91,8 +91,6 @@ class BattleSprite {
         this.hpChangeFactor = -1;
         this.DrawHP(this.hpPctTo);
 
-        this.sprite.anims.play(`${this.assetKey}_${Main.animData.battle.moveKeys[0]}`);
-
         this.inBattle = false;
 
         // TODO: Should be able to do this for any animation, to read frames, and launch events specifically on them.
@@ -135,7 +133,6 @@ class BattleSprite {
 
     UpdateAsset(assetKey) {
         this.assetKey = assetKey;
-        this.sprite.setTexture(Main.animData.battle.skinPrefix + assetKey , 0);
         this.sprite.anims.play(`${this.assetKey}_${Main.animData.battle.moveKeys[0]}`);
     }
 
@@ -145,17 +142,34 @@ class BattleSprite {
             delay: delay,
             duration: duration,
             x: battleEnterConfig,
-            targets: this.gameObjCont
+            targets: this.gameObjCont,
+            onComplete: () => {
+                // Play idle as you get in.
+                this.sprite.anims.play(`${this.assetKey}_${Main.animData.battle.moveKeys[0]}`);
+            }
         });
     }
 
+    Act(actionObj, AnimEndCB) {
+        this.actionObj = actionObj;
+        this.AnimEndCB = AnimEndCB;
+        this.sprite.anims.play(`${this.assetKey}_${Main.animData.battle.moveKeys[actionObj.ability + Consts.ANIM_ABILITY_DIFF]}`);
+    }
+
+    StopAnim() {
+        this.inBattle = false;
+        this.sprite.anims.stop();
+        this.sprite.setTexture(`${Main.animData.battle.skinPrefix}_${Main.animData.battle.moveKeys[0]}_${this.assetKey}`, 0);
+    }
+
     ExitBattle(delay, duration) {
+        this.StopAnim();
+
         if(this.gameObjCont.x == this.offScreenX) {
             this.gameObjCont.alpha = 1;
             return;
         }
-
-        this.inBattle = false;
+        
         const battleEnterConfig = { ease: 'Back', from: this.idlePos.x, start: this.idlePos.x, to: this.offScreenX };
         this.scene.tweens.add({
             delay: delay,
@@ -168,15 +182,10 @@ class BattleSprite {
         });
     }
 
-    Act(actionObj, AnimEndCB) {
-        this.actionObj = actionObj;
-        this.AnimEndCB = AnimEndCB;
-        this.sprite.anims.play(`${this.assetKey}_${Main.animData.battle.moveKeys[actionObj.ability + Consts.ANIM_ABILITY_DIFF]}`);
-    }
-
     // TODO: Sounds, graphics, sprite jitter and any other effects
     Die(delay, duration, OnCompleteCB) {
-        this.inBattle = false;
+        this.StopAnim();
+
         const spriteDieConfig = { ease: 'Linear', from: 1, start: 1, to: 0 };
         this.scene.tweens.add({
             delay: delay,
@@ -213,6 +222,7 @@ class BattleSprite {
         this.actionArc.fillPath();
     }
 
+    // Little pop-up number
     ShowDamageTaken(damage) {
         this.damageText.text = damage;
 

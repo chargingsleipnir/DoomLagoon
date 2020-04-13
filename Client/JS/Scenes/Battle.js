@@ -175,7 +175,7 @@ class Battle extends SceneTransition {
                             Main.DispMessage("Got x exp!", 2);
                 
                             this.spriteEnemy.Die(250, 1500, () => {
-                                this.EndBattleScene(this, true, null);
+                                this.EndBattleScene(true, null);
                             });            
                         }
                         else {
@@ -193,23 +193,23 @@ class Battle extends SceneTransition {
                 console.log(`Player ${actionObj.socketID} ran.`);
                 // I ran, end whole battle
                 if(actionObj.socketID == Network.GetSocketID())
-                    self.EndBattleScene(self, false, null);
+                    this.EndBattleScene(false, null);
                 // Someone else ran, just get rid of them.
                 else {
-                    self.LosePlayer(actionObj.actorBattleIdx);
+                    this.LosePlayer(actionObj.actorBattleIdx);
                 }
             }
         });
 
         Network.CreateResponse("RecEnemyAction", (actionObj) => {
             if(this.battleOver) {
-                console.warn(`Received an enemy action from the server even though this.battleOver is ${this.battleOver}`);
+                console.warn(`Received an enemy action from the server even though "this.battleOver" is: ${this.battleOver}`);
                 return;
             }
 
             // If through some latency or disconnect issue the player is already gone, do nothing.
             if(!this.spritePlayers[actionObj.targetBattleIdx].inBattle) {
-                console.warn(`Received an enemy action from the server even though this.battleOver is ${this.battleOver}`);
+                console.warn(`Received an enemy action from the server to a player whose "inbattle" prop is: ${this.spritePlayers[actionObj.targetBattleIdx].inBattle}`);
                 return;
             }
 
@@ -238,7 +238,7 @@ class Battle extends SceneTransition {
                             this.spritePlayers[actionObj.targetBattleIdx].Die(250, 1500, () => {
                                 // Can't do this, or Battle scene controls remain whilst player is already off server.
                                 this.scene.pause("Overworld");
-                                this.EndBattleScene(this, false, () => {
+                                this.EndBattleScene(false, () => {
                                     RestartMenu.Open();
                                 });
                             });
@@ -425,66 +425,65 @@ class Battle extends SceneTransition {
     }
 
 
-    // Needs the scene passed into it if it's going to be used as a Network response
-    EndBattleScene(scene, battleWon, SceneSleepCB) {
+    EndBattleScene(battleWon, SceneSleepCB) {
         // Shrink bg back down
-        const propertyConfigX = { ease: 'Expo.easeInOut', from: scene.scaleFactorX, start: scene.scaleFactorX, to: 0 };
-        const propertyConfigY = { ease: 'Expo.easeInOut', from: scene.scaleFactorY, start: scene.scaleFactorY, to: 0 };
-        scene.tweens.add({
-            delay: scene.LAUNCH_TIME * 0.5,
-            duration: scene.LAUNCH_TIME,
+        const propertyConfigX = { ease: 'Expo.easeInOut', from: this.scaleFactorX, start: this.scaleFactorX, to: 0 };
+        const propertyConfigY = { ease: 'Expo.easeInOut', from: this.scaleFactorY, start: this.scaleFactorY, to: 0 };
+        this.tweens.add({
+            delay: this.LAUNCH_TIME * 0.5,
+            duration: this.LAUNCH_TIME,
             scaleX: propertyConfigX,
             scaleY: propertyConfigY,
-            targets: scene.bg,
+            targets: this.bg,
             onComplete: () => {
                 Main.player.inBattle = false;
 
-                for(let i = 1; i < scene.menuAbilityOpts.length; i++) {
-                    scene.menuAbilityOpts[i].active = false;
-                    scene.menuAbilityOpts[i].alpha = 0;
-                    scene.menuAbilityOpts[i].text = "";
+                for(let i = 1; i < this.menuAbilityOpts.length; i++) {
+                    this.menuAbilityOpts[i].active = false;
+                    this.menuAbilityOpts[i].alpha = 0;
+                    this.menuAbilityOpts[i].text = "";
                 }
                 // Set menu ability container back into (offscreen) position;
-                scene.menuAbilityCmdCont.y = scene.menuContYOffScreen;
+                this.menuAbilityCmdCont.y = this.menuContYOffScreen;
                 this.menuAbilityOptIndex = Consts.abilityUpgrades.INIT;
 
                 // TODO: These don't seem to be resetting the sprite's HP dial to full, as they should...?
-                //scene.spriteEnemy.UpdateHP(100);
-                //scene.spriteEnemy.DrawHP(100);
+                //this.spriteEnemy.UpdateHP(100);
+                //this.spriteEnemy.DrawHP(100);
                 if(SceneSleepCB)
                     SceneSleepCB();
                 else
-                    scene.scene.sleep("Battle", { battleWon: battleWon });
+                    this.scene.sleep("Battle", { battleWon: battleWon });
             }
         });
 
         // Slide menu away
         const menuPropertyConfig = {
             ease: 'Back',
-            from: scene.menuContYOnScreen,
-            start: scene.menuContYOnScreen,
-            to: scene.menuContYOffScreen,
+            from: this.menuContYOnScreen,
+            start: this.menuContYOnScreen,
+            to: this.menuContYOffScreen,
         };
-        scene.tweens.add({
-            delay: scene.LAUNCH_TIME * 0.25,
-            duration: scene.LAUNCH_TIME * 0.5,
+        this.tweens.add({
+            delay: this.LAUNCH_TIME * 0.25,
+            duration: this.LAUNCH_TIME * 0.5,
             y: menuPropertyConfig,
-            targets: [scene.menuCont, scene.menuAbilityCmdCont, scene.menuAbilityMaskSprite]
+            targets: [this.menuCont, this.menuAbilityCmdCont, this.menuAbilityMaskSprite]
         });
 
-        scene.spritePlayers[scene.playerIdxObj.self].ExitBattle(scene.LAUNCH_TIME * 0.25, scene.LAUNCH_TIME * 0.75);
+        this.spritePlayers[this.playerIdxObj.self].ExitBattle(this.LAUNCH_TIME * 0.25, this.LAUNCH_TIME * 0.75);
         
         // TODO: A different closing animation for if "battleWon", one in which the enemy and other player do not actually leave, as they are of course still be in battle.
         // Perhaps just the player runs and the whole scene fades/drops away...?
         //if(battleWon) {
-            scene.spriteEnemy.ExitBattle(scene.LAUNCH_TIME * 0.25, scene.LAUNCH_TIME * 0.75);
-            for(let i = 0; i < scene.playerIdxObj.others.length; i++) {
-                scene.spritePlayers[scene.playerIdxObj.others[i]].ExitBattle(scene.LAUNCH_TIME * 0.25, scene.LAUNCH_TIME * 0.75);
+            this.spriteEnemy.ExitBattle(this.LAUNCH_TIME * 0.25, this.LAUNCH_TIME * 0.75);
+            for(let i = 0; i < this.playerIdxObj.others.length; i++) {
+                this.spritePlayers[this.playerIdxObj.others[i]].ExitBattle(this.LAUNCH_TIME * 0.25, this.LAUNCH_TIME * 0.75);
             }
         //}
 
-        scene.playerIdxObj.self = -1;
-        scene.playerIdxObj.others = [];
+        this.playerIdxObj.self = -1;
+        this.playerIdxObj.others = [];
     }
 
     ChangeAbilityOption(indexChange) {

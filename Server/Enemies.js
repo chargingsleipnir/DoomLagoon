@@ -342,6 +342,8 @@ module.exports = function(sprites) {
                 targetHPMax: player.hpMax,
                 targetHPCurr: player.hpCurr
             };
+
+            console.log(`Enemy performing action: `, actionObj);
             
             // If killed, this player will not be included in the call below, so they need their own.
             if(attackKilled) {
@@ -369,7 +371,7 @@ module.exports = function(sprites) {
         }
 
         Revive() {
-            //console.log(`Ready to revive enemy: ${this.id}`);
+            console.log(`Ready to revive enemy: ${this.id}`);
 
             sprites.allData[Consts.spriteTypes.ENEMY][this.id] = this;
             sprites.updatePack[Consts.spriteTypes.ENEMY][this.id] = this.GetUpdatePack();
