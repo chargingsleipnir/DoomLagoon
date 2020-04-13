@@ -7,6 +7,13 @@
         fill: "#FFFFFF",
         fontStyle: "strong"
     };
+    exports.STYLE_BATTLE_GUI_SUBTITLE = { 
+        font: "10px Arial",
+        stroke: "#000000",
+        strokeThickness: 4, 
+        fill: "#FFFFFF",
+        fontStyle: "strong"
+    };
     exports.STYLE_DISP_DAMAGE = { 
         font: "24px Arial", 
         stroke: "#000000",

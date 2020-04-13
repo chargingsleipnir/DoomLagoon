@@ -3,11 +3,23 @@ class Battle extends SceneTransition {
     bg;
 
     menuCont;
-    menuBG;
-    menuCursor;
+    menuContX;
+    menuContYOffScreen;
+    menuContYOnScreen;
 
-    menuOptionTexts = [];
-    menuOptionIdx;
+    // Needs to be seperated for mask to work.
+    menuAbilityCmdCont;
+    menuAbilityMaskSprite;
+
+    menuBG;
+
+    menuCursor;
+    menuCmdIndex;
+    menuCmdXPos = {};
+
+    menuAbilityOpts = [];
+    menuAbilityOptIndex;
+    MENU_ABILITY_OPT_SPACE = 35;
 
     LAUNCH_TIME = 1000;
 
@@ -24,7 +36,7 @@ class Battle extends SceneTransition {
     
     constructor() {
         super("Battle");
-        this.menuOptionIdx = Consts.battleCommands.FIGHT;
+        this.menuAbilityOptIndex = 0;
         this.playerIdxObj = {
             self: -1,
             others: []
@@ -35,6 +47,7 @@ class Battle extends SceneTransition {
     preload() {
         this.load.image('battleBG_Grass_House_01', '../../Assets/BattleBackgrounds/Grass_House_01.png');
         this.load.image('battleMenuBG', '../../Assets/GUI/Menu_450x100.png');
+        this.load.image('battleMenuMask', '../../Assets/GUI/menuMask_424x74.png');
         this.load.image('battleMenuCursor', '../../Assets/GUI/arrowRight_32x32.png');
 
         //* Being able to loop through this depends on very specific naming conventions using the "skin" and "move" names.
@@ -50,7 +63,6 @@ class Battle extends SceneTransition {
 
     create() {
         //console.log("CREATE BATTLE");
-        
         this.bg = this.add.image(Main.phaserConfig.width * 0.5, Main.phaserConfig.height * 0.5, 'battleBG_Grass_House_01');
         this.bg.setDisplaySize(Main.phaserConfig.width, Main.phaserConfig.height);
         this.scaleFactorX = this.bg.scaleX;
@@ -63,22 +75,46 @@ class Battle extends SceneTransition {
         this.menuBG.setOrigin(0.5);
         this.menuCont.add(this.menuBG);
 
+        this.menuContX = (this.menuBG.width * 0.5) + 10;
+        this.menuContYOffScreen = Main.phaserConfig.height + (this.menuBG.height * 0.5) + 10;
+        this.menuContYOnScreen = Main.phaserConfig.height - (this.menuBG.height * 0.5) - 10;
+        
+        // X is set perfectly, y being just barely off screen
+        this.menuCont.setPosition(this.menuContX, this.menuContYOffScreen);
+        
+        this.menuAbilityCmdCont = this.add.container(this.menuContX, this.menuContYOffScreen);
+
         // TODO: Make these menu options images instead of text, or find way to stylize fairly well here.
         // TODO: For so long as there's only 2 menu options, this works well enough for now.
-        this.menuOptionTexts.push(this.add.text(0, -15, "FIGHT", Consts.STYLE_DISP_NAME));
-        this.menuOptionTexts[Consts.battleCommands.FIGHT].setOrigin(0.5);
-        this.menuCont.add(this.menuOptionTexts[Consts.battleCommands.FIGHT]);
+        this.menuAbilityOpts.push(this.add.text(-150, 0, "Attack 0", Consts.STYLE_DISP_NAME));
+        this.menuAbilityOpts[0].setOrigin(0, 0.5);
+        this.menuAbilityCmdCont.add(this.menuAbilityOpts[0]);
 
-        this.menuOptionTexts.push(this.add.text(0, 15, "RUN", Consts.STYLE_DISP_NAME));
-        this.menuOptionTexts[Consts.battleCommands.RUN].setOrigin(0.5);
-        this.menuCont.add(this.menuOptionTexts[Consts.battleCommands.RUN]);
+        for(let i = 1; i < Consts.abilityUpgrades.LEVEL2 + 1; i++) {
+            this.menuAbilityOpts.push(this.add.text(-150, this.MENU_ABILITY_OPT_SPACE * i, "Attack " + i, Consts.STYLE_DISP_NAME));
+            this.menuAbilityOpts[i].setOrigin(0, 0.5);
+            this.menuAbilityOpts[i].alpha = 0;
+            this.menuAbilityOpts[i].active = false;
+            this.menuAbilityCmdCont.add(this.menuAbilityOpts[i]);
+        }
 
-        this.menuCursor = this.add.image(-50, -15, 'battleMenuCursor');
+        this.menuAbilityMaskSprite = this.make.sprite({ x: this.menuContX, y: this.menuContYOffScreen, key: "battleMenuMask", add: false });
+        var menuBitmapMask = new Phaser.Display.Masks.BitmapMask(this, this.menuAbilityMaskSprite);
+
+        this.menuAbilityCmdCont.mask = menuBitmapMask;
+
+        // Run command sits independent of the three attack options
+        var runCmd = this.add.text(150, 0, "Run", Consts.STYLE_DISP_NAME);
+        runCmd.setOrigin(0, 0.5);
+        this.menuCont.add(runCmd);
+
+        this.menuCursor = this.add.image(0, 0, 'battleMenuCursor');
         this.menuCursor.setOrigin(0.5);
         this.menuCont.add(this.menuCursor);
 
-        // X is set perfectly, y being just barely off screen
-        this.menuCont.setPosition((this.menuBG.width * 0.5) + 10, Main.phaserConfig.height + (this.menuBG.height * 0.5) + 10);
+        this.menuCmdXPos[Consts.battleCommands.FIGHT] = this.menuAbilityOpts[0].x - this.menuCursor.width * 0.5 - 10;
+        this.menuCmdXPos[Consts.battleCommands.RUN] = runCmd.x - this.menuCursor.width * 0.5 - 10;
+        this.SetMenuOption(Consts.battleCommands.FIGHT);
 
         this.SetActionReady(false);
 
@@ -234,13 +270,25 @@ class Battle extends SceneTransition {
             if(!self.actionReady)
                 return;
 
-            self.ChangeMenuOption();
+            self.ChangeAbilityOption(-1);
         });
         this.input.keyboard.on('keydown_S', () => {
             if(!self.actionReady)
                 return;
 
-            self.ChangeMenuOption();
+            self.ChangeAbilityOption(1);
+        });
+        this.input.keyboard.on('keydown_A', () => {
+            if(!self.actionReady)
+                return;
+
+            self.ToggleCommandOption();
+        });
+        this.input.keyboard.on('keydown_D', () => {
+            if(!self.actionReady)
+                return;
+
+            self.ToggleCommandOption();
         });
         this.input.keyboard.on('keydown_ENTER', () => {
             if(!self.actionReady)
@@ -248,7 +296,8 @@ class Battle extends SceneTransition {
 
             self.SetActionReady(false);
             Network.Emit("BattleAction", {
-                command: this.menuOptionIdx,
+                command: this.menuCmdIndex,
+                ability: this.menuAbilityOptIndex,
                 playerBattleIdx: this.playerIdxObj.self
             });
         });
@@ -310,21 +359,27 @@ class Battle extends SceneTransition {
             }
         });
 
-        // TODO: Make available all commands consistent with ability level
-        //battleData.abilityLevel
+        scene.SetMenuOption(Consts.battleCommands.FIGHT);
+        // Make available all commands consistent with ability level
+        this.menuAbilityOptIndex = Consts.abilityUpgrades.INIT;
+        for(let i = 0; i < battleData.abilityLevel + 1; i++) {
+            scene.menuAbilityOpts[i].active = true;
+            scene.menuAbilityOpts[i].alpha = 1;
+            scene.menuAbilityOpts[i].text = Main.animData.battle["skin-move-actionNames"][battleData.equipLevel][i];
+        }
 
         // Slide in menu
         const menuPropertyConfig = {
             ease: 'Back',
-            from: Main.phaserConfig.height + (scene.menuBG.height * 0.5) + 10,
-            start: Main.phaserConfig.height + (scene.menuBG.height * 0.5) + 10,
-            to: Main.phaserConfig.height - (scene.menuBG.height * 0.5) - 10 
+            from: scene.menuContYOffScreen,
+            start: scene.menuContYOffScreen,
+            to: scene.menuContYOnScreen 
         };
         scene.tweens.add({
             delay: scene.LAUNCH_TIME,
             duration: scene.LAUNCH_TIME * 0.5,
             y: menuPropertyConfig,
-            targets: scene.menuCont
+            targets: [scene.menuCont, scene.menuAbilityCmdCont, scene.menuAbilityMaskSprite]
         });
 
         // Slide in characters
@@ -358,6 +413,7 @@ class Battle extends SceneTransition {
     SetActionReady(beReady) {
         this.actionReady = beReady;
         this.menuCont.alpha = beReady ? 1 : 0.5;
+        this.menuAbilityCmdCont.alpha = beReady ? 1 : 0.5;
     }
 
 
@@ -374,6 +430,16 @@ class Battle extends SceneTransition {
             targets: scene.bg,
             onComplete: () => {
                 Main.player.inBattle = false;
+
+                for(let i = 1; i < scene.menuAbilityOpts.length; i++) {
+                    scene.menuAbilityOpts[i].active = false;
+                    scene.menuAbilityOpts[i].alpha = 0;
+                    scene.menuAbilityOpts[i].text = "";
+                }
+                // Set menu ability container back into (offscreen) position;
+                scene.menuAbilityCmdCont.y = scene.menuContYOffScreen;
+                this.menuAbilityOptIndex = Consts.abilityUpgrades.INIT;
+
                 // TODO: These don't seem to be resetting the sprite's HP dial to full, as they should...?
                 //scene.spriteEnemy.UpdateHP(100);
                 //scene.spriteEnemy.DrawHP(100);
@@ -387,15 +453,15 @@ class Battle extends SceneTransition {
         // Slide menu away
         const menuPropertyConfig = {
             ease: 'Back',
-            from: Main.phaserConfig.height - (scene.menuBG.height * 0.5) - 10,
-            start: Main.phaserConfig.height - (scene.menuBG.height * 0.5) - 10,
-            to: Main.phaserConfig.height + (scene.menuBG.height * 0.5) + 10,
+            from: scene.menuContYOnScreen,
+            start: scene.menuContYOnScreen,
+            to: scene.menuContYOffScreen,
         };
         scene.tweens.add({
             delay: scene.LAUNCH_TIME * 0.25,
             duration: scene.LAUNCH_TIME * 0.5,
             y: menuPropertyConfig,
-            targets: scene.menuCont
+            targets: [scene.menuCont, scene.menuAbilityCmdCont, scene.menuAbilityMaskSprite]
         });
 
         scene.spritePlayers[scene.playerIdxObj.self].ExitBattle(scene.LAUNCH_TIME * 0.25, scene.LAUNCH_TIME * 0.75);
@@ -413,9 +479,50 @@ class Battle extends SceneTransition {
         scene.playerIdxObj.others = [];
     }
 
-    ChangeMenuOption() {
-        // TODO: Adjust if implementing more than 2 options.
-        this.menuOptionIdx = (this.menuOptionIdx == 0) ? 1 : 0;
-        this.menuCursor.setY(this.menuOptionTexts[this.menuOptionIdx].y);
+    ChangeAbilityOption(indexChange) {
+        if(this.menuCmdIndex != Consts.battleCommands.FIGHT)
+            return;
+
+        var tempIndex = this.menuAbilityOptIndex;
+        tempIndex += indexChange;
+
+        // Attempted to select ability option outside bounds given in Consts.js
+        if(tempIndex < Consts.abilityUpgrades.INIT || tempIndex > Consts.abilityUpgrades.LEVEL2)
+            return;
+
+        // Option is inactive if the player doesn't have the given ability available.
+        if(!this.menuAbilityOpts[tempIndex].active)
+            return;
+
+        this.menuAbilityOptIndex = tempIndex;
+        this.SwitchMenuAbility();
+    }
+    ToggleCommandOption() {
+        if(this.menuCmdIndex == Consts.battleCommands.RUN) {
+            this.menuCmdIndex = Consts.battleCommands.FIGHT;
+            this.menuCursor.setX(this.menuCmdXPos[Consts.battleCommands.FIGHT]);
+        }
+        else {
+            this.menuCmdIndex = Consts.battleCommands.RUN;
+            this.menuCursor.setX(this.menuCmdXPos[Consts.battleCommands.RUN]);
+        }
+    }
+    SetMenuOption(cmdIndex) {
+        this.menuCmdIndex = cmdIndex;
+        this.menuCursor.setX(this.menuCmdXPos[cmdIndex]);
+    }
+
+    SwitchMenuAbility() {
+        const menuAbilityConfig = {
+            ease: 'Back',
+            from: this.menuAbilityCmdCont.y,
+            start: this.menuAbilityCmdCont.y,
+            to: this.menuContYOnScreen - this.menuAbilityOptIndex * this.MENU_ABILITY_OPT_SPACE 
+        };
+        this.tweens.add({
+            duration: 250,
+            y: menuAbilityConfig,
+            targets: this.menuAbilityCmdCont
+        });
     }
 }

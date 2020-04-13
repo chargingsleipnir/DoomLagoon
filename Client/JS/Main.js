@@ -31,7 +31,7 @@ var Main = (() => {
         animData: null,
         phaserConfig: {
             title: "Doom Lagoon",
-            type: Phaser.AUTO,
+            type: Phaser.WEBGL,
             width: 960,
             height: 560,
             physics: {

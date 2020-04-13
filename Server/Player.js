@@ -163,10 +163,12 @@ module.exports = function(sprites) {
 
                 self.canAct = false;
 
+                // TODO: Implement ability as speed factor.
                 sprites.allData[Consts.spriteTypes.ENEMY][self.enemyID].ReceiveAction({
                     command: actionObj.command,
+                    ability: actionObj.ability,
                     battleIdx: actionObj.playerBattleIdx,
-                    damage: self.strength + self.equipLevel,
+                    damage: self.strength + self.equipLevel + actionObj.ability,
                     fromSocketID: socket.client.id
                 });
             });
@@ -296,6 +298,7 @@ module.exports = function(sprites) {
                         enemyHPCurr: enemy.hpCurr,
                         playerData: playersInBattleData,
                         playerIdxObj: playerIdxObj,
+                        equipLevel: this.equipLevel,
                         abilityLevel: this.abilityLevel
                     });
                 }

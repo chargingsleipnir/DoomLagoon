@@ -291,7 +291,7 @@ module.exports = function(sprites) {
                         actorBattleIdx: actionObj.battleIdx,
                         targetBattleIdx: -1,
                         command: actionObj.command,
-                        ability: 0, // TODO: Change based on input
+                        ability: actionObj.ability,
                         damage: actionObj.damage,
                         targetHPMax: this.hpMax,
                         targetHPCurr: this.hpCurr
