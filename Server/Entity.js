@@ -38,14 +38,15 @@ module.exports = function(sprites) {
         hpCurr;
 
         strength;
+        speed;
         attackOption;
 
-        actionCooldown;
         actionIntervalRef;
         actionIntervalCounter;
         canAct;
 
         abilityLevel;
+        lastAbilityUsed;
         assetKey;
 
         constructor(initData) {
@@ -62,8 +63,10 @@ module.exports = function(sprites) {
             this.neighbors = { LEFT: null, RIGHT: null, UP: null, DOWN: null };
             this.inBattle = false;
 
+            this.lastAbilityUsed = Consts.abilityUpgrades.INIT;
+
             this.canAct = true;
-            this.actionCooldown = 0;
+            this.speed = 0;
             this.actionIntervalCounter = 0;
             this.attackOption = 0;
         }
@@ -149,7 +152,10 @@ module.exports = function(sprites) {
         }
 
         RunActionTimer() {
-            var pctFrac = (100 / this.actionCooldown) || 0;
+            // Reduce the ready time based on speed stat, increase it based on ability.
+            var cooldown = Consts.ACTION_COOLDOWN_BASE - (this.speed * Consts.ACTION_COOLDOWN_INCR) + (this.lastAbilityUsed * Consts.ACTION_COOLDOWN_INCR);
+
+            var pctFrac = (100 / cooldown) || 0;
             this.actionIntervalRef = setInterval(() => {
                 if(!this.inBattle) {
                     this.StopActionTimer();
@@ -164,7 +170,7 @@ module.exports = function(sprites) {
                 this.ActionReadyingTick(pctOf100);
 
                 // Timer expired
-                if(this.actionIntervalCounter >= this.actionCooldown) {
+                if(this.actionIntervalCounter >= cooldown) {
                     this.canAct = true;
                     this.StopActionTimer();
                     this.ActionReady();

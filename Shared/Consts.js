@@ -61,6 +61,8 @@
     exports.CHEST_REFILL_COOLDOWN = 30;
     exports.BATTLE_WON_NEXT_COOLDOWN = 1;
     exports.BATTLE_RAN_NEXT_COOLDOWN = 4;
+    exports.ACTION_COOLDOWN_BASE = 4000;
+    exports.ACTION_COOLDOWN_INCR = 500;
 
     exports.SALT_ROUNDS = 10;
     exports.CHAT_LOG_SIZE = 50;

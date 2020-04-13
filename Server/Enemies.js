@@ -78,8 +78,8 @@ module.exports = function(sprites) {
                     this.name = "Knight";
                     this.hpCurr = this.hpMax = 10;
                     this.strength = 3;
+                    this.speed = 0;
                     this.abilityLevel = Consts.abilityUpgrades.LEVEL2;
-                    this.actionCooldown = 4000;
                     break;
             }
         }
@@ -166,6 +166,7 @@ module.exports = function(sprites) {
 
             if(battleJustStarted) {
                 clearTimeout(this.moveTimeoutRef);
+                this.lastAbilityUsed = Consts.abilityUpgrades.INIT; // First cooldown runs standard.
                 this.RunActionTimer();
             }
 
@@ -308,7 +309,7 @@ module.exports = function(sprites) {
         // Enemy attack
         ActionReady() {
             // Pick a random attack from what's available per enemy. (Based on ability upgrade)
-            var randAbility = Math.floor(Math.random() * (this.abilityLevel + 1));
+            this.lastAbilityUsed = Math.floor(Math.random() * (this.abilityLevel + 1));
 
             // Because of the dispersal of actual players in "this.playersInBattle", get a random number limited by how many active players there are (wherever in the list they may be),
             // and loop through that many active players to hit the random one. Hence using the random number as a negative counter.
@@ -337,7 +338,7 @@ module.exports = function(sprites) {
                 actorBattleIdx: -1,
                 targetBattleIdx: attackIndex,
                 command: Consts.battleCommands.FIGHT,
-                ability: randAbility,
+                ability: this.lastAbilityUsed,
                 damage: this.strength,
                 targetHPMax: player.hpMax,
                 targetHPCurr: player.hpCurr

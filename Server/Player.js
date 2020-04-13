@@ -26,13 +26,12 @@ module.exports = function(sprites) {
             super(playerData);
             this.hpCurr = this.hpMax = 20;
             this.strength = 3;
+            this.speed = 1;
 
             this.socket = socket;
             this.enemyID = -1;
             this.battlePosIndex = -1;
             this.nextBattleReady = true;
-
-            this.actionCooldown = 3500;
 
             this.equipLevel = playerData.upgrades.equip;
             this.abilityLevel = playerData.upgrades.ability;
@@ -180,6 +179,7 @@ module.exports = function(sprites) {
                 }
 
                 self.canAct = false;
+                self.lastAbilityUsed = actionObj.ability;
 
                 var actionToEnemy = {
                     command: actionObj.command,
@@ -214,12 +214,18 @@ module.exports = function(sprites) {
             switch(this.equipLevel) {
                 case Consts.equipmentUpgrades.FIGHTER:
                     this.assetKey = "FighterAxeBlue";
+                    this.hpMax = 20;
+                    this.speed = 1;
                     break;
                 case Consts.equipmentUpgrades.LORD:
                     this.assetKey = "LordSwordBlue";
+                    this.hpMax = 20;
+                    this.speed = 2;
                     break;
                 case Consts.equipmentUpgrades.KNIGHT:
                     this.assetKey = "KnightLanceBlue";
+                    this.hpMax = 30;
+                    this.speed = 3;
                     break;
             }
         }
@@ -316,6 +322,7 @@ module.exports = function(sprites) {
                     }
                     
                     console.log("Call to first run action timer of battle.");
+                    this.lastAbilityUsed = Consts.abilityUpgrades.INIT; // First cooldown runs standard.
                     this.RunActionTimer(); // Calls ActionReady() upon timer completing
 
                     this.socket.emit('RecCommenceBattle', { 
