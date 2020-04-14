@@ -150,6 +150,7 @@ class BattleSprite {
         });
     }
 
+    // TODO: Add Position reset animation?
     Act(actionObj, AnimEndCB) {
         this.actionObj = actionObj;
         this.AnimEndCB = AnimEndCB;
