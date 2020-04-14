@@ -133,7 +133,7 @@ class Battle extends SceneTransition {
             for(let j = 0; j < Main.animData.battle.moveKeys.length; j++) {
                 let move = Main.animData.battle.moveKeys[j];
                 let frame = Main.animData.battle.frameDetails[i][j];
-                this.anims.create({ key	: `${skin}_${move}`, frames : this.anims.generateFrameNumbers(`${Main.animData.battle.skinPrefix}_${move}_${skin}`, { start: 0, end: frame.count }), repeat: move == 'IDLE' ? -1 : 0, frameRate: 12 });
+                this.anims.create({ key	: `${skin}_${move}`, frames : this.anims.generateFrameNumbers(`${Main.animData.battle.skinPrefix}_${move}_${skin}`, { start: 0, end: frame.count }), repeat: move == 'IDLE' ? -1 : 0, frameRate: 16 });
             }
         }
 

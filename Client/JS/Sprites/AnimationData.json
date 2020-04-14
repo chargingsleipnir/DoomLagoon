@@ -2,7 +2,7 @@
     "skins": [
         "FighterAxeBlue",
         "LordSwordBlue",
-        "KnightLanceBlue",
+        "GeneralBlue",
         "KnightAxeRed"
     ],
     "overworld": {
@@ -32,10 +32,10 @@
             "ATTACK3"
         ],
         "frameDetails": [
-            [{ "w": 72, "h": 80, "count": 23 }, { "w": 72, "h": 80, "count": 13 }, { "w": 96, "h": 80, "count": 25 }, { "w": 96, "h": 88, "count": 30 }, { "w": 96, "h": 96, "count": 33 }],
-            [{ "w": 48, "h": 64, "count": 23 }, { "w": 64, "h": 72, "count": 13 }, { "w": 96, "h": 72, "count": 20 }, { "w": 96, "h": 88, "count": 21 }, { "w": 96, "h": 96, "count": 34 }],
-            [{ "w": 104, "h": 96, "count": 23 }, { "w": 136, "h": 88, "count": 13 }, { "w": 168, "h": 112, "count": 36 }, { "w": 336, "h": 120, "count": 48 }, { "w": 168, "h": 112, "count": 52 }],
-            [{ "w": 64, "h": 72, "count": 23 }, { "w": 72, "h": 72, "count": 13 }, { "w": 104, "h": 96, "count": 23 }, { "w": 104, "h": 112, "count": 20 }, { "w": 120, "h": 152, "count": 24 }]
+            [{ "w": 72, "h": 80, "count": 23 }, { "w": 72, "h": 80, "count": 13 }, { "w": 96, "h": 88, "count": 46 }, { "w": 96, "h": 96, "count": 49 }, { "w": 112, "h": 88, "count": 72 }],
+            [{ "w": 48, "h": 64, "count": 23 }, { "w": 64, "h": 72, "count": 13 }, { "w": 96, "h": 72, "count": 30 }, { "w": 96, "h": 96, "count": 44 }, { "w": 96, "h": 72, "count": 50 }],
+            [{ "w": 96, "h": 136, "count": 23 }, { "w": 96, "h": 128, "count": 13 }, { "w": 224, "h": 136, "count": 40 }, { "w": 224, "h": 136, "count": 56 }, { "w": 336, "h": 136, "count": 54 }],
+            [{ "w": 64, "h": 72, "count": 23 }, { "w": 72, "h": 72, "count": 13 }, { "w": 104, "h": 112, "count": 28 }, { "w": 112, "h": 112, "count": 44 }, { "w": 120, "h": 152, "count": 36 }]
         ],
         "skin-move-origins": [
             [{ "x": 0.5, "y": 0.5 }, { "x": 0.5, "y": 0.5 }, { "x": 0.6, "y": 0.5 }, { "x": 0.56, "y": 0.53 }, { "x": 0.45, "y": 0.6 }],
@@ -44,7 +44,7 @@
             [{ "x": 0.5, "y": 0.5 }, { "x": 0.5, "y": 0.5 }, { "x": 0.46, "y": 0.6 }, { "x": 0.45, "y": 0.7 }, { "x": 0.5, "y": 0.7 }]
         ],
         "skin-move-actionNames": [
-            ["Swing", "Slam", "Whirl Slam"],
+            ["Swing", "Slam", "Combo"],
             ["Thrust", "Parry Swipe", "Holy Steel"],
             ["Lunge", "Trace On", "Evicerate"]
         ]

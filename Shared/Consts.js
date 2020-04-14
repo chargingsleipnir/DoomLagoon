@@ -51,7 +51,7 @@
     exports.chestTypes = { EQUIPMENT: 0, ABILITY: 1 };
 
     //* Although this could be player "assetKeys", keep this as numeric values here to use in calculating strength bonuses.
-    exports.equipmentUpgrades = { FIGHTER: 0, LORD: 1, KNIGHT: 2 };
+    exports.equipmentUpgrades = { FIGHTER: 0, LORD: 1, GENERAL: 2 };
     exports.abilityUpgrades = { INIT: 0, LEVEL1: 1, LEVEL2: 2 };
     // If both server and client read the same map data independently, perhaps nothing needs to be noted here?
 

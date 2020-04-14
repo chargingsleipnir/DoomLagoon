@@ -103,8 +103,8 @@ var MainMenu = (() => {
                 var rank = "Fighter"
                 if(upgrades.equip == Consts.equipmentUpgrades.LORD)
                     rank = "Lord"
-                else if(upgrades.equip == Consts.equipmentUpgrades.KNIGHT)
-                    rank = "Knight"
+                else if(upgrades.equip == Consts.equipmentUpgrades.GENERAL)
+                    rank = "General"
 
                 saveSlotEquip.innerHTML = rank;
                 saveSlotAbility.innerHTML = upgrades.ability + 1;

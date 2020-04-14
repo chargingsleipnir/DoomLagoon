@@ -222,8 +222,8 @@ module.exports = function(sprites) {
                     this.hpMax = 20;
                     this.speed = 2;
                     break;
-                case Consts.equipmentUpgrades.KNIGHT:
-                    this.assetKey = "KnightLanceBlue";
+                case Consts.equipmentUpgrades.GENERAL:
+                    this.assetKey = "GeneralBlue";
                     this.hpMax = 30;
                     this.speed = 3;
                     break;
