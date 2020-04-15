@@ -60,7 +60,8 @@ class Battle extends SceneTransition {
             for(let j = 0; j < Main.animData.battle.moveKeys.length; j++) {
                 let move = Main.animData.battle.moveKeys[j];
                 let frame = Main.animData.battle.frameDetails[i][j];
-                this.load.spritesheet(`${Main.animData.battle.skinPrefix}_${move}_${skin}`, `../../Assets/Sprites/${skin}/${move}.png`, { frameWidth: frame.w, frameHeight: frame.h, margin: 0, spacing: 0 });
+                if(frame != null)
+                    this.load.spritesheet(`${Main.animData.battle.skinPrefix}_${move}_${skin}`, `../../Assets/Sprites/${skin}/${move}.png`, { frameWidth: frame.w, frameHeight: frame.h, margin: 0, spacing: 0 });
             }
         }
     }
@@ -133,15 +134,16 @@ class Battle extends SceneTransition {
             for(let j = 0; j < Main.animData.battle.moveKeys.length; j++) {
                 let move = Main.animData.battle.moveKeys[j];
                 let frame = Main.animData.battle.frameDetails[i][j];
-                this.anims.create({ key	: `${skin}_${move}`, frames : this.anims.generateFrameNumbers(`${Main.animData.battle.skinPrefix}_${move}_${skin}`, { start: 0, end: frame.count }), repeat: move == 'IDLE' ? -1 : 0, frameRate: 16 });
+                if(frame != null)
+                    this.anims.create({ key	: `${skin}_${move}`, frames : this.anims.generateFrameNumbers(`${Main.animData.battle.skinPrefix}_${move}_${skin}`, { start: 0, end: frame.count }), repeat: move == 'IDLE' ? -1 : 0, frameRate: 16 });
             }
         }
 
         // 4 sprites to hold here permanently, 1 enemy and 3 players to use as needed.
-        this.spriteEnemy = new BattleSprite(this, -1, { x: 250, y: 325 }, -100, 'KnightAxeRed', true);
-        this.spritePlayers[0] = new BattleSprite(this, 0, { x: 700, y: 350 }, Main.phaserConfig.width + 100, 'FighterAxeBlue');
-        this.spritePlayers[1] = new BattleSprite(this, 1, { x: 775, y: 250 }, Main.phaserConfig.width + 100, 'FighterAxeBlue');
-        this.spritePlayers[2] = new BattleSprite(this, 2, { x: 800, y: 450 }, Main.phaserConfig.width + 100, 'FighterAxeBlue');
+        this.spriteEnemy = new BattleSprite(this, -1, { x: 250, y: 325 }, -200, 'KnightAxeRed', true);
+        this.spritePlayers[0] = new BattleSprite(this, 0, { x: 700, y: 350 }, Main.phaserConfig.width + 200, 'FighterAxeBlue');
+        this.spritePlayers[1] = new BattleSprite(this, 1, { x: 775, y: 250 }, Main.phaserConfig.width + 200, 'FighterAxeBlue');
+        this.spritePlayers[2] = new BattleSprite(this, 2, { x: 800, y: 450 }, Main.phaserConfig.width + 200, 'FighterAxeBlue');
 
         var self = this;
 
