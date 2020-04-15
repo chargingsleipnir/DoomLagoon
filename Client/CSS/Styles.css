@@ -304,6 +304,11 @@ h4 {
     align-items: center;
 }
 
+/* Trying to stop option menu elements from quickly displaying on reload... doesn't seem to be working. */
+#MainMenu {
+    z-index: 2;
+}
+
 #OptionsMenuTabs {
     flex-grow: 0;
 }
