@@ -114,8 +114,13 @@ class BattleSprite {
             let skinIdx = Main.animData.skins.indexOf(this.assetKey);
             let moveIdx = Main.animData.battle.moveKeys.indexOf(moveKey);
             //console.log(`Origin object located at ${skinIdx}, ${moveIdx}`)
-            let originObj = Main.animData.battle["skin-move-origins"][skinIdx][moveIdx];
+            var originObj = Main.animData.battle["skin-move-origins"][skinIdx][moveIdx];
             //console.log(`Origin is ${originObj.x}, ${originObj.y}`);
+
+            //* Enemies were getting the reverse of their x origin during testing because of being flipped on the x-axis during battles.
+            if(this.flipXFactor == -1)
+                originObj.x = 1 - originObj.x;
+
             this.sprite.setOrigin(originObj.x, originObj.y);
         }, this.scene);
     }

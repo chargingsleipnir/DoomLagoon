@@ -367,6 +367,8 @@ module.exports = function(sprites) {
             this.socket.emit("RecActionReady");
         }
 
+        // TODO: Implement dodging with it's likelihood being specifically based on when during the action ready timer you are attacked.
+        // Logic being, you dodge when you're most alert (closest to the midway point), and advantage being I minimize risk of animations treading on each other.
         ReceiveAttack(damage) {
             this.hpCurr -= damage;
 
