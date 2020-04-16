@@ -23,6 +23,7 @@ const client = new Client({
 async function Connect() {
     try {
         await client.connect();
+        console.log("Successfully connected to database.");
     }
     catch(e) {
         console.error(`Failed to connect to database: ${e}`);
