@@ -74,12 +74,68 @@ module.exports = function(sprites) {
             //* This switch statement might be more than sufficient to distinguish among each type of enemy for such a limited game sample
             // TODO: If not, Give each enemy type it's own class, "extended" from an "Enemy" base class, With "Enemy Factory" a separate thing (file or class) that creates the derived classes based on the map data.
             switch(this.assetKey) {
-                case Consts.enemyAssetKeys.KNIGHT_AXE_RED:
-                    this.name = "Knight";
+                case Consts.enemyAssetKeys.PIRATE:
+                    this.name = "Pirate";
                     this.hpCurr = this.hpMax = 10;
+                    this.strength = 1;
+                    this.speed = 1;
+                    this.abilityLevel = Consts.abilityUpgrades.LEVEL2;
+                    break;
+                case Consts.enemyAssetKeys.HERO:
+                    this.name = "Soldier";
+                    this.hpCurr = this.hpMax = 15;
+                    this.strength = 2;
+                    this.speed = 0;
+                    this.abilityLevel = Consts.abilityUpgrades.LEVEL2;
+                    break;
+                case Consts.enemyAssetKeys.THIEF:
+                    this.name = "Thief";
+                    this.hpCurr = this.hpMax = 10;
+                    this.strength = 1;
+                    this.speed = 2;
+                    this.abilityLevel = Consts.abilityUpgrades.LEVEL2;
+                    break;
+                case Consts.enemyAssetKeys.MAGIC_DRAGON:
+                    this.name = "Sand Snake";
+                    this.hpCurr = this.hpMax = 20;
+                    this.strength = 3;
+                    this.speed = 1;
+                    this.abilityLevel = Consts.abilityUpgrades.LEVEL1;
+                    break;
+                case Consts.enemyAssetKeys.KNIGHT:
+                    this.name = "Knight";
+                    this.hpCurr = this.hpMax = 20;
                     this.strength = 3;
                     this.speed = 0;
                     this.abilityLevel = Consts.abilityUpgrades.LEVEL2;
+                    break;
+                case Consts.enemyAssetKeys.PALADIN:
+                    this.name = "Paladin";
+                    this.hpCurr = this.hpMax = 15;
+                    this.strength = 2;
+                    this.speed = 3;
+                    this.abilityLevel = Consts.abilityUpgrades.LEVEL2;
+                    break;
+                case Consts.enemyAssetKeys.DRACOKNIGHT:
+                    this.name = "Dracoknight";
+                    this.hpCurr = this.hpMax = 20;
+                    this.strength = 3;
+                    this.speed = 3;
+                    this.abilityLevel = Consts.abilityUpgrades.LEVEL2;
+                    break;
+                case Consts.enemyAssetKeys.FIRE_DRAGON:
+                    this.name = "Fire Dragon";
+                    this.hpCurr = this.hpMax = 30;
+                    this.strength = 4;
+                    this.speed = 0;
+                    this.abilityLevel = Consts.abilityUpgrades.LEVEL1;
+                    break;
+                case Consts.enemyAssetKeys.EARTH_DRAGON:
+                    this.name = "Earth Dragon";
+                    this.hpCurr = this.hpMax = 50;
+                    this.strength = 5;
+                    this.speed = 2;
+                    this.abilityLevel = Consts.abilityUpgrades.LEVEL1;
                     break;
             }
         }

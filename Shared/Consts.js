@@ -38,8 +38,17 @@
 
     exports.spriteTypes = { PLAYER: 0, ENEMY: 1, NPC: 2 };
     exports.enemyAssetKeys = { 
-        KNIGHT_AXE_RED: "KnightAxeRed"
+        PIRATE: "PirateAxeRed",
+        THIEF: "ThiefSwordRed",
+        HERO: "HeroSwordPurple",
+        KNIGHT: "KnightAxeRed",
+        PALADIN: "PaladinSpearOrange",
+        DRACOKNIGHT: "DracoknightRed",
+        FIRE_DRAGON: "FireDragon",
+        MAGIC_DRAGON: "MagicDragonGrey",
+        EARTH_DRAGON: "EarthDragon"
     };
+
     exports.moveCacheSlots = { FROM: 0, TO: 1, NEXT: 2 };
     exports.spawnTypes = { PLAYER: 0, ENEMY: 1, NPC: 2 };
     exports.battleCommands = { FIGHT: 0, RUN: 1 }
