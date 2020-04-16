@@ -1,4 +1,5 @@
 const bcrypt = require('bcrypt');
+var Consts = require('../Shared/Consts.js');
 const {Client} = require('pg');
 
 // LOCAL
@@ -10,24 +11,26 @@ const {Client} = require('pg');
 //     database: "doomLagoonDB"
 // });
 
+console.log(process.env.DATABASE_URL);
+
 const client = new Client({
     connectionString: process.env.DATABASE_URL,
     ssl: true
 });
 
-var Consts = require('../Shared/Consts.js');
+await client.connect();
 
 //* DB TEST -> in terminal, "npm run printFullTable"
 
-async function Connect() {
-    try {
-        await client.connect();
-    }
-    catch(e) {
-        console.error(`Failed to connect to database: ${e}`);
-    }
-}
-Connect();
+// async function Connect() {
+//     try {
+//         await client.connect();
+//     }
+//     catch(e) {
+//         console.error(`Failed to connect to database: ${e}`);
+//     }
+// }
+// Connect();
 
 module.exports = function() {
 
