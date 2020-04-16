@@ -1,6 +1,6 @@
 
 var Consts = require('../Shared/Consts.js');
-var SuppFuncs = require('../Shared/SupportFuncs.js');
+var SuppFuncs = require('../Shared/SuppFuncs.js');
 var JSON_Overworld = require('../Shared/DataFiles/OverworldTilesetsEmbeded.json');
 
 var JSON_tilesets = {};
