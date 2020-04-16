@@ -1,11 +1,18 @@
 const bcrypt = require('bcrypt');
 const {Client} = require('pg');
+
+// LOCAL
+// const client = new Client({
+//     user: "postgres",
+//     password: "admin",
+//     host: "localhost",
+//     port: 5432,
+//     database: "doomLagoonDB"
+// });
+
 const client = new Client({
-    user: "postgres",
-    password: "admin",
-    host: "localhost",
-    port: 5432,
-    database: "doomLagoonDB"
+    connectionString: process.env.DATABASE_URL,
+    ssl: true
 });
 
 var Consts = require('../Shared/Consts.js');
@@ -195,8 +202,8 @@ CREATE TABLE players (
 	socketID character varying(100),
 	username character varying(25) NOT NULL,
 	passHash character varying(100) NOT NULL,
-    orientation jsonb NOT NULL,
-    upgrades jsonb NOT NULL
+    orientation jsonb,
+    upgrades jsonb
 );
 
 INSERT INTO players (socketID, username, passHash, orientation, upgrades) VALUES (
