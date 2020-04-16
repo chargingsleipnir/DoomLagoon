@@ -7,11 +7,11 @@ var Network = (() => {
         InitSocketConnection: function (Callback) {
             // ESTABLISH CONNECTION
             try {
-                socket = io.connect('127.0.0.1:8000');
-                //socket = io.connect('http://doomlagoon-gvd.rhcloud.com:8000');
+                //socket = io.connect('127.0.0.1:8000');
+                socket = io();
                 socket.on('connect', function () {
-                    //console.log("Socket connected: " + socket.connected);
-                    //console.log("Client side socket id: " + socket.id);
+                    console.log("Socket connected: " + socket.connected);
+                    console.log("Client side socket id: " + socket.id);
                     Callback();
                 });
             }
