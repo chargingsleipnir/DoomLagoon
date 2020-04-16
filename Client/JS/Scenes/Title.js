@@ -38,7 +38,7 @@ class Title extends SceneTransition {
         // Increase the size just for this openner.
         this.mask.setScale(this.MASK_MAX_SCALE);
 
-        this.add.text(400, 100, "Loading game...");
+        this.add.text(400, 100, "Press ENTER to start.");
 
         var scene = this;
         // Check local storage, database info, etc. to pass to play state
@@ -60,7 +60,7 @@ class Title extends SceneTransition {
         }
 
         // TODO: I guess I'll have to adapt this to send all of the local storage data, not just orientation
-        scene.input.on('pointerdown', () => {
+        this.input.keyboard.on('keydown_ENTER', () => {
             Network.Emit("ReqBuildPlayer", {
                 localStorage: localStorageData,
                 dispName: MainMenu.GetDispName()
