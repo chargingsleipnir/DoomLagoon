@@ -1,7 +1,7 @@
 {
   "name": "doomlagoon",
   "version": "1.0.0",
-  "description": "Multiplayer boating action-rpg",
+  "description": "Multiplayer action-rpg",
   "main": "app.js",
   "scripts": {
     "test": "node app.js",
