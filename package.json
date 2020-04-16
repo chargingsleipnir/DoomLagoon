@@ -2,8 +2,8 @@
   "name": "doomlagoon",
   "version": "1.0.0",
   "description": "Multiplayer action-rpg",
-  "main": "app.js",
   "scripts": {
+    "start": "node app.js",
     "printFullTable": "node Server/Tests/PrintFullTable.js"
   },
   "author": "Odin von Doom",
