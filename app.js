@@ -56,9 +56,10 @@ routes['/asciimo'] = function(req, res) {
 };
 
 routes['/'] = function(req, res) {
-    res.setHeader('Content-Type', 'text/html');
-    res.send(cache_get('index'));
-    //replace above two lines with this?? res.sendFile(__dirname + '/index.html');
+    //res.setHeader('Content-Type', 'text/html');
+    //res.send(cache_get('index'));
+    //replace above two lines with this?? 
+    res.sendFile(__dirname + '/index.html');
 };
 
 // This allows client access to everything under these directories.
