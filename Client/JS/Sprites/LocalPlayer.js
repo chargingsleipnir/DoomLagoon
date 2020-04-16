@@ -16,7 +16,6 @@ class LocalPlayer extends Sprite {
     neighbors = { LEFT: 0, RIGHT: 0, UP: 0, DOWN: 0 };
     
     canCacheNext = false;
-    cacheNextAtPct = 0.9;
 
     moveCache_Grid = [];
     moveCache_Pixel = [];
@@ -352,7 +351,7 @@ class LocalPlayer extends Sprite {
                 Phaser.Math.Linear(this.moveCache_Pixel[Consts.moveCacheSlots.FROM].x, this.moveCache_Pixel[Consts.moveCacheSlots.TO].x, this.moveFracCovered),
                 Phaser.Math.Linear(this.moveCache_Pixel[Consts.moveCacheSlots.FROM].y, this.moveCache_Pixel[Consts.moveCacheSlots.TO].y, this.moveFracCovered)
             );
-            this.canCacheNext = this.moveFracCovered > this.cacheNextAtPct;
+            this.canCacheNext = this.moveFracCovered > Consts.CACHE_NEXT_MOVE_PCT;
         }
         else {
             this.gameObjCont.setPosition(this.moveCache_Pixel[Consts.moveCacheSlots.TO].x, this.moveCache_Pixel[Consts.moveCacheSlots.TO].y);
