@@ -11,11 +11,13 @@ const {Client} = require('pg');
 //     database: "doomLagoonDB"
 // });
 
-console.log("process.env.DATABASE_URL: ", process.env.DATABASE_URL);
+//console.log("process.env.DATABASE_URL: ", process.env.DATABASE_URL);
 
 const client = new Client({
     connectionString: process.env.DATABASE_URL,
-    ssl: true
+    ssl: {
+        rejectUnauthorized: false
+    }
 });
 
 //* DB TEST -> in terminal, "npm run printFullTable"
