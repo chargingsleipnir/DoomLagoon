@@ -93,6 +93,9 @@ class BattleSprite {
 
         this.inBattle = false;
 
+        // this.sprite.on('animationstart', (anim, frame) => {
+        // }, this.scene);
+
         // TODO: Should be able to do this for any animation, to read frames, and launch events specifically on them.
         // this.sprite.on('animationupdate-' + this.assetKey + '_Battle_Swing', (anim, frame, gameObj) => {
         // }, this.scene);
@@ -102,26 +105,9 @@ class BattleSprite {
             //console.log(frame);
             // Anything that's not idle, return to idle after
             if(anim.key != `${this.assetKey}_${Main.animData.battle.moveKeys[0]}`) {
-                this.sprite.anims.play(`${this.assetKey}_${Main.animData.battle.moveKeys[0]}`);
+                this.PlayAnim(0);
                 this.AnimEndCB(this.scene, this.battlePosIndex, this.actionObj);
             }
-        }, this.scene);
-
-        //* Change sprite origins to get animations all aligned
-        this.sprite.on('animationstart', (anim, frame) => {
-            //console.log("On anim start event: ", anim);
-            var moveKey = anim.key.replace(`${this.assetKey}_`, "");
-            let skinIdx = Main.animData.skins.indexOf(this.assetKey);
-            let moveIdx = Main.animData.battle.moveKeys.indexOf(moveKey);
-            //console.log(`Origin object located at ${skinIdx}, ${moveIdx}`)
-            var originObj = Main.animData.battle["skin-move-origins"][skinIdx][moveIdx];
-            //console.log(`Origin is ${originObj.x}, ${originObj.y}`);
-
-            //* Enemies were getting the reverse of their x origin during testing because of being flipped on the x-axis during battles.
-            if(this.flipXFactor == -1)
-                originObj.x = 1 - originObj.x;
-
-            this.sprite.setOrigin(originObj.x, originObj.y);
         }, this.scene);
     }
 
@@ -138,7 +124,7 @@ class BattleSprite {
 
     UpdateAsset(assetKey) {
         this.assetKey = assetKey;
-        this.sprite.anims.play(`${this.assetKey}_${Main.animData.battle.moveKeys[0]}`);
+        this.PlayAnim(0);
     }
 
     EnterBattle(delay, duration) {
@@ -150,7 +136,7 @@ class BattleSprite {
             targets: this.gameObjCont,
             onComplete: () => {
                 // Play idle as you get in.
-                this.sprite.anims.play(`${this.assetKey}_${Main.animData.battle.moveKeys[0]}`);
+                this.PlayAnim(0);
             }
         });
     }
@@ -159,7 +145,25 @@ class BattleSprite {
     Act(actionObj, AnimEndCB) {
         this.actionObj = actionObj;
         this.AnimEndCB = AnimEndCB;
-        this.sprite.anims.play(`${this.assetKey}_${Main.animData.battle.moveKeys[actionObj.ability + Consts.ANIM_ABILITY_DIFF]}`);
+        this.PlayAnim(actionObj.ability + Consts.ANIM_ABILITY_DIFF);
+    }
+
+    PlayAnim(moveKeyIndex) {
+
+        //* Change sprite origins to get animations all aligned
+        let skinIdx = Main.animData.skins.indexOf(this.assetKey);
+        //console.log(`Origin object located at ${skinIdx}, ${moveKeyIndex}`)
+        var originObj = Main.animData.battle["skin-move-origins"][skinIdx][moveKeyIndex];
+        //console.log(`Origin is ${originObj.x}, ${originObj.y}`);
+        
+        // TODO: Figure out when enemies animations still aren't lining up correctly.
+        //* Enemies were getting the reverse of their x origin during testing because of being flipped on the x-axis during battles.
+        var originX = originObj.x;
+        if(this.flipXFactor == -1)
+            originX = 1 - originObj.x;
+
+        this.sprite.setOrigin(originX, originObj.y);
+        this.sprite.anims.play(`${this.assetKey}_${Main.animData.battle.moveKeys[moveKeyIndex]}`);
     }
 
     StopAnim() {

@@ -24,7 +24,6 @@ module.exports = function(sprites) {
             };
 
             super(playerData);
-            this.hpCurr = this.hpMax = 20;
             this.strength = 3;
             this.speed = 1;
 
@@ -214,17 +213,17 @@ module.exports = function(sprites) {
             switch(this.equipLevel) {
                 case Consts.equipmentUpgrades.FIGHTER:
                     this.assetKey = "FighterAxeBlue";
-                    this.hpMax = 20;
+                    this.hpCurr = this.hpMax = 20;
                     this.speed = 1;
                     break;
                 case Consts.equipmentUpgrades.LORD:
                     this.assetKey = "LordSwordBlue";
-                    this.hpMax = 20;
+                    this.hpCurr = this.hpMax = 20;
                     this.speed = 2;
                     break;
                 case Consts.equipmentUpgrades.GENERAL:
                     this.assetKey = "GeneralBlue";
-                    this.hpMax = 30;
+                    this.hpCurr = this.hpMax = 100;
                     this.speed = 3;
                     break;
             }
