@@ -223,7 +223,7 @@ module.exports = function(sprites) {
                     break;
                 case Consts.equipmentUpgrades.GENERAL:
                     this.assetKey = "GeneralBlue";
-                    this.hpCurr = this.hpMax = 100;
+                    this.hpCurr = this.hpMax = 30;
                     this.speed = 3;
                     break;
             }
