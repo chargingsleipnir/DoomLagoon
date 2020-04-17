@@ -175,10 +175,12 @@ var MainMenu = (() => {
                 });
             });
             document.getElementById('CreateSlotBtn').addEventListener('click', (e) => {
-                Network.Emit("ReqCreateSlot", {
-                    username: input_SlotName.value,
-                    password: input_Password.value
-                });
+                if(input_SlotName.checkValidity() && input_Password.checkValidity()) {
+                    Network.Emit("ReqCreateSlot", {
+                        username: input_SlotName.value,
+                        password: input_Password.value
+                    });
+                }
             });
             document.getElementById('EraseSlotBtn').addEventListener('click', (e) => {
                 Network.Emit("ReqEraseSlot", {

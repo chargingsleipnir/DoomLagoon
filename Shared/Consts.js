@@ -49,7 +49,7 @@
         EARTH_DRAGON: "EarthDragon"
     };
 
-    exports.CACHE_NEXT_MOVE_PCT = 0.75;
+    exports.CACHE_NEXT_MOVE_PCT = 0.80;
 
     exports.moveCacheSlots = { FROM: 0, TO: 1, NEXT: 2 };
     exports.spawnTypes = { PLAYER: 0, ENEMY: 1, NPC: 2 };

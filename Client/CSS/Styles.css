@@ -500,3 +500,31 @@ button {
     transform: translate(0%, -50%);
     pointer-events: none;
 }
+
+.posRel {
+    position: relative;
+}
+.dbSlot + .floatingSpeechBox {
+    display: none;
+    position: absolute;
+    bottom: 50px;
+    left: 0;
+    color: white;
+    background-color: #2d1803;
+    padding: 6px 8px;
+    font-size: small;
+}
+.dbSlot + .floatingSpeechBox:before {
+	top: 100%;
+	left: 50%;
+	border: solid transparent;
+	content: " ";
+	position: absolute;
+	pointer-events: none;
+	border-top-color: #2d1803;
+	border-width: 10px;
+	margin-left: -10px;
+}
+.dbSlot:hover:invalid + .floatingSpeechBox {
+    display: unset;
+}
