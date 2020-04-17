@@ -7,7 +7,6 @@ var Network = (() => {
         InitSocketConnection: function (Callback) {
             // ESTABLISH CONNECTION
             try {
-                //socket = io.connect('127.0.0.1:8000');
                 socket = io();
                 socket.on('connect', function () {
                     console.log("Socket connected: " + socket.connected);

@@ -95,8 +95,13 @@ class LocalPlayer extends Sprite {
         //* DEBUG vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
         Network.CreateResponse("RecCellValue", function (data) {
             if(isNaN(data.cellValue)) {
-                var value = JSON.parse(JSON.stringify(data.cellValue));
-                console.log(`From server, data at cell x: ${data.gridX}, y: ${data.gridY} is: `, value);
+                if(data.cellValue) {
+                    var value = JSON.parse(JSON.stringify(data.cellValue));
+                    console.log(`From server, data at cell x: ${data.gridX}, y: ${data.gridY} is: `, value);
+                }
+                else {
+                    console.warn(`Did not retrieve credible cell data from region clicked.`);
+                }
             }
             else {
                 console.log(`From server, data at cell x: ${data.gridX}, y: ${data.gridY} is: ${data.cellValue}`);
