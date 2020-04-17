@@ -59,7 +59,8 @@ var Main = (() => {
         userPrefs: {
             useLocalStorage: false,
             useDBStorage: false,
-            volumePct: 50
+            volumePctMusic: 0.5,
+            volumePctSFX: 0.5
         },
         Init: () => {
             // Establish socket connection

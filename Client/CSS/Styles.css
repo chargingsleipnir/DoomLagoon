@@ -17,6 +17,11 @@ body {
     min-height: 100vh;
     margin: 0;
 }
+.hollowArrow { 
+    width: 27px;
+    height: 27px;
+    background-image: url("../Assets/GUI/hollowArrow.png");
+}
 .bg_Paper512 { background-image: url("../Assets/GUI/texture_Paper.png"); }
 
 .bg_Button285x60 {
@@ -259,6 +264,10 @@ h4 {
 
 .margTop25 {
     margin-top: 25px;
+}
+
+.margTop40 {
+    margin-top: 40px;
 }
 
 .margLeft10 {
@@ -546,4 +555,9 @@ button {
     top: 20px;
     left: 50%;
     transform: translateX(-50%);
+}
+
+#StartInitialMusicBtn {
+    cursor: pointer;
+    display: inline-flex;
 }

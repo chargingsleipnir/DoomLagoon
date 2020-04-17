@@ -22,12 +22,23 @@ class Title extends SceneTransition {
     {
         this.load.json('AnimData', '../../JS/Sprites/AnimationData.json');
         this.load.image('TitleBG', '../../Assets/Overworld.png');
+
+        this.load.audio('Theme', ['../../Assets/Music/Theme.ogg', '../../Assets/Music/Theme.mp3']);
     }
 
     create ()
     {
         super.create();
-        
+
+        var bgMusic = this.sound.add('Theme');
+
+        var musicConfig = {
+            mute: false,
+            volume: Main.userPrefs.volumePctMusic,
+            loop: true
+        };
+        bgMusic.play(musicConfig);
+
         let bg = this.add.image(Main.phaserConfig.width * 0.5, Main.phaserConfig.height * 0.5, 'TitleBG');
         bg.displayWidth = Main.phaserConfig.width;
         bg.scaleY = bg.scaleX;

@@ -48,7 +48,7 @@
 </head>
 <body onload="Main.Init();">
     <img src="Assets/Title.png" alt="Doom Lagoon" class="absCentreTop" />
-    
+
     <div id="MainMenu" class="menuPanel bg_Paper512 deadCentreOfScreen">
         <div class="flexFlowRightTop">
             <div class="flexFlowDownCentre">
@@ -162,12 +162,14 @@
                 </div>               
             </div>
             <div id="AudioOptions" class="optionPanel">
-                <label for="VolumeSlider" class="centredBlock">Volume</label>
-                <input id="VolumeSlider" class="centredBlock margTop10" type="range" />
-                <!-- TODO: Implement more options
-                <div class="centredBlock"><label for="musicToggle">Music: </label><input id="musicToggle" type="checkbox" /></div>
-                <div class="centredBlock"><label for="soundFXToggle">Sound FX: </label><input id="soundFXToggle" type="checkbox" /></div>
-                -->
+                <label for="VolumeSliderMusic" class="centredBlock">Music Volume</label>
+                <input id="VolumeSliderMusic" class="centredBlock margTop10" type="range" min="0" max="100" />
+                <label for="VolumeSliderSFX" class="centredBlock margTop40">Sound Effect Volume</label>
+                <input id="VolumeSliderSFX" class="centredBlock margTop10" type="range" min="0" max="100" />
+                <div id="StartInitialMusicBtn" class="margTop40 flexFlowRightCentre">
+                    <img src="Assets/GUI/smallArrow.png" width="27" height="27" />
+                    <span>&nbsp;&nbsp;Play Prelude</span>
+                </div>
             </div>
         </div>
     </div>

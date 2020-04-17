@@ -8,7 +8,7 @@ var dbHdlr = require('./Server/DatabaseHandler.js')();
 var objHdlrs = require('./Server/ObjectHandlers.js')(dbHdlr);
 
 // VARIABLES -----
-const ip = /*'127.0.0.1'*/ '0.0.0.0',
+const ip = '127.0.0.1' /*'0.0.0.0'*/,
       port = process.env.PORT || 8000;
 
 
