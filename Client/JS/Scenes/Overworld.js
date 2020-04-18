@@ -53,7 +53,7 @@ class Overworld extends TiledMapScene {
         this.load.image('iconBookRed', '../../Assets/Icons/BookRed.png');
     }
 
-    create(serverPlayerData) {
+    create(transferData) {
         super.create();
 
         Main.animData.skins.forEach((skin) => {
@@ -71,7 +71,7 @@ class Overworld extends TiledMapScene {
         // Open all chests with equal or lesser valued contents...?
         // I suppose it would be OK if chests always started closed regardless....
         // Whichever ultimately looks/seems better. (???)
-        Main.player = new LocalPlayer(this, serverPlayerData);
+        Main.player = new LocalPlayer(this, transferData.serverPlayer);
         
         this.cameras.main.startFollow(Main.player.gameObjCont);
         this.cameras.main.setZoom(1.5);
@@ -172,13 +172,16 @@ class Overworld extends TiledMapScene {
         Network.CreateResponse("MoveNetSprite", MoveSpriteCallback);
 
         // BATTLE SCENE!
-        Network.CreateResponse("RecCommenceBattle", function (battleData) {
+        Network.CreateResponse("RecCommenceBattle", (battleData) => {
             console.log("From overworld, starting battle scene, received data: ", battleData);
-            self.scene.wake("Battle", battleData);
+            
+            GameAudio.FadeOut(0.5, () => {
+                this.scene.wake("Battle", battleData);
+            });
         });
 
         //* Launch and put to sleep immediately, so it's just always on standby, only to ever be slept and awaken.
-        self.scene.launch("Battle");
+        this.scene.launch("Battle");
     }
 
     update() {

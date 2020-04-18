@@ -28,13 +28,13 @@ var MainMenu = (() => {
 
             btn_StartGame = document.getElementById('StartBtn');
             btn_StartGame.addEventListener("click", (e) => {
-                OptionsMenu.CutLandingAudio(() => {
+                GameAudio.FadeOut(0.5, () => {
                     // Hide main menu & launch canvas/phaser game
                     Utility.html.ElemHideRear(elem_Container);
                     Utility.html.ElemShowMiddle(document.getElementById("FullGameContainer"));
                     // Launching of first scene happens in post Boot callback, in Main.js
                     new Phaser.Game(Main.phaserConfig);
-                });          
+                });         
             });
 
             document.getElementById('MainMenuOptionsBtn').addEventListener("click", OptionsMenu.Open);

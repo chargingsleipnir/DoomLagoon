@@ -67,7 +67,6 @@ class Battle extends SceneTransition {
     }
 
     create() {
-        //console.log("CREATE BATTLE");
         this.bg = this.add.image(Main.phaserConfig.width * 0.5, Main.phaserConfig.height * 0.5, 'battleBG_Grass_House_01');
         this.bg.setDisplaySize(Main.phaserConfig.width, Main.phaserConfig.height);
         this.scaleFactorX = this.bg.scaleX;
@@ -358,6 +357,9 @@ class Battle extends SceneTransition {
     Awaken(sys, battleData) {
         var scene = sys.scene;
 
+        GameAudio.SetMusicClip("battle", true, 0);
+        GameAudio.FadeIn(1); 
+
         scene.battleOver = false;
 
         // Blow up background
@@ -441,6 +443,9 @@ class Battle extends SceneTransition {
 
 
     EndBattleScene(battleWon, SceneSleepCB) {
+
+        GameAudio.FadeOut(1);
+
         // Shrink bg back down
         const propertyConfigX = { ease: 'Expo.easeInOut', from: this.scaleFactorX, start: this.scaleFactorX, to: 0 };
         const propertyConfigY = { ease: 'Expo.easeInOut', from: this.scaleFactorY, start: this.scaleFactorY, to: 0 };
@@ -467,8 +472,12 @@ class Battle extends SceneTransition {
                 //this.spriteEnemy.DrawHP(100);
                 if(SceneSleepCB)
                     SceneSleepCB();
-                else
-                    this.scene.sleep("Battle", { battleWon: battleWon });
+                else {
+                    GameAudio.SetMusicClip("titleAndOverworld", true, 0);
+                    GameAudio.FadeIn(0.5, () => {
+                        this.scene.sleep("Battle", { battleWon: battleWon });
+                    });
+                }
             }
         });
 

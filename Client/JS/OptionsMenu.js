@@ -4,9 +4,6 @@ var OptionsMenu = (() => {
     var elems_tab;
     var elems_panel;
 
-    var initMusicBtn;
-    var landingAudio;
-
     function OpenOptionFromSet(tabElem, panelId) {
         // Show the clicked tab as the active one
         for (let i = 0; i < elems_tab.length; i++) {
@@ -44,23 +41,21 @@ var OptionsMenu = (() => {
 
             // AUDIO OPTIONS
             document.getElementById('VolumeSliderMusic').addEventListener('change', (e) => {
-                Main.userPrefs.volumePctMusic = e.currentTarget.value * 0.01;
-                landingAudio.volume = Main.userPrefs.volumePctMusic;
+                GameAudio.SetVolumeMusic(e.currentTarget.value);
+
             });
             document.getElementById('VolumeSliderSFX').addEventListener('change', (e) => {
-                Main.userPrefs.volumePctSFX = e.currentTarget.value * 0.01;
+                GameAudio.SetVolumeSFX(e.currentTarget.value);
             });
 
-            initMusicBtn = document.getElementById("StartInitialMusicBtn");
+            var initMusicBtn = document.getElementById("StartInitialMusicBtn");
             if(initMusicBtn) {
                 initMusicBtn.addEventListener('click', (e) => {
-                    landingAudio.play();
+                    GameAudio.MusicPlay();
                     initMusicBtn.parentElement.removeChild(initMusicBtn);
+                    initMusicBtn = null;
                 });
             }
-            landingAudio = new Audio("./Assets/Music/Prelude.ogg");
-            landingAudio.volume = Main.userPrefs.volumePctMusic;
-            landingAudio.loop = true;
 
             // Set in starting place
             Utility.html.ElemHideRear(elem_Container);
@@ -76,23 +71,6 @@ var OptionsMenu = (() => {
 
             document.getElementById("GeneralOptions").classList.remove("hide");
             OpenOptionFromSet(buttonElem, buttonElem.dataset.panelId);
-        },
-        CutLandingAudio: (CB) => {
-            if(initMusicBtn) {
-                initMusicBtn.parentElement.removeChild(initMusicBtn);
-            }
-
-
-            // Quickly fade out music
-            var rate = 1000 / 30;
-            var intervalRef = setInterval(() => {
-                if(landingAudio.volume <= 0.05) {
-                    landingAudio.pause();
-                    clearInterval(intervalRef);
-                    CB();
-                }
-                landingAudio.volume -= 0.01;
-            }, rate);  
         }
     }
 })();

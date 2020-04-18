@@ -58,9 +58,7 @@ var Main = (() => {
         },
         userPrefs: {
             useLocalStorage: false,
-            useDBStorage: false,
-            volumePctMusic: 0.5,
-            volumePctSFX: 0.5
+            useDBStorage: false
         },
         Init: () => {
             // Establish socket connection
@@ -69,6 +67,7 @@ var Main = (() => {
                 MainMenu.Init();
                 OptionsMenu.Init();
                 RestartMenu.Init();
+                GameAudio.Init();
 
                 Network.CreateResponse("RecSave", (success) => {
                     if(success) {

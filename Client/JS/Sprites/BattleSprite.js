@@ -41,8 +41,8 @@ class BattleSprite {
         this.offScreenX = offScreenX;
         this.assetKey = assetKey;
 
-        // TODO: Start off screen
         this.gameObjCont = scene.add.container(this.offScreenX, this.idlePos.y);
+        this.gameObjCont.depth = this.idlePos.y;
         this.sprite = scene.add.sprite(0, 0, Main.animData.battle.skinPrefix + assetKey , 0);
         this.sprite.setOrigin(0.5);
         this.sprite.setScale(1.75);

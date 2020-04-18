@@ -68,7 +68,7 @@
 
     exports.MAP_MOVE_SPEED = 2;
     exports.MAX_PLAYERS_PER_BATTLE = 3;
-    exports.ENEMY_DEATH_COOLDOWN = 10;
+    exports.ENEMY_DEATH_COOLDOWN = 120;
     exports.CHEST_REFILL_COOLDOWN = 30;
     exports.BATTLE_WON_NEXT_COOLDOWN = 1;
     exports.BATTLE_RAN_NEXT_COOLDOWN = 4;

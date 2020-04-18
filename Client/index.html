@@ -44,9 +44,25 @@
     <script type="text/javascript" src="JS/Scenes/Overworld.js"></script>
     <script type="text/javascript" src="JS/Scenes/Battle.js"></script>
 
+    <script type="text/javascript" src="JS/Audio.js"></script>
     <script type="text/javascript" src="JS/Main.js"></script>
 </head>
 <body onload="Main.Init();">
+
+    <!-- All audio -->
+    <audio id="Music_Landing" loop>
+        <source src="./Assets/Music/Prelude.ogg">
+        <source src="./Assets/Music/Prelude.mp3">
+    </audio>
+    <audio id="Music_TitleAndOverworld" loop>
+        <source src="./Assets/Music/TheTimetoAct.ogg">
+        <source src="./Assets/Music/TheTimetoAct.mp3">
+    </audio>
+    <audio id="Music_Battle" loop>
+        <source src="./Assets/Music/DarkCloudsGather.ogg">
+        <source src="./Assets/Music/DarkCloudsGather.mp3">
+    </audio>
+
     <img src="Assets/Title.png" alt="Doom Lagoon" class="absCentreTop" />
 
     <div id="MainMenu" class="menuPanel bg_Paper512 deadCentreOfScreen">
@@ -163,12 +179,12 @@
             </div>
             <div id="AudioOptions" class="optionPanel">
                 <label for="VolumeSliderMusic" class="centredBlock">Music Volume</label>
-                <input id="VolumeSliderMusic" class="centredBlock margTop10" type="range" min="0" max="100" />
+                <input id="VolumeSliderMusic" class="centredBlock margTop10" type="range" min="0" max="1" step="0.01" />
                 <label for="VolumeSliderSFX" class="centredBlock margTop40">Sound Effect Volume</label>
-                <input id="VolumeSliderSFX" class="centredBlock margTop10" type="range" min="0" max="100" />
+                <input id="VolumeSliderSFX" class="centredBlock margTop10" type="range" min="0" max="1" step="0.01" />
                 <div id="StartInitialMusicBtn" class="margTop40 flexFlowRightCentre">
                     <img src="Assets/GUI/smallArrow.png" width="27" height="27" />
-                    <span>&nbsp;&nbsp;Play Prelude</span>
+                    <span>&nbsp;&nbsp;Start Prelude</span>
                 </div>
             </div>
         </div>
