@@ -8,7 +8,8 @@ var dbHdlr = require('./Server/DatabaseHandler.js')();
 var objHdlrs = require('./Server/ObjectHandlers.js')(dbHdlr);
 
 // VARIABLES -----
-const ip = '127.0.0.1' /*'0.0.0.0'*/,
+// Use environement variable to determine local or release
+const ip = process.env.PORT ? '0.0.0.0' : '127.0.0.1',
       port = process.env.PORT || 8000;
 
 

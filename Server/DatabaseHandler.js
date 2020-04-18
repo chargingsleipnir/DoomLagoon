@@ -2,24 +2,20 @@ const bcrypt = require('bcrypt');
 var Consts = require('../Shared/Consts.js');
 const {Client} = require('pg');
 
-// LOCAL
-const client = new Client({
+var configObj = process.env.PORT ? {
+    connectionString: process.env.DATABASE_URL,
+    ssl: { rejectUnauthorized: false }
+} : {
     user: "postgres",
     password: "admin",
     host: "localhost",
     port: 5432,
     database: "doomLagoonDB"
-});
+}
+
+const client = new Client(configObj);
 
 //console.log("process.env.DATABASE_URL: ", process.env.DATABASE_URL);
-
-// const client = new Client({
-//     connectionString: process.env.DATABASE_URL,
-//     ssl: {
-//         rejectUnauthorized: false
-//     }
-// });
-
 //* DB TEST -> in terminal, "npm run printFullTable"
 
 async function Connect() {
