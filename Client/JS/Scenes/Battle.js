@@ -357,7 +357,7 @@ class Battle extends SceneTransition {
     Awaken(sys, battleData) {
         var scene = sys.scene;
 
-        GameAudio.SetMusicClip("battle", true, 0);
+        GameAudio.SetMusicClip("battle", true, true, 0);
         GameAudio.FadeIn(1); 
 
         scene.battleOver = false;
@@ -473,7 +473,7 @@ class Battle extends SceneTransition {
                 if(SceneSleepCB)
                     SceneSleepCB();
                 else {
-                    GameAudio.SetMusicClip("titleAndOverworld", true, 0);
+                    GameAudio.SetMusicClip("titleAndOverworld", true, false, 0);
                     GameAudio.FadeIn(0.5, () => {
                         this.scene.sleep("Battle", { battleWon: battleWon });
                     });

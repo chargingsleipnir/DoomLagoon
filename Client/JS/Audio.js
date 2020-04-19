@@ -8,7 +8,7 @@ var GameAudio = (() => {
     var frameRate = 60;
 
     var volumeMusic = 0.15;
-    var volumeSFX = 0.15;
+    var volumeSFX = 0.3;
 
     var intervalRef;
 
@@ -25,12 +25,24 @@ var GameAudio = (() => {
             sfxElems["spring"] = document.getElementById("SFX_Spring");
             sfxElems["chest"] = document.getElementById("SFX_Chest");
             sfxElems["hit"] = document.getElementById("SFX_Hit");
+            sfxElems["stab"] = document.getElementById("SFX_Stab");
+            sfxElems["swing"] = document.getElementById("SFX_Swing");
+            sfxElems["throw"] = document.getElementById("SFX_Throw");
+            sfxElems["whirlThrow"] = document.getElementById("SFX_WhirlThrow");
+            sfxElems["dragon1"] = document.getElementById("SFX_Dragon1");
+            sfxElems["dragon2"] = document.getElementById("SFX_Dragon2");
+            sfxElems["dragon3"] = document.getElementById("SFX_Dragon3");
         },
-        SetMusicClip: (key, doPlay, setClipVolume = volumeMusic) => {
+        SetMusicClip: (key, doPlay, fromstart = false, setClipVolume = volumeMusic) => {
             music_Active.pause();
 
             music_Active = musicElems[key];
+
+            if(fromstart)
+                music_Active.currentTime = 0;
+
             music_Active.volume = setClipVolume;
+
             if(doPlay)
                 music_Active.play();
         },

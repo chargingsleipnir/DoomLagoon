@@ -99,12 +99,16 @@ class BattleSprite {
         // this.sprite.on('animationstart', (anim, frame) => {
         // }, this.scene);
 
+        // TODO: Fill out anim data json with audio clip frames for all animations
+        // TODO: Clean up fighter's second and third attack frame positions
+        // TODO: Increase the base volume of the hit sound, make sure all effects have roughly the same base volume (amplitude?)
+
         let audioClipSetsLength = Main.animData.battle["audioClips-by-frames"].length;
         this.sprite.on(`animationupdate`, (anim, frame, gameObj) => {
             // TODO: Put audio clip data in for evryone, and get rid of this check.
             if(this.assetIndex >= audioClipSetsLength)
                 return;
-                
+
             var clipObj = Main.animData.battle["audioClips-by-frames"][this.assetIndex][this.moveKeyIndex];
             if(clipObj)
                 if(clipObj[frame.index])

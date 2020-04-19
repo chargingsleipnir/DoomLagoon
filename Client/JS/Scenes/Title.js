@@ -22,7 +22,7 @@ class Title extends SceneTransition {
     {
         super.create();
 
-        GameAudio.SetMusicClip("titleAndOverworld", true, 0);
+        GameAudio.SetMusicClip("titleAndOverworld", true, true, 0);
         GameAudio.FadeIn(1);
 
         let bg = this.add.image(Main.phaserConfig.width * 0.5, Main.phaserConfig.height * 0.5, 'TitleBG');

@@ -68,10 +68,18 @@
             [{ "x": 0.5, "y": 0.5 }, { "x": 0.5, "y": 0.5 }, { "x": 0.52, "y": 0.52 }, { "x": 0.52, "y": 0.52 }, { "x": 0.5, "y": 0.5 }]
         ],
         "audioClips-by-frames": [
-            [null, null, {"17": "hit"}, {"20": "hit" }, {"17": "hit", "42": "hit" }],
-            [null, null, null, null, null],
-            [null, null, null, null, null],
-            [null, null, {"4": "hit"}, {"9": "hit" }, {"8": "hit"}]
+            [null, null, {"17": "hit"}, {"19": "hit" }, {"17": "hit", "42": "swing" }],
+            [null, null, {"10": "stab"}, {"23": "stab"}, {"10": "stab", "29": "swing"}],
+            [null, null, {"16": "stab"}, {"29": "stab"}, {"35": "throw"}],
+            [null, null, {"4": "hit"}, {"9": "swing" }, {"8": "swing"}],
+            [null, null, {"7": "hit"}, {"6": "stab" }, {"12": "hit"}],
+            [null, null, {"14": "hit"}, {"9": "swing" }, {"26": "hit"}],
+            [null, null, {"9": "swing"}, {"24": "swing" }, {"16": "hit"}],
+            [null, null, {"11": "stab"}, {"21": "stab" }, {"19": "throw"}],
+            [null, null, {"16": "swing"}, {"26": "swing" }, {"25": "whirlThrow"}],
+            [null, null, {"13": "dragon2"}, {"23": "dragon2" }, null],
+            [null, null, {"12": "dragon1"}, {"25": "dragon1" }, null],
+            [null, null, {"6": "dragon3"}, {"15": "dragon3" }, null]
         ],
         "skin-move-actionNames": [
             ["Swing", "Slam", "Combo"],
