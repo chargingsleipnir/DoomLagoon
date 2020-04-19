@@ -213,17 +213,17 @@ module.exports = function(sprites) {
             switch(this.equipLevel) {
                 case Consts.equipmentUpgrades.FIGHTER:
                     this.assetKey = "FighterAxeBlue";
-                    this.hpCurr = this.hpMax = 120;
+                    this.hpCurr = this.hpMax = 20;
                     this.speed = 1;
                     break;
                 case Consts.equipmentUpgrades.LORD:
                     this.assetKey = "LordSwordBlue";
-                    this.hpCurr = this.hpMax = 125;
+                    this.hpCurr = this.hpMax = 25;
                     this.speed = 2;
                     break;
                 case Consts.equipmentUpgrades.GENERAL:
-                    this.assetKey = "EarthDragon";
-                    this.hpCurr = this.hpMax = 135;
+                    this.assetKey = "GeneralBlue";
+                    this.hpCurr = this.hpMax = 35;
                     this.speed = 3;
                     break;
             }
