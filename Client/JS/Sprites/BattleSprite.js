@@ -10,6 +10,8 @@ class BattleSprite {
     idlePos;
     offScreenX;
     assetKey;
+    assetIndex;
+    moveKeyIndex;
 
     inBattle;
     gameObjCont;
@@ -40,6 +42,7 @@ class BattleSprite {
         this.idlePos = idlePos;
         this.offScreenX = offScreenX;
         this.assetKey = assetKey;
+        this.SetAssetIndex();
 
         this.gameObjCont = scene.add.container(this.offScreenX, this.idlePos.y);
         this.gameObjCont.depth = this.idlePos.y;
@@ -96,9 +99,23 @@ class BattleSprite {
         // this.sprite.on('animationstart', (anim, frame) => {
         // }, this.scene);
 
-        // TODO: Should be able to do this for any animation, to read frames, and launch events specifically on them.
-        // this.sprite.on('animationupdate-' + this.assetKey + '_Battle_Swing', (anim, frame, gameObj) => {
-        // }, this.scene);
+        let audioClipSetsLength = Main.animData.battle["audioClips-by-frames"].length;
+        this.sprite.on(`animationupdate`, (anim, frame, gameObj) => {
+            // TODO: Put audio clip data in for evryone, and get rid of this check.
+            if(this.assetIndex >= audioClipSetsLength)
+                return;
+                
+            var clipObj = Main.animData.battle["audioClips-by-frames"][this.assetIndex][this.moveKeyIndex];
+            if(clipObj)
+                if(clipObj[frame.index])
+                    GameAudio.SFXPlay(clipObj[frame.index]);
+
+        }, this.scene);
+        // if(Main.animData.battle["audioClips-by-frames"][this.assetIndex]) {
+        // }
+        // else {
+        //     console.warn(`Anim data missing audio clips for ${this.assetKey}`);
+        // }
 
         this.sprite.on('animationcomplete', (anim, frame) => {
             //console.log(anim);
@@ -124,7 +141,12 @@ class BattleSprite {
 
     UpdateAsset(assetKey) {
         this.assetKey = assetKey;
+        this.SetAssetIndex();
         this.PlayAnim(0);
+    }
+
+    SetAssetIndex() {
+        this.assetIndex = Main.animData.skins.indexOf(this.assetKey);
     }
 
     EnterBattle(delay, duration) {
@@ -149,11 +171,11 @@ class BattleSprite {
     }
 
     PlayAnim(moveKeyIndex) {
+        this.moveKeyIndex = moveKeyIndex;
 
         //* Change sprite origins to get animations all aligned
-        let skinIdx = Main.animData.skins.indexOf(this.assetKey);
-        //console.log(`Origin object located at ${skinIdx}, ${moveKeyIndex}`)
-        var originObj = Main.animData.battle["skin-move-origins"][skinIdx][moveKeyIndex];
+        //console.log(`Origin object located at ${this.assetIndex}, ${moveKeyIndex}`)
+        var originObj = Main.animData.battle["skin-move-origins"][this.assetIndex][moveKeyIndex];
         //console.log(`Origin is ${originObj.x}, ${originObj.y}`);
         
         // TODO: Figure out when enemies animations still aren't lining up correctly.

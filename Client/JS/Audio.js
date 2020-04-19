@@ -24,6 +24,7 @@ var GameAudio = (() => {
             sfxElems["click"] = document.getElementById("SFX_Click");
             sfxElems["spring"] = document.getElementById("SFX_Spring");
             sfxElems["chest"] = document.getElementById("SFX_Chest");
+            sfxElems["hit"] = document.getElementById("SFX_Hit");
         },
         SetMusicClip: (key, doPlay, setClipVolume = volumeMusic) => {
             music_Active.pause();

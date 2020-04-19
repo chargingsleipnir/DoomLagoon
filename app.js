@@ -12,7 +12,6 @@ var objHdlrs = require('./Server/ObjectHandlers.js')(dbHdlr);
 const ip = process.env.PORT ? '0.0.0.0' : '127.0.0.1',
       port = process.env.PORT || 8000;
 
-
 // ROUTES -----
 app.use(express.static(__dirname + '/Client'));
 app.use(express.static(__dirname + '/Shared'));

@@ -67,6 +67,12 @@
             [{ "x": 0.5, "y": 0.5 }, { "x": 0.5, "y": 0.5 }, { "x": 0.61, "y": 0.54 }, { "x": 0.63, "y": 0.57 }, { "x": 0.5, "y": 0.5 }],
             [{ "x": 0.5, "y": 0.5 }, { "x": 0.5, "y": 0.5 }, { "x": 0.52, "y": 0.52 }, { "x": 0.52, "y": 0.52 }, { "x": 0.5, "y": 0.5 }]
         ],
+        "audioClips-by-frames": [
+            [null, null, {"17": "hit"}, {"20": "hit" }, {"17": "hit", "42": "hit" }],
+            [null, null, null, null, null],
+            [null, null, null, null, null],
+            [null, null, {"4": "hit"}, {"9": "hit" }, {"8": "hit"}]
+        ],
         "skin-move-actionNames": [
             ["Swing", "Slam", "Combo"],
             ["Thrust", "Parry Swipe", "Holy Steel"],
