@@ -3,10 +3,12 @@ var GameAudio = (() => {
     var musicElems = {};
     var music_Active;
 
+    var sfxElems = {};
+
     var frameRate = 60;
 
-    var volumeMusic = 0.5;
-    var volumeSFX = 0.5;
+    var volumeMusic = 0.15;
+    var volumeSFX = 0.15;
 
     var intervalRef;
 
@@ -18,6 +20,10 @@ var GameAudio = (() => {
 
             musicElems["landing"].volume = volumeMusic;
             music_Active = musicElems["landing"];
+
+            sfxElems["click"] = document.getElementById("SFX_Click");
+            sfxElems["spring"] = document.getElementById("SFX_Spring");
+            sfxElems["chest"] = document.getElementById("SFX_Chest");
         },
         SetMusicClip: (key, doPlay, setClipVolume = volumeMusic) => {
             music_Active.pause();
@@ -39,6 +45,10 @@ var GameAudio = (() => {
         },
         MusicPause: () => {
             music_Active.pause();
+        },
+        SFXPlay: (key) => {
+            sfxElems[key].volume = volumeSFX;
+            sfxElems[key].play();
         },
         FadeOut: (seconds = 1, CB = null) => {
             if(music_Active.paused) {

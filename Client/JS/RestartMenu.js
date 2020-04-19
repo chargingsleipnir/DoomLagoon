@@ -11,6 +11,7 @@ var RestartMenu = (() => {
             // For now, just a menu pop-up with a single "Restart" button, which would ideally not refresh the page,
             // but essentially restart everything else (just put the player back at the inital spawn point... or Title scene?)
             document.getElementById("ResetGameBtn").addEventListener("click", () => {
+                GameAudio.SFXPlay("click");
                 location.reload();
             });
         },

@@ -12,12 +12,6 @@ class Title extends SceneTransition {
         this.transitionOpen = false;
     }
 
-    init() {
-        // TODO: This only ever needs to happen once throughout the lifetime of the game, but these functions get called for each scene change...
-        // I should find out if each scene has access to a one-time call no matter how mnay times the scenes change
-        document.getElementById("InGameOptionsBtn").addEventListener('click', OptionsMenu.Open);
-    }
-
     preload ()
     {
         this.load.json('AnimData', '../../JS/Sprites/AnimationData.json');

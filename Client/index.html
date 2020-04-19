@@ -32,6 +32,7 @@
     <!-- Site flow, non-scenes -->
     <script type="text/javascript" src="JS/MainMenu.js"></script>
     <script type="text/javascript" src="JS/OptionsMenu.js"></script>
+    <script type="text/javascript" src="JS/InGameGUI.js"></script>
     <script type="text/javascript" src="JS/RestartMenu.js"></script>
 
     <!-- SCENES -->
@@ -49,7 +50,7 @@
 </head>
 <body onload="Main.Init();">
 
-    <!-- All audio -->
+    <!-- MUSIC -->
     <audio id="Music_Landing" loop>
         <source src="./Assets/Music/Prelude.ogg">
         <source src="./Assets/Music/Prelude.mp3">
@@ -63,7 +64,22 @@
         <source src="./Assets/Music/DarkCloudsGather.mp3">
     </audio>
 
-    <img src="Assets/Title.png" alt="Doom Lagoon" class="absCentreTop" />
+    <!-- SFX -->
+    <audio id="SFX_Click">
+        <source src="./Assets/Sounds/button_click.ogg">
+        <source src="./Assets/Sounds/button_click.mp3">
+    </audio>
+    <audio id="SFX_Spring">
+        <source src="./Assets/Sounds/splashAndGulp.ogg">
+        <source src="./Assets/Sounds/splashAndGulp.mp3">
+    </audio>
+    <audio id="SFX_Chest">
+        <source src="./Assets/Sounds/new_item_2.ogg">
+        <source src="./Assets/Sounds/new_item_2.mp3">
+    </audio>
+
+
+    <img src="Assets/TitleWooden.png" alt="Doom Lagoon" class="absCentreTop" />
 
     <div id="MainMenu" class="menuPanel bg_Paper512 deadCentreOfScreen">
         <div class="flexFlowRightTop">
@@ -179,9 +195,9 @@
             </div>
             <div id="AudioOptions" class="optionPanel">
                 <label for="VolumeSliderMusic" class="centredBlock">Music Volume</label>
-                <input id="VolumeSliderMusic" class="centredBlock margTop10" type="range" min="0" max="1" step="0.01" />
+                <input id="VolumeSliderMusic" class="centredBlock margTop10" type="range" min="0" max="1" step="0.01" value="0.15" />
                 <label for="VolumeSliderSFX" class="centredBlock margTop40">Sound Effect Volume</label>
-                <input id="VolumeSliderSFX" class="centredBlock margTop10" type="range" min="0" max="1" step="0.01" />
+                <input id="VolumeSliderSFX" class="centredBlock margTop10" type="range" min="0" max="1" step="0.01" value="0.15" />
                 <div id="StartInitialMusicBtn" class="margTop40 flexFlowRightCentre">
                     <img src="Assets/GUI/smallArrow.png" width="27" height="27" />
                     <span>&nbsp;&nbsp;Start Prelude</span>

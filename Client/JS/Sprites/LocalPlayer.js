@@ -26,8 +26,6 @@ class LocalPlayer extends Sprite {
     moveRequestConfrmed;
     assessRequestConfirmed;
 
-    elemFocusString = "";
-
     inBattle;
 
     upgrades = {};
@@ -93,21 +91,6 @@ class LocalPlayer extends Sprite {
         }
 
         //* DEBUG vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-        Network.CreateResponse("RecCellValue", function (data) {
-            if(isNaN(data.cellValue)) {
-                if(data.cellValue) {
-                    var value = JSON.parse(JSON.stringify(data.cellValue));
-                    console.log(`From server, data at cell x: ${data.gridX}, y: ${data.gridY} is: `, value);
-                }
-                else {
-                    console.warn(`Did not retrieve credible cell data from region clicked.`);
-                }
-            }
-            else {
-                console.log(`From server, data at cell x: ${data.gridX}, y: ${data.gridY} is: ${data.cellValue}`);
-            }
-        });
-
         scene.input.keyboard.on('keydown_J', () => {
             console.log("cell value from client: " + self.neighbors.LEFT);
             Network.Emit("ReqNeighborValue", { x: -1, y: 0 });
@@ -124,38 +107,16 @@ class LocalPlayer extends Sprite {
             console.log("cell value from client: " + self.neighbors.DOWN);
             Network.Emit("ReqNeighborValue", { x: 0, y: 1 });
         });
-
-        // TODO: Expand beyond debug, as game is more fully implemented.
-        Main.game.canvas.addEventListener("click", (event) => {
-            //* NOTE: Not debug, very important!
-            self.elemFocusString = event.currentTarget.tagName;
-            elem_ChatTextInput.blur();
-
-            Main.game.input.keyboard.enabled = true;
-
-            var posParent = Utility.html.ElemPos(event.currentTarget);
-            var posX = event.clientX - posParent.x;
-            var posY = event.clientY - posParent.y;
-
-            var worldX = (self.scene.cameras.main.worldView.x * self.scene.cameras.main.zoom) + posX,
-            worldY = (self.scene.cameras.main.worldView.y * self.scene.cameras.main.zoom) + posY;
-
-            var cellX = (worldX - (worldX % self.scene.MapTileWidth_Zoomed)) / self.scene.MapTileWidth_Zoomed,
-            cellY = (worldY - (worldY % self.scene.MapTileHeight_Zoomed)) / self.scene.MapTileHeight_Zoomed;
-
-            // console.log(`canvas click event, posParent - x: ${posParent.x}, y: ${posParent.y}`);
-            // console.log(`canvas click event, event.client - x: ${event.clientX}, y: ${event.clientY}`);
-            // console.log(`canvas click event, camera worldView - x: ${self.scene.cameras.main.worldView.x * self.scene.cameras.main.zoom}, y: ${self.scene.cameras.main.worldView.y * self.scene.cameras.main.zoom}`);
-            // console.log(`canvas click event, mouse pos - x: ${posX}, y: ${posY}`);
-            // console.log(`canvas click event, camera to world - x: ${worldX}, y: ${worldY}`);
-            // console.log(`canvas click event, worldX % self.scene.MapTile - x: ${worldX % self.scene.MapTileWidth_Zoomed}, y: ${worldY % self.scene.MapTileHeight_Zoomed}`);
-            // console.log(`canvas click event, worldX - (worldX % self.scene.MapTile) - x: ${worldX - (worldX % self.scene.MapTileWidth_Zoomed)}, y: ${worldY - (worldY % self.scene.MapTileHeight_Zoomed)}`);
-            // console.log(`canvas click event, as cells - x: ${cellX}, y: ${cellY}`);
-
-            Network.Emit("ReqCellValue", { x: cellX, y: cellY });
-        }, false);
         //* DEBUG ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+        // Single-time key press, only repeats if held after about a second
+        scene.input.keyboard.on('keydown_ENTER', () => {
+            // Redundant check
+            if(InGameGUI.CheckCanvasFocus()) {
+                self.assessRequestConfirmed = false;
+                Network.Emit("ReqCellInteraction", self.GetCellDiffByDir());
+            }
+        });
 
         Network.CreateResponse('RecUpdateNeighbor', (data) => {
             self.neighbors[data.side] = data.occupancy;
@@ -212,65 +173,13 @@ class LocalPlayer extends Sprite {
                 else {
                     self.upgrades.ability = data.interactionObj.contents.upgrade;
                 }
-
+                
+                GameAudio.SFXPlay("chest");
                 Main.Save();
             }
             if(data.cellValue == Consts.tileTypes.SPRING) {
                 Main.DispMessage(data.interactionObj.msg, 3);
-            }
-        });
-
-        var elem_ChatLog = document.getElementById("ChatLog");
-        var elem_NewChatNotif = document.getElementById("ChatNotifDot");
-        Network.CreateResponse('RecChatLogUpdate', (data) => {
-            var className = data.name == self.name ? "chatLogNameSelf" : "chatLogName";
-            var htmlString = `<li><span class="${className}">${data.name}:</span> ${data.msg}</li>`;
-            var node = Utility.html.FromString(htmlString);
-            elem_ChatLog.appendChild(node);
-            elem_ChatLog.scrollTop = elem_ChatLog.scrollHeight;
-            if(elem_ChatLog.classList.contains('hide')) {
-                elem_NewChatNotif.classList.remove("hide");
-            }
-        });
-
-        // CHAT MESSAGES - Send if button clicked OR if enter pressed while text field is focused.
-
-        // TODO: Player speech bubbles would be cool, but overscoped for this right now.
-        var elem_ChatTextInput = document.getElementById("PlayerChatMsg");
-        elem_ChatTextInput.addEventListener('click', (event) => {
-            self.elemFocusString = event.currentTarget.tagName;
-            Main.game.input.keyboard.enabled = false;
-        });
-        // This is needed to compensate for the Phaser keyboard object being shut off when the input element is focused.
-        elem_ChatTextInput.addEventListener('keyup', (event) => {
-            if(event.keyCode === 13 && self.elemFocusString == "INPUT")
-                SendMsgToServer();
-        });
-        function SendMsgToServer() {
-            if(elem_ChatTextInput.value != "") {
-                Network.Emit("ReqChatLogUpdate", { name: self.name, msg: elem_ChatTextInput.value });
-                elem_ChatTextInput.value = "";
-            }
-        }
-
-        function ToggleOpenChatView() {
-            elem_ChatLog.classList.toggle('hide');
-            elem_NewChatNotif.classList.add("hide");
-        }
-
-        document.getElementById("PlayerChatSendMsgBtn").addEventListener('click', SendMsgToServer);
-        document.getElementById("PlayerChatViewBtn").addEventListener('click', ToggleOpenChatView);
-        scene.input.keyboard.on('keydown_SPACE', () => {
-            if(self.elemFocusString != "INPUT")
-                ToggleOpenChatView();
-        });
-
-        // Single-time key press, only repeats if held after about a second
-        scene.input.keyboard.on('keydown_ENTER', () => {
-            // Redundant check
-            if(self.elemFocusString != "INPUT") {
-                self.assessRequestConfirmed = false;
-                Network.Emit("ReqCellInteraction", self.GetCellDiffByDir());
+                GameAudio.SFXPlay("spring");
             }
         });
 
@@ -285,7 +194,7 @@ class LocalPlayer extends Sprite {
         //console.log("================================================");
         //console.log(this.moveRequestConfrmed);
         //console.log(this.inBattle);
-        if(this.moveRequestConfrmed && !this.inBattle && this.elemFocusString != "INPUT") {
+        if(this.moveRequestConfrmed && !this.inBattle && InGameGUI.CheckCanvasFocus()) {
             // Check if we can move "to" a new cell, or cache the "next" one ahead
             //console.log(this.moveCache_Grid.length <= Consts.moveCacheSlots.TO);
             if(this.moveCache_Grid.length <= Consts.moveCacheSlots.TO ||

@@ -34,7 +34,7 @@ objHdlrs.PassIoObj(io);
 http.listen(port, ip, () => {
   console.log(`${Date(Date.now())}: Server running at http://${ip}:${port}/`);
   // Update to Clients
-  var tick = 1000 / 30;
+  var tick = 1000 / 48;
   setInterval(function () {
     objHdlrs.Update();
     io.emit("UpdateFromServer", objHdlrs.GetUpdatePack());

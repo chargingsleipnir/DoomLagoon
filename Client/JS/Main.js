@@ -66,6 +66,7 @@ var Main = (() => {
                 // Phaser Game starts in MainMenu on Play button
                 MainMenu.Init();
                 OptionsMenu.Init();
+                //InGameGUI.Init();
                 RestartMenu.Init();
                 GameAudio.Init();
 

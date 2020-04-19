@@ -28,7 +28,9 @@ var MainMenu = (() => {
 
             btn_StartGame = document.getElementById('StartBtn');
             btn_StartGame.addEventListener("click", (e) => {
+                GameAudio.SFXPlay("click");
                 GameAudio.FadeOut(0.5, () => {
+                    OptionsMenu.RemovePreludeBtn();
                     // Hide main menu & launch canvas/phaser game
                     Utility.html.ElemHideRear(elem_Container);
                     Utility.html.ElemShowMiddle(document.getElementById("FullGameContainer"));
@@ -37,7 +39,10 @@ var MainMenu = (() => {
                 });         
             });
 
-            document.getElementById('MainMenuOptionsBtn').addEventListener("click", OptionsMenu.Open);
+            document.getElementById('MainMenuOptionsBtn').addEventListener("click", () => {
+                GameAudio.SFXPlay("click");
+                OptionsMenu.Open();
+            });
 
             // SAVE OPTIONS =================================================================
 
@@ -58,6 +63,7 @@ var MainMenu = (() => {
                 Main.userPrefs.useLocalStorage = localSaveCheckbox.checked = localStoreDataExists;
 
                 localSaveCheckbox.addEventListener('change', (e) => {
+                    GameAudio.SFXPlay("click");
 
                     // If it's ever unchecked, let the user know that any local save data will be erased (if any is there)
                     if(localStoreDataExists && e.currentTarget.checked == false) {
@@ -169,12 +175,14 @@ var MainMenu = (() => {
             });
 
             document.getElementById('LoadSlotBtn').addEventListener('click', (e) => {
+                GameAudio.SFXPlay("click");
                 Network.Emit("ReqLoadSlot", {
                     username: input_SlotName.value,
                     password: input_Password.value
                 });
             });
             document.getElementById('CreateSlotBtn').addEventListener('click', (e) => {
+                GameAudio.SFXPlay("click");
                 if(input_SlotName.checkValidity() && input_Password.checkValidity()) {
                     Network.Emit("ReqCreateSlot", {
                         username: input_SlotName.value,
@@ -183,6 +191,7 @@ var MainMenu = (() => {
                 }
             });
             document.getElementById('EraseSlotBtn').addEventListener('click', (e) => {
+                GameAudio.SFXPlay("click");
                 Network.Emit("ReqEraseSlot", {
                     username: input_SlotName.value,
                     password: input_Password.value

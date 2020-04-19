@@ -3,6 +3,7 @@ var OptionsMenu = (() => {
     var elem_Container;
     var elems_tab;
     var elems_panel;
+    var initMusicBtn;
 
     function OpenOptionFromSet(tabElem, panelId) {
         // Show the clicked tab as the active one
@@ -25,32 +26,38 @@ var OptionsMenu = (() => {
             elem_Container = document.getElementById('OptionsMenu');
 
             document.getElementById('CloseOptionsBtn').addEventListener('click', () => {
+                GameAudio.SFXPlay("click");
                 Utility.html.ElemHideRear(elem_Container);
             });
 
             elems_tab = document.getElementById("OptionsMenuTabs").getElementsByTagName("button");
             for(let tab of elems_tab) {
                 tab.addEventListener('click', (e) => {
+                    GameAudio.SFXPlay("click");
                     OpenOptionFromSet(e.currentTarget, e.currentTarget.dataset.panelId);
                 });
             }
             elems_panel = elem_Container.getElementsByClassName("optionPanel");
 
             // Save button
-            document.getElementById("SaveBtn").addEventListener('click', Main.Save);
+            document.getElementById("SaveBtn").addEventListener('click', () => { 
+                GameAudio.SFXPlay("click");
+                Main.Save();
+            });
 
             // AUDIO OPTIONS
             document.getElementById('VolumeSliderMusic').addEventListener('change', (e) => {
                 GameAudio.SetVolumeMusic(e.currentTarget.value);
-
             });
             document.getElementById('VolumeSliderSFX').addEventListener('change', (e) => {
                 GameAudio.SetVolumeSFX(e.currentTarget.value);
+                GameAudio.SFXPlay("click");
             });
 
-            var initMusicBtn = document.getElementById("StartInitialMusicBtn");
+            initMusicBtn = document.getElementById("StartInitialMusicBtn");
             if(initMusicBtn) {
                 initMusicBtn.addEventListener('click', (e) => {
+                    GameAudio.SFXPlay("click");
                     GameAudio.MusicPlay();
                     initMusicBtn.parentElement.removeChild(initMusicBtn);
                     initMusicBtn = null;
@@ -71,6 +78,12 @@ var OptionsMenu = (() => {
 
             document.getElementById("GeneralOptions").classList.remove("hide");
             OpenOptionFromSet(buttonElem, buttonElem.dataset.panelId);
+        },
+        RemovePreludeBtn: () => {
+            if(initMusicBtn) {
+                initMusicBtn.parentElement.removeChild(initMusicBtn);
+                initMusicBtn = null;
+            }
         }
     }
 })();
