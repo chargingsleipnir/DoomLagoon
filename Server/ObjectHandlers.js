@@ -101,8 +101,11 @@ module.exports = function(dbHdlr) {
                     dir: orientObj.dir,
                     upgrades: upgradeObj
                 });
-                // 
+
                 player.Init();
+
+                // Set up all other network responses
+                player.SetupNetworkResponses(io, socket);
 
                 // Add player to lists
                 sprites.allData[Consts.spriteTypes.PLAYER][socket.client.id] = player;
@@ -111,10 +114,6 @@ module.exports = function(dbHdlr) {
                     y: orientObj.y * mapData.GetTileHeight(),
                     dir: orientObj.dir
                 };
-                
-                // Set up all other network responses
-                player.SetupNetworkResponses(io, socket);
-
                 // Send new player data to all other players
                 socket.broadcast.emit("AddNewPlayer", player.GetInitPack());
 

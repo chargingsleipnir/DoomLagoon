@@ -12,7 +12,7 @@ var RestartMenu = (() => {
             // but essentially restart everything else (just put the player back at the inital spawn point... or Title scene?)
             document.getElementById("ResetGameBtn").addEventListener("click", () => {
                 GameAudio.SFXPlay("click");
-                location.reload();
+                location.reload(true);
             });
         },
         Open: () => {

@@ -10,7 +10,7 @@ module.exports = function(sprites) {
     class Player extends entityModule.Entity {
 
         socket;
-        enemyID;
+        enemyRef;
         battlePosIndex;
         nextBattleReady;
 
@@ -28,7 +28,7 @@ module.exports = function(sprites) {
             this.speed = 1;
 
             this.socket = socket;
-            this.enemyID = -1;
+            this.enemyRef = null;
             this.battlePosIndex = -1;
             this.nextBattleReady = true;
 
@@ -38,10 +38,8 @@ module.exports = function(sprites) {
         }
         
         SetupNetworkResponses(io, socket) {
-            var self = this;
-
-            socket.on("ReqNeighborUpdate", function (cell) {
-                self.UpdateNeighbors();
+            socket.on("ReqNeighborUpdate", (cell) => {
+                this.UpdateNeighbors();
             });
         
             // JUST FOR TESTING - TODO: EXPAND SERVER TESTING FUNCTIONS
@@ -53,27 +51,27 @@ module.exports = function(sprites) {
                 });
             });
 
-            socket.on("ReqMoveToCell", function (dirData) {
+            socket.on("ReqMoveToCell", (dirData) => {
                 // This should sufficiently lock out player movement controls and keep them in place regardless of timing.
-                if(self.inBattle) {
-                    console.warn(`Client requested to move to new cell, but self.inBattle is ${self.inBattle}`);
+                if(this.inBattle) {
+                    console.warn(`Client requested to move to new cell, but this.inBattle is ${this.inBattle}`);
                     return;
                 }
 
-                self.MoveToCell(dirData);
-                socket.emit("RecMoveToCell", self.GetMoveData());
+                this.MoveToCell(dirData);
+                socket.emit("RecMoveToCell", this.GetMoveData());
             });
         
-            socket.on("ReqCellInteraction", function (cellDiff) {
+            socket.on("ReqCellInteraction", (cellDiff) => {
                 // This should sufficiently lock out player command control until battle ends.
-                if(self.inBattle) {
-                    console.warn(`Client requested to interact with cell, but self.inBattle is ${self.inBattle}`);
+                if(this.inBattle) {
+                    console.warn(`Client requested to interact with cell, but this.inBattle is ${this.inBattle}`);
                     return;
                 }
 
                 var newPos = { 
-                    x: self.gridPos.x + cellDiff.x,
-                    y: self.gridPos.y + cellDiff.y
+                    x: this.gridPos.x + cellDiff.x,
+                    y: this.gridPos.y + cellDiff.y
                 };
                 const value = mapData.GetValue(newPos);
         
@@ -90,13 +88,13 @@ module.exports = function(sprites) {
                         if(!chest.GetIsOpen()) {
                             interactionObj = { wasUpgraded: false, upgradeMsg: "" };
                             if(chest.CheckSameUpgradeType(Consts.chestTypes.EQUIPMENT)) {
-                                if(interactionObj["wasUpgraded"] = chest.CheckHigherUpgradeValue(self.equipLevel))
+                                if(interactionObj["wasUpgraded"] = chest.CheckHigherUpgradeValue(this.equipLevel))
                                     interactionObj["upgradeMsg"] = "Found some new equipment!";
                                 else
                                     interactionObj["upgradeMsg"] = "Your equipment is the same or better than this.";
                             }
                             else {
-                                if(interactionObj["wasUpgraded"] = chest.CheckHigherUpgradeValue(self.abilityLevel))
+                                if(interactionObj["wasUpgraded"] = chest.CheckHigherUpgradeValue(this.abilityLevel))
                                     interactionObj["upgradeMsg"] = "Learned a new technique!";
                                 else
                                     interactionObj["upgradeMsg"] = "You've already mastered this technique.";
@@ -105,23 +103,23 @@ module.exports = function(sprites) {
                             if(interactionObj["wasUpgraded"]) {
                                 interactionObj["contents"] = chest.Open();
                                 if(interactionObj["contents"].chestType == Consts.chestTypes.EQUIPMENT) {
-                                    self.equipLevel = interactionObj["contents"].upgrade;
-                                    self.ChangeAssetKey();
-                                    interactionObj["updatedAssetKey"] = self.assetKey;
+                                    this.equipLevel = interactionObj["contents"].upgrade;
+                                    this.ChangeAssetKey();
+                                    interactionObj["updatedAssetKey"] = this.assetKey;
                                     socket.broadcast.emit("UpdateMapSpriteAssetKey", {
-                                        id: self.id,
-                                        assetKey: self.assetKey
+                                        id: this.id,
+                                        assetKey: this.assetKey
                                     })
                                 }
                                 else {
-                                    self.abilityLevel = interactionObj["contents"].upgrade;
+                                    this.abilityLevel = interactionObj["contents"].upgrade;
                                 }
                             }
                         }
                     }
                 }
                 else if(value == Consts.tileTypes.SPRING) {
-                    self.hpCurr = self.hpMax;
+                    this.hpCurr = this.hpMax;
                     interactionObj = {
                         msg: "Recovered full health!"
                     }
@@ -134,10 +132,10 @@ module.exports = function(sprites) {
                     interactionObj: interactionObj
                 });
             });
-            socket.on("ReqNeighborValue", function (cellDiff) {
+            socket.on("ReqNeighborValue", (cellDiff) => {
                 var newPos = { 
-                    x: self.gridPos.x + cellDiff.x,
-                    y: self.gridPos.y + cellDiff.y
+                    x: this.gridPos.x + cellDiff.x,
+                    y: this.gridPos.y + cellDiff.y
                 };
                 socket.emit("RecCellValue", {
                     gridX: newPos.x,
@@ -145,10 +143,10 @@ module.exports = function(sprites) {
                     cellValue: mapData.GetValue(newPos)
                 });
             });
-            socket.on("ReqChangeDir", function (dirData) {
-                self.UpdateDir(Consts.dirIndex[dirData.key]);
-                sprites.updatePack[Consts.spriteTypes.PLAYER][socket.client.id].dir = self.dir;
-                socket.emit("RecChangeDir", self.dir);
+            socket.on("ReqChangeDir", (dirData) => {
+                this.UpdateDir(Consts.dirIndex[dirData.key]);
+                sprites.updatePack[Consts.spriteTypes.PLAYER][socket.client.id].dir = this.dir;
+                socket.emit("RecChangeDir", this.dir);
             });        
             socket.on("UpdateOrientation", function (updatePack) {
                 sprites.updatePack[Consts.spriteTypes.PLAYER][socket.client.id] = updatePack;
@@ -159,51 +157,47 @@ module.exports = function(sprites) {
                 io.emit("RecChatLogUpdate", data);
             });
 
-            socket.on("BattleAction", function (actionObj) {
-                console.log(`Received battle action, canAct: ${self.canAct}, against enemyID: ${self.enemyID}`);
-
-                if(!self.inBattle) {
-                    console.warn(`Command received from client, but self.inBattle is ${self.inBattle}`);
+            socket.on("BattleAction", (actionObj) => {
+                if(!this.enemyRef) {
+                    console.warn(`Player ${this.id} tried to battle enemy, but reference lost (battle ended)`);
+                    return;
+                }
+                if(!this.enemyRef.inBattle) {
+                    console.warn(`Player ${this.id} tried to battle enemy: ${this.enemyRef.id}, but this.enemyRef.inBattle = ${this.enemyRef.inBattle}. (Battle ended on server as signal was coming up from player)`);
                     return;
                 }
 
-                if(self.enemyID == -1) {
-                    console.warn(`Command received from client, but self.enemyID is ${self.enemyID}`);
+                if(!this.inBattle || !this.canAct) {
+                    console.warn(`Player ${this.id} tried to battle enemy: ${this.enemyRef.id}, but inBattle is ${this.inBattle} and canAct is ${this.canAct}.`);
                     return;
                 }
 
-                if(!self.canAct) {
-                    console.warn(`Command received from client, but self.canAct is ${self.canAct}`);
-                    return;
-                }
-
-                self.canAct = false;
-                self.lastAbilityUsed = actionObj.ability;
+                this.canAct = false;
+                this.lastAbilityUsed = actionObj.ability;
 
                 var actionToEnemy = {
                     command: actionObj.command,
                     ability: actionObj.ability,
                     battleIdx: actionObj.playerBattleIdx,
-                    damage: self.strength + self.equipLevel + actionObj.ability,
+                    damage: this.strength + this.equipLevel + actionObj.ability,
                     fromSocketID: socket.client.id
                 };
                 console.log(`Enemy receiving action: `, actionToEnemy);
 
-                // TODO: Implement ability as speed factor.
-                sprites.allData[Consts.spriteTypes.ENEMY][self.enemyID].ReceiveAction(actionToEnemy);
+                this.enemyRef.ReceiveAction(actionToEnemy);
             });
 
-            socket.on("ResetActionTimer", function () {
-                if(!self.inBattle) {
-                    console.warn(`Resetting action timer from client, but self.inBattle is ${self.inBattle}`);
+            socket.on("ResetActionTimer", () => {
+                if(!this.inBattle) {
+                    console.warn(`Resetting action timer from client, but this.inBattle is ${this.inBattle}`);
                     return;
                 }
 
-                self.RunActionTimer();
+                this.RunActionTimer();
             });
 
-            socket.on("NextBattleReady", function () {
-                self.nextBattleReady = true;
+            socket.on("NextBattleReady", () => {
+                this.nextBattleReady = true;
             });
         }
 
@@ -257,112 +251,114 @@ module.exports = function(sprites) {
             this.socket.emit('RecUpdateNeighbor', { side: side, occupancy: occupancy, inBattle: this.inBattle });
         };
         CheckForBattle(neighbor) {
+            // Neighbor is just a tile, no sprite on it.
+            if(!isNaN(neighbor)) {
+                return;
+            }
+
             if(!this.nextBattleReady) {
-                console.warn(`Checking neighbors for battle, but this.nextBattleReady is ${this.nextBattleReady}`);
+                console.warn(`Player ${this.id} checking neighbors for battle, but this.nextBattleReady is ${this.nextBattleReady}`);
                 return;
             }
 
             if(this.inBattle) {
-                console.warn(`Checking neighbors for battle, but this.inBattle is ${this.inBattle}`);
+                console.warn(`Player ${this.id} checking neighbors for battle, but this.inBattle is ${this.inBattle}`);
                 return;
             }
 
-            if(isNaN(neighbor)) {
-
-                var enemy;
-
-                if(neighbor.spriteType == Consts.spriteTypes.ENEMY) {
-                    enemy = sprites.allData[Consts.spriteTypes.ENEMY][neighbor.id];
-                    if(enemy.CanAddPlayerToBattle())
-                        this.inBattle = true;
+            if(neighbor.spriteType == Consts.spriteTypes.ENEMY) {
+                if(sprites.allData[Consts.spriteTypes.ENEMY][neighbor.id].CanAddPlayerToBattle()) {
+                    this.enemyRef = sprites.allData[Consts.spriteTypes.ENEMY][neighbor.id];
+                    this.inBattle = true;
                 }
-
-                //? Let players join battle by simply neighboring another player in battle
-                //* Keeping this off for now as it's a little too awkward, and for how few people will play this thing, my map is good enough for now.
-                // TODO: Some parts of the map make it too tight to get a full 4-person surround. Consider expanding those areas of the map.
-                // else if(neighbor.spriteType == Consts.spriteTypes.PLAYER) {
-                //     var player = sprites.allData[Consts.spriteTypes.PLAYER][neighbor.id];
-                //     // player may be undefined if this runs through here at spawn time.
-                //     if(player && player.inBattle) {
-                //         enemy = sprites.allData[Consts.spriteTypes.ENEMY][player.enemyID];
-                //         if(enemy.CanAddPlayerToBattle())
-                //             this.inBattle = true;
-                //     }
-                // }
-                
-
-                if(this.inBattle) {
-                    this.nextBattleReady = false;
-                    this.enemyID = enemy.id;
-
-                    this.battlePosIndex = enemy.AddPlayerToBattle(this);
-                    // This index object divides up the position indicies among the players, so everyone knows exactly which player in the battle they are.
-                    var playerIdxObj = {
-                        self: this.battlePosIndex,
-                        others: []
-                    };
-
-                    var playersInBattleData = {};
-                    // Get updated info of all current players
-                    for(let i = 0; i < Consts.MAX_PLAYERS_PER_BATTLE; i++) {
-                        if(enemy.playersInBattle[i].socketID != null) {
-                            var player = sprites.allData[Consts.spriteTypes.PLAYER][enemy.playersInBattle[i].socketID];
-                            playersInBattleData[i] = {
-                                name: player.name,
-                                assetKey: player.assetKey,
-                                hpMax: player.hpMax,
-                                hpCurr: player.hpCurr
-                            }
-
-                            if(playerIdxObj.self != i) {
-                                playerIdxObj.others.push(i);
-                            }
-                        }
-                    }
-                    
-                    console.log("Call to first run action timer of battle.");
-                    this.lastAbilityUsed = Consts.abilityUpgrades.INIT; // First cooldown runs standard.
-                    this.RunActionTimer(); // Calls ActionReady() upon timer completing
-
-                    this.socket.emit('RecCommenceBattle', { 
-                        enemyID: this.enemyID,
-                        enemyName: enemy.name,
-                        enemyAssetKey: enemy.assetKey,
-                        enemyHPMax: enemy.hpMax,
-                        enemyHPCurr: enemy.hpCurr,
-                        playerData: playersInBattleData,
-                        playerIdxObj: playerIdxObj,
-                        equipLevel: this.equipLevel,
-                        abilityLevel: this.abilityLevel
-                    });
+                else {
+                    console.warn(`Player ${this.id} new sprite neighbor is an enemy, but cannot add any more players to battle.`);
+                    return;
                 }
             }
+            else {
+                console.warn(`Player ${this.id} new sprite neighbor is not an enemy`);
+                return;
+            }
+
+            //? Let players join battle by simply neighboring another player in battle
+            //* Keeping this off for now as it's a little too awkward, and for how few people will play this thing, my map is good enough for now.
+            // TODO: Some parts of the map make it too tight to get a full 4-person surround. Consider expanding those areas of the map.
+            // else if(neighbor.spriteType == Consts.spriteTypes.PLAYER) {
+            //     var player = sprites.allData[Consts.spriteTypes.PLAYER][neighbor.id];
+            //     // player may be undefined if this runs through here at spawn time.
+            //     if(player && player.inBattle) {
+            //         if(this.enemyRef.CanAddPlayerToBattle())
+            //             this.inBattle = true;
+            //     }
+            // }
+            
+            this.nextBattleReady = false;
+            this.battlePosIndex = this.enemyRef.AddPlayerToBattle(this);
+
+            // This index object divides up the position indicies among the players, so everyone knows exactly which player in the battle they are.
+            var playerIdxObj = {
+                self: this.battlePosIndex,
+                others: []
+            };
+
+            // Get updated info of all current players
+            var playersInBattleData = {};
+            for(let i = 0; i < Consts.MAX_PLAYERS_PER_BATTLE; i++) {
+                if(this.enemyRef.playersInBattle[i].socketID != null) {
+                    var player = sprites.allData[Consts.spriteTypes.PLAYER][this.enemyRef.playersInBattle[i].socketID];
+                    playersInBattleData[i] = {
+                        name: player.name,
+                        assetKey: player.assetKey,
+                        hpMax: player.hpMax,
+                        hpCurr: player.hpCurr
+                    }
+
+                    if(playerIdxObj.self != i) {
+                        playerIdxObj.others.push(i);
+                    }
+                }
+            }
+            
+            //console.log("Call to first run action timer of battle.");
+            this.lastAbilityUsed = Consts.abilityUpgrades.INIT; // First cooldown runs standard.
+            this.RunActionTimer(); // Calls ActionReady() upon timer completing
+
+            this.socket.emit('RecCommenceBattle', { 
+                enemyID: this.enemyRef.id,
+                enemyName: this.enemyRef.name,
+                enemyAssetKey: this.enemyRef.assetKey,
+                enemyHPMax: this.enemyRef.hpMax,
+                enemyHPCurr: this.enemyRef.hpCurr,
+                playerData: playersInBattleData,
+                playerIdxObj: playerIdxObj,
+                equipLevel: this.equipLevel,
+                abilityLevel: this.abilityLevel
+            });
         }
 
         LeaveBattle(wasDisconnected) {
             if(!this.inBattle) {
-                console.warn("LeaveBattle() was called, but this.inBattle is: ", this.inBattle);
+                console.warn(`LeaveBattle() was called, but this.inBattle is: ${this.inBattle}.`);
                 return;
             }
                 
-            //console.log(`Reseting player battle props: enemyID: ${this.enemyID}, inBattle: ${this.inBattle}`);
-            
             //* The enemy itself could take care of this when the battle is won, but because the play needs to initiate it both on disconnect, and when RUN is selected, we invoke the enemy here to do it.
-            sprites.allData[Consts.spriteTypes.ENEMY][this.enemyID].RemovePlayerFromBattleOnServer(this.battlePosIndex);
+            this.enemyRef.RemovePlayerFromBattleOnServer(this.battlePosIndex);
+            //* Client removal MUST come after Server removel, to ensure that the call isn't sent out to itself.
             if(wasDisconnected)
-                sprites.allData[Consts.spriteTypes.ENEMY][this.enemyID].RemovePlayerFromBattleOnClient(this.battlePosIndex);
-            
-            this.enemyID = -1;
+                this.enemyRef.RemovePlayerFromBattleOnClient(this.battlePosIndex);
+
+            this.enemyRef = null;
             this.battlePosIndex = -1;
             this.inBattle = false;
         }
 
         ActionReadyingTick(percentReady) {
-            sprites.allData[Consts.spriteTypes.ENEMY][this.enemyID].UpdatePlayerActionTimer(this.battlePosIndex, percentReady);
+            this.enemyRef.UpdatePlayerActionTimer(this.battlePosIndex, percentReady);
         }
 
         ActionReady() {
-            console.log("Action ready.");
             this.socket.emit("RecActionReady");
         }
 

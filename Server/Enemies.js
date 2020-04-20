@@ -242,20 +242,26 @@ module.exports = function(sprites) {
         }
 
         RemovePlayerFromBattleOnServer(battlePosIdx) {
-            if(this.playerBattleCount > 0) {
-                if(battlePosIdx > -1) {
-                    //console.log(`Removed player ${this.playersInBattle[battlePosIdx].socketID}`);
-                    this.playersInBattle[battlePosIdx].socketID = null;
-                    this.playersInBattle[battlePosIdx].actionReadyPct = 0;
-                    this.playerBattleCount--;
-                    //console.log(`Players remaining in list ${this.playerBattleCount}`);
+            if(this.playerBattleCount <= 0) {
+                console.warn(`Enemy ${this.id} called to remove player at battlePosIdx ${battlePosIdx}, but this.playerBattleCount is ${this.playerBattleCount}`);
+                return;
+            }
 
-                    this.inBattle = this.playerBattleCount > 0;
-                    if(this.CanMoveOnMap()) {
-                        this.hpCurr = this.hpMax;
-                        this.RunMoveTimer();
-                    }
-                }
+            if(battlePosIdx <= -1) {
+                console.warn(`Enemy ${this.id} called to remove player, but battlePosIdx is ${battlePosIdx}, must be at least 0`);
+                return;
+            }
+
+            //console.log(`Removed player ${this.playersInBattle[battlePosIdx].socketID}`);
+            this.playersInBattle[battlePosIdx].socketID = null;
+            this.playersInBattle[battlePosIdx].actionReadyPct = 0;
+            this.playerBattleCount--;
+            //console.log(`Players remaining in list ${this.playerBattleCount}`);
+
+            this.inBattle = this.playerBattleCount > 0;
+            if(this.CanMoveOnMap()) {
+                this.hpCurr = this.hpMax;
+                this.RunMoveTimer();
             }
         }
 
@@ -270,19 +276,23 @@ module.exports = function(sprites) {
             //* In the event that 2 or more players input the finishing blow on the enemy at nearly the same time, this should prevent both actions from registering, as the block is created just a few lines away.
             //! Still not perfect though :<
             if(this.hpCurr <= 0) {
+                console.warn(`Enemy id ${this.id}'s hp is ${this.hpCurr} and was told to recieve action:`, actionObj);
                 return;
             }
 
             // This is necessary to be able to emit a signal to all battle members after they are removed from the battle and their socketID is lost
             var socketIDListCopy = [];
-            for(let i = 0; i < this.playersInBattle.length; i++) {
-                socketIDListCopy.push({
-                    actionReadyPct: this.playersInBattle[i].actionReadyPct,
-                    socketID: this.playersInBattle[i].socketID
-                });
-            }
+            for(let i = 0; i < this.playersInBattle.length; i++)
+                socketIDListCopy.push(this.playersInBattle[i].socketID);
 
-            if(actionObj.command == Consts.battleCommands.FIGHT) {
+            // PLAYER RUN
+            if(actionObj.command == Consts.battleCommands.RUN) {
+                actionObj.damage = 0;
+                // This calls the player which calls this enemy back... a little ridiculous of a process, but works best programatically. :/
+                sprites.allData[Consts.spriteTypes.PLAYER][actionObj.fromSocketID].LeaveBattle();
+            }
+            // FIGHT, only other option for now.
+            else {
                 this.hpCurr -= actionObj.damage;
                 if(this.hpCurr <= 0) {
                     this.hpCurr = 0;
@@ -300,7 +310,7 @@ module.exports = function(sprites) {
                     this.ResetPosData();
     
                     for(let i = 0; i < this.playersInBattle.length; i++) {
-                        // TODO: Pass through anything that the enemy might hold like exp, if there will be any...?
+                        // TODO: Pass through anything that the enemy might hold like exp, items, etc.
                         if(this.playersInBattle[i].socketID != null)
                             sprites.allData[Consts.spriteTypes.PLAYER][this.playersInBattle[i].socketID].LeaveBattle(false);
                     }
@@ -331,21 +341,14 @@ module.exports = function(sprites) {
                     CheckSpawnPosForRevival();
                 }
             }
-            // RUN, only other option for now.
-            else {
-                //console.log("Enemies: Run from battle");
-                actionObj.damage = 0;
-                // This calls the player which calls this enemy back... a little ridiculous of a process, but works best programatically. :/
-                sprites.allData[Consts.spriteTypes.PLAYER][actionObj.fromSocketID].LeaveBattle();
-            }
 
 
             // console.log(`Battle won for player ${this.socket.client.id}`);
             // TODO: database update as needed
             // TODO: Send win object/information to client through here if there was a win.
             for(let i = 0; i < socketIDListCopy.length; i++) {
-                if(socketIDListCopy[i].socketID != null) {
-                    this.io.to(socketIDListCopy[i].socketID).emit('RecPlayerAction', { 
+                if(socketIDListCopy[i] != null) {
+                    this.io.to(socketIDListCopy[i]).emit('RecPlayerAction', { 
                         socketID: actionObj.fromSocketID,
                         actorBattleIdx: actionObj.battleIdx,
                         targetBattleIdx: -1,
@@ -416,8 +419,9 @@ module.exports = function(sprites) {
 
             // Might have killed the last player (this.inBattle will toggle when player is removed [down line through player.Attack]), but if not, keep attacking.
             // Apply a small delay to allow for client animations. Although it'd be best to let an animation run and hear back, from which player? The multiplayer setup is not conducive to that.
+            // TODO: Apply a time delay based on reading the animation data for a best estimate.
             if(this.inBattle)
-                this.actionCooldownTimeoutRef = setTimeout(() => { this.RunActionTimer(); }, 2000);
+                this.actionCooldownTimeoutRef = setTimeout(() => { this.RunActionTimer(); }, 2500);
         }
 
         // Tell all battle players of the given player's action timer percentage

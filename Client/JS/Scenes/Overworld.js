@@ -79,18 +79,15 @@ class Overworld extends TiledMapScene {
         // TODO: Institute a "HideSaveBtn" if there should ever be a "reset" functionality beyond rereshing the browser.
         OptionsMenu.ShowSaveBtn();
 
-        Network.Emit("Play");
-
-        var self = this;
         //------------------------ SETUP NETWORK CALLS
 
         // First emission sent from server - assign proper id, setup map, etc.
-        Network.CreateResponse("GetServerGameData", function (data) {
+        Network.CreateResponse("GetServerGameData", (data) => {
             //console.log(data);
             for (let i = 0; i < data.sprites.length; i++) {
                 var isPlayer = data.sprites[i].type == Consts.spriteTypes.PLAYER;
-                self.sprites[data.sprites[i].type][data.sprites[i].id] = new NetSprite(
-                    self, 
+                this.sprites[data.sprites[i].type][data.sprites[i].id] = new NetSprite(
+                    this, 
                     data.sprites[i].gridPos, 
                     data.sprites[i].assetKey,
                     data.sprites[i].dir,
@@ -102,10 +99,10 @@ class Overworld extends TiledMapScene {
         });
 
         // and tell everyone else about player. Adding new players after this player has joined
-        Network.CreateResponse("AddNewPlayer", function (playerData) {
+        Network.CreateResponse("AddNewPlayer", (playerData) => {
             //console.log(playerData);
-            self.sprites[Consts.spriteTypes.PLAYER][playerData.id] = new NetSprite(
-                self, 
+            this.sprites[Consts.spriteTypes.PLAYER][playerData.id] = new NetSprite(
+                this, 
                 playerData.gridPos,
                 playerData.assetKey, 
                 playerData.dir,  
@@ -121,23 +118,24 @@ class Overworld extends TiledMapScene {
         Network.CreateResponse("UpdateFromServer", (serverSpriteUpdates) => {
             // Use this format to exclude player without needing additional checks
             // TODO: Maybe make this safer? Make sure there is never a mismatch between sprite lists...
-            for (var type in self.sprites) {
-                for (var id in self.sprites[type]) {
+            for (var type in this.sprites) {
+                for (var id in this.sprites[type]) {
                     // Get their image info, tubb info, etc. Need to create the full object at least visually.
                     if (serverSpriteUpdates[type][id])
-                        self.sprites[type][id].ServerUpdate(serverSpriteUpdates[type][id]);
+                        this.sprites[type][id].ServerUpdate(serverSpriteUpdates[type][id]);
                     else
-                        console.log("Tried to update non-existant " + type + ", id: " + id);
+                        console.warn(`Tried to update sprite that exists on this client but not on the server, type ${type}, id: ${id}`);
                 }
             }
         });
 
         Network.CreateResponse("UpdateMapSpriteAssetKey", (mapSprite) => {
-            if (self.sprites[Consts.spriteTypes.PLAYER][mapSprite.id]) {
-                self.sprites[Consts.spriteTypes.PLAYER][mapSprite.id].UpdateTexture(mapSprite.assetKey);
+            if (this.sprites[Consts.spriteTypes.PLAYER][mapSprite.id]) {
+                this.sprites[Consts.spriteTypes.PLAYER][mapSprite.id].UpdateTexture(mapSprite.assetKey);
             }
         });
 
+        var self = this;
         // Remove any sprite, including players
         function RemoveMapSpriteCallback(mapSprite) {
             // TODO: Other removal things as needed (exit animation for players? Handle any world interactions/events/etc.)
@@ -178,6 +176,8 @@ class Overworld extends TiledMapScene {
                 this.scene.wake("Battle", battleData);
             });
         });
+
+        Network.Emit("Play");
 
         //* Launch and put to sleep immediately, so it's just always on standby, only to ever be slept and awaken.
         this.scene.launch("Battle");
