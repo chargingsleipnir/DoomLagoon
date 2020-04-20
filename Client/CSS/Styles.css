@@ -141,6 +141,14 @@ input[type="range"]::-moz-range-thumb {
     width: 18px;
     height: 30px;
     margin-top: -5px;
+    background-color: transparent;
+    border: none;
+    background-image: url("../Assets/GUI/slider_Nub18x30.png");
+    cursor: pointer;
+}
+input[type="range"]::-ms-thumb {
+    width: 18px;
+    height: 30px;
     background-image: url("../Assets/GUI/slider_Nub18x30.png");
     cursor: pointer;
 }
@@ -150,12 +158,21 @@ input[type="range"]::-webkit-slider-runnable-track {
     width: 205px;
     height: 15px;
     background-image: url("../Assets/GUI/slider_Bar205x15.png");
+    background-repeat: no-repeat;
     cursor: pointer;
 }
 input[type="range"]::-moz-range-track {
     width: 205px;
     height: 15px;
     background-image: url("../Assets/GUI/slider_Bar205x15.png");
+    background-repeat: no-repeat;
+    cursor: pointer;
+}
+input[type="range"]::-ms-track {
+    width: 205px;
+    height: 20px;
+    background-image: url("../Assets/GUI/slider_Bar205x15.png");
+    background-repeat: no-repeat;
     cursor: pointer;
 }
 

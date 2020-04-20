@@ -28,6 +28,7 @@ var MainMenu = (() => {
 
             btn_StartGame = document.getElementById('StartBtn');
             btn_StartGame.addEventListener("click", (e) => {
+                btn_StartGame.blur();
                 GameAudio.SFXPlay("click");
                 GameAudio.FadeOut(0.5, () => {
                     OptionsMenu.RemovePreludeBtn();
