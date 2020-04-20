@@ -9,29 +9,25 @@
 
 class LocalPlayer extends Sprite {
 
-    isMoving = false;
-
-    keys = null;
-    keyHeld = 0;
-    neighbors = { LEFT: 0, RIGHT: 0, UP: 0, DOWN: 0 };
-    
-    canCacheNext = false;
-
-    moveCache_Grid = [];
-    moveCache_Pixel = [];
-
-    moveDist = 0.0;
-    moveFracCovered = 0.0;
-
-    moveRequestConfrmed;
-    assessRequestConfirmed;
-
-    inBattle;
-
-    upgrades = {};
-
     constructor(scene, serverData) {
         super(scene, { x: serverData.orientation.x, y: serverData.orientation.y }, serverData.assetKey, serverData.orientation.dir, MainMenu.GetDispName());
+
+        this.keyHeld = 0;
+        this.neighbors = { LEFT: 0, RIGHT: 0, UP: 0, DOWN: 0 };
+        
+        this.canCacheNext = false;
+
+        this.moveCache_Grid = [];
+        this.moveCache_Pixel = [];
+
+        this.moveDist = 0.0;
+        this.moveFracCovered = 0.0;
+
+        this.moveRequestConfrmed = true;
+        this.assessRequestConfirmed = true;
+
+        this.inBattle = false;
+
 
         // Anchor display name overhead
         var dispName = scene.add.text((this.sprite.width * 0.5), -(this.sprite.height), MainMenu.GetDispName(), Consts.STYLE_DISP_NAME);
@@ -52,17 +48,10 @@ class LocalPlayer extends Sprite {
             dir: this.dirIndex
         });
 
-        this.moveRequestConfrmed = true;
-        this.assessRequestConfirmed = true;
-
-        this.inBattle = false;
-
         this.upgrades = {
             equip: serverData.upgrades.equip,
             ability: serverData.upgrades.ability
         };
-
-        var self = this;
 
         this.keys = {
             left: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A),
@@ -72,18 +61,19 @@ class LocalPlayer extends Sprite {
             enter: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER)
         };
 
-        this.keys.left.on('down', () => self.keyHeld++);
+        this.keys.left.on('down', () => this.keyHeld++);
         this.keys.left.on('up', StopMoveAnim);
 
-        this.keys.right.on('down', () => self.keyHeld++);
+        this.keys.right.on('down', () => this.keyHeld++);
         this.keys.right.on('up', StopMoveAnim);
 
-        this.keys.up.on('down', () => self.keyHeld++);
+        this.keys.up.on('down', () => this.keyHeld++);
         this.keys.up.on('up', StopMoveAnim);
 
-        this.keys.down.on('down', () => self.keyHeld++);
+        this.keys.down.on('down', () => this.keyHeld++);
         this.keys.down.on('up', StopMoveAnim);
 
+        var self = this;
         function StopMoveAnim() {
             self.keyHeld--;
             if(self.keyHeld <= 0)

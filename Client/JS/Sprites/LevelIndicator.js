@@ -1,15 +1,4 @@
-// TODO: Power will start at 1, and increase to 5 by adding equip & ability levels
-// TODO: Speed will start at 3, and increase with each equip level, but decrease with each ability level.
-// Thus, the Fighter's speeds can range 1 - 3, Lord's 2 - 4, and Knight's 3 - 5.
-
 class LevelIndicator {
-
-    xOffset;
-    topY;
-    initFrameGap;
-    fillColour;
-    baseline;
-    fillSlots = [];
 
     constructor(scene, container, xOffset, titleText, fillColour, baseline = 1) {
         this.xOffset = xOffset;
@@ -18,7 +7,7 @@ class LevelIndicator {
 
         this.topY = -28;
         this.initFrameGap = 13;
-
+        this.fillSlots = [];
 
         let headerText = scene.add.text(xOffset, this.topY, titleText, Consts.STYLE_BATTLE_GUI_SUBTITLE);
         headerText.setOrigin(0.5);

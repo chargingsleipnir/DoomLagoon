@@ -1,47 +1,23 @@
 class BattleSprite {
 
-    scene;
-
-    nameText;
-    sprite;
-
-    battlePosIndex;
-
-    idlePos;
-    offScreenX;
-    assetKey;
-    assetIndex;
-    moveKeyIndex;
-
-    inBattle;
-    gameObjCont;
-
-    actionArc;
-    hpArc;
-
-    flipXFactor;
-
-    hpMax;
-    hpCurrText;
-    hpPctFrom;
-    hpPctTo;
-    hpChangeFactor;
-    hpDispIncrement = 1;
-
-    damageText;
-
-    AnimEndCB = () => {};
-    actionObj = null;
-
-    // TODO: Bettter tie-in with map sprites
-    // TODO: I need to put their names on the battle field!!!
-
     constructor(scene, battlePosIndex, idlePos, offScreenX, assetKey, flipX = false) {
+
         this.scene = scene;
         this.battlePosIndex = battlePosIndex;
         this.idlePos = idlePos;
         this.offScreenX = offScreenX;
         this.assetKey = assetKey;
+
+        this.assetIndex = -1;
+        this.moveKeyIndex = -1;
+
+        this.hpMax = 0;
+        this.hpPctTo = 0;
+        this.hpDispIncrement = 1;
+
+        this.AnimEndCB = () => {};
+        this.actionObj = null;
+        
         this.SetAssetIndex();
 
         this.gameObjCont = scene.add.container(this.offScreenX, this.idlePos.y);

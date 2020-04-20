@@ -1,17 +1,8 @@
 class Sprite {
 
-    scene;
-
-    gameObjCont;
-    sprite;
-    assetKey;
-    name;
-
-    dirIndex;
-    prevDirIndex;
-
     constructor(scene, initGridSpawn, assetKey, dirIndex, name) {
         this.scene = scene;
+        this.isMoving = false;
 
         this.gameObjCont = scene.add.container(
             initGridSpawn.x * scene.MapTileWidth, 
@@ -26,6 +17,8 @@ class Sprite {
 
         this.gameObjCont.add(this.sprite);
         this.name = name || 'I am Error';
+
+        this.prevDirIndex = -1;
     }
 
     // TODO: Clean this up. Yes, it works, but at what cost...

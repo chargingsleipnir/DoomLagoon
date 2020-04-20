@@ -1,11 +1,10 @@
 // TODO: Only ever put this scene to sleep, so it does not repeat the init and create calls.
 class Overworld extends TiledMapScene {
 
-    sprites = {};
-
     constructor() {
         super("Overworld");
 
+        this.sprites = {};
         this.sprites[Consts.spriteTypes.PLAYER] = {};
         this.sprites[Consts.spriteTypes.ENEMY] = {};
         this.sprites[Consts.spriteTypes.NPC] = {};

@@ -2,16 +2,6 @@
 
 class NetSprite extends Sprite {
 
-    id;
-    isMoving = false;
-
-    // Purely pixel based
-    moveCache = [];
-
-    moveDist = { x: 0, y: 0 };
-    moveFracCovered = { x: 0, y: 0 };
-    distToCover = { x: 0, y: 0 };
-
     constructor(scene, initGridPos, assetKey, dirIndex, name, id, doDispName) {
         super(scene, initGridPos, assetKey, dirIndex, name);
 
@@ -24,9 +14,14 @@ class NetSprite extends Sprite {
             dir: dirIndex
         };
 
+        this.moveCache = [];
         this.moveCache[Consts.moveCacheSlots.FROM] = initPixelPosPackage;
         this.moveCache[Consts.moveCacheSlots.TO] = initPixelPosPackage;
         this.moveCache[Consts.moveCacheSlots.NEXT] = initPixelPosPackage;
+
+        this.moveDist = { x: 0, y: 0 };
+        this.moveFracCovered = { x: 0, y: 0 };
+        this.distToCover = { x: 0, y: 0 };
 
         //* Until there would seem to be greater differences between a net "sprite" and net "player", just leave as one object with different toggles for now.
         if(doDispName) {

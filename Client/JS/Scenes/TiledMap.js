@@ -1,10 +1,9 @@
 class TiledMapScene extends SceneTransition {
     
-    map;
-    chestsByCoordInt;
-
     constructor(sceneName) {
         super(sceneName);
+        this.map = null;
+        this.chestsByCoordInt = {};
     }
 
     LoadMapData(jsonPath) {
@@ -38,7 +37,6 @@ class TiledMapScene extends SceneTransition {
         
         // The only way to show object layer objects using Phaser, so keep them pretty unique wherever possible.
         //* The client is merely displaying these objects, it's the server that's handling interaction.
-        this.chestsByCoordInt = {};
         
         this.map.createFromObjects('Objects', 11, { key: "volcano", frame: 0 });
         for(var i = 0; i < this.map.objects[0].objects.length; i++) {

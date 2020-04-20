@@ -1,13 +1,12 @@
 class SceneTransition extends Phaser.Scene {
 
-    MASK_MAX_SCALE = 2;
-    TRANSITION_TIME = 2000;
-
-    mask;
-    transitionOpen;
-
     constructor(sceneName) {
         super(sceneName);
+
+        this.MASK_MAX_SCALE = 2;
+        this.TRANSITION_TIME = 2000;
+
+        this.mask;
         this.transitionOpen = true;
     }
 

@@ -1,46 +1,43 @@
 class Battle extends SceneTransition {
-
-    bg;
-
-    menuCont;
-    menuContX;
-    menuContYOffScreen;
-    menuContYOnScreen;
-
-    // Needs to be seperated for mask to work.
-    menuAbilityCmdCont;
-    menuAbilityMaskSprite;
-
-    menuBG;
-
-    menuCursor;
-    menuCmdIndex;
-    menuCmdXPos = {};
-
-    menuAbilityOpts = [];
-    menuAbilityOptIndex;
-    MENU_ABILITY_OPT_SPACE = 35;
-
-    equipLevel = 0;
-    powerIndicator;
-    speedIndicator;
-
-    LAUNCH_TIME = 1000;
-
-    scaleFactorX;
-    scaleFactorY;
-
-    actionReady;
-
-    spriteEnemy;
-    spritePlayers = [];
-
-    playerIdxObj;
-    battleOver;
     
     constructor() {
         super("Battle");
+
+        this.bg = null;
+
+        this.menuCont = null;;
+        this.menuContX = 0;
+        this.menuContYOffScreen = 0;
+        this.menuContYOnScreen = 0;
+    
+        // Needs to be seperated for mask to work.
+        this.menuAbilityCmdCont = null;
+        this.menuAbilityMaskSprite = null;
+    
+        this.menuBG = null;
+    
+        this.menuCursor = null;
+        this.menuCmdIndex = Consts.battleCommands.FIGHT;
+        this.menuCmdXPos = {};
+    
+        this.menuAbilityOpts = [];
         this.menuAbilityOptIndex = 0;
+        this.MENU_ABILITY_OPT_SPACE = 35;
+    
+        this.equipLevel = 0;
+        this.powerIndicator = null;
+        this.speedIndicator = null;
+    
+        this.LAUNCH_TIME = 1000;
+    
+        this.scaleFactorX = 1;
+        this.scaleFactorY = 1;
+    
+        this.actionReady = false;
+    
+        this.spriteEnemy = null;
+        this.spritePlayers = [];
+
         this.playerIdxObj = {
             self: -1,
             others: []
@@ -281,34 +278,34 @@ class Battle extends SceneTransition {
 
         // BATTLE INPUT
         this.input.keyboard.on('keydown_W', () => {
-            if(!self.actionReady)
+            if(!this.actionReady)
                 return;
 
-            self.ChangeAbilityOption(-1);
+            this.ChangeAbilityOption(-1);
         });
         this.input.keyboard.on('keydown_S', () => {
-            if(!self.actionReady)
+            if(!this.actionReady)
                 return;
 
-            self.ChangeAbilityOption(1);
+            this.ChangeAbilityOption(1);
         });
         this.input.keyboard.on('keydown_A', () => {
-            if(!self.actionReady)
+            if(!this.actionReady)
                 return;
 
-            self.ToggleCommandOption();
+            this.ToggleCommandOption();
         });
         this.input.keyboard.on('keydown_D', () => {
-            if(!self.actionReady)
+            if(!this.actionReady)
                 return;
 
-            self.ToggleCommandOption();
+            this.ToggleCommandOption();
         });
         this.input.keyboard.on('keydown_ENTER', () => {
-            if(!self.actionReady)
+            if(!this.actionReady)
                 return;
 
-            self.SetActionReady(false);
+            this.SetActionReady(false);
             Network.Emit("BattleAction", {
                 command: this.menuCmdIndex,
                 ability: this.menuAbilityOptIndex,

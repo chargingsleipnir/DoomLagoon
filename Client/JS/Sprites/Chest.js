@@ -1,15 +1,5 @@
 class Chest {
 
-    scene;
-    chestSprite;
-    gameObjCont;
-
-    textureClosed;
-    textureOpen;
-
-    contentSprites;
-    contentBG;
-
     constructor(scene, sprite) {
         this.scene = scene;
         this.chestSprite = sprite;
@@ -20,7 +10,8 @@ class Chest {
         this.chestSprite.setPosition(0, 0);
         this.gameObjCont.add(this.chestSprite);
 
-        this.textureClosed = this.textureOpen = "";
+        this.textureOpen = "";
+        this.textureClosed = "";
 
         this.contentSprites = [];
         this.contentBG = scene.add.graphics();
