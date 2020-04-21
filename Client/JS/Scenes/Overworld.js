@@ -41,9 +41,6 @@ class Overworld extends TiledMapScene {
         this.cameras.main.setZoom(1.5);
         this.cameras.main.setRoundPixels(true);
 
-        // TODO: Institute a "HideSaveBtn" if there should ever be a "reset" functionality beyond rereshing the browser.
-        OptionsMenu.ShowSaveBtn();
-
         //------------------------ SETUP NETWORK CALLS
 
         // First emission sent from server - assign proper id, setup map, etc.

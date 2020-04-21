@@ -28,7 +28,6 @@ class LocalPlayer extends Sprite {
 
         this.inBattle = false;
 
-
         // Anchor display name overhead
         var dispName = scene.add.text((this.sprite.width * 0.5), -(this.sprite.height), MainMenu.GetDispName(), Consts.STYLE_DISP_NAME);
         dispName.setOrigin(0.5);
@@ -102,6 +101,9 @@ class LocalPlayer extends Sprite {
         // Single-time key press, only repeats if held after about a second
         scene.input.keyboard.on('keydown_ENTER', () => {
             // Redundant check
+            if(this.inBattle)
+                return;
+
             if(InGameGUI.CheckCanvasFocus()) {
                 self.assessRequestConfirmed = false;
                 Network.Emit("ReqCellInteraction", self.GetCellDiffByDir());

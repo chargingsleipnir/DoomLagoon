@@ -5,7 +5,7 @@ class Battle extends Phaser.Scene {
 
         this.bg = null;
 
-        this.menuCont = null;;
+        this.menuCont = null;
         this.menuContX = 0;
         this.menuContYOffScreen = 0;
         this.menuContYOnScreen = 0;
@@ -206,7 +206,7 @@ class Battle extends Phaser.Scene {
             var selfKilled = false;
             // Who was attacked, myself or another player.
             if(actionObj.targetBattleIdx == this.playerIdxObj.self) {
-                // I've been killed
+                // I've been killed, shut off controls immediately
                 selfKilled = actionObj.targetHPCurr <= 0;
                 if(selfKilled) {
                     this.battleOver = true;

@@ -115,85 +115,102 @@
     <img src="Assets/TitleWooden.png" alt="Doom Lagoon" class="absCentreTop" />
 
     <div id="MainMenu" class="menuPanel bg_Paper512 deadCentreOfScreen">
-        <div class="flexFlowRightTop">
-            <div class="flexFlowDownCentre">
-                <div class="frame_Wood250x50 flexCentreChild bg_LightGrey"><input id="DispNameField" type="text" placeholder="Display Name" maxlength="10" autocomplete="off"/></div>
-                <div class="bg_Button285x60 flexCentreChild disabled"><input id="StartBtn" type="button" value="Play" disabled /></div>
-            </div>
-            <div class="flexCentreChild"><button id="MainMenuOptionsBtn" class="bg_Button80"><i class="fas fa-cog fa-2x"></i></button></div>
-        </div>
-        <div id="SaveOptions" class="margTop25">
-            <div class="flexFlowRight">
-                <span>Browser Saving: </span>
-                <em id="LocalSaveUnavailText">Unavailable</em>
-                <span id="LocalSaveAvailCheckbox"><input type="checkbox" id="LocalSaveCheck" /><label for="LocalSaveCheck" class="bgImg"></label></span>
-            </div>
-            <div>Database Saving:</div>
-            <div class="flexFlowRightCentre">
-                <div class="frame_Wood205x38 bgImg margTop10 bg_LightGrey posRel">
-                    <input id="SlotName" class="dbSlot" type="text" size="20" maxlength="25" pattern="^[A-Za-z0-9]{3,25}$" placeholder="Slot name" autocomplete="off" required/>
-                    <div class="floatingSpeechBox">Min 3 of any letter or number</div>
-                </div>
-                <div class="frame_Wood205x38 bgImg margTop10 bg_LightGrey margLeft10 posRel">
-                    <input id="Password" class="dbSlot" type="password" size="20" maxlength="20" pattern="^[A-Za-z0-9!@#$%^&*()-_]{3,20}$" placeholder="Password" autocomplete="off" required/>
-                    <div class="floatingSpeechBox">Min 3 of any letter, number, or !@#$%^&*()-_</div>
-                </div>
-            </div>
-            <div class="pad10">
-                <div class="flexFlowRightTop">
-                    <div class="flexFlowDownLeft">
-                        <button id="LoadSlotBtn" class="flexFlowRightCentre">
-                            <div class="bg_Panel42 bgImg flexCentreChild"><i class="fas fa-sign-in-alt"></i></div>
-                            <span class="margLeft10 forceFont">Load slot</span>
-                        </button>
-                        <button id="CreateSlotBtn" class="flexFlowRightCentre margTop10">
-                            <div class="bg_Panel42 bgImg flexCentreChild"><i class="fas fa-user-plus"></i></div>
-                            <span class="margLeft10 forceFont">Create slot</span>
-                        </button>
-                    </div>
-                    <div class="flexFlowDownLeft">
-                        <button id="EraseSlotBtn" class="flexFlowRightCentre">
-                            <div class="bg_Panel42 bgImg flexCentreChild"><i class="fas fa-user-minus"></i></div>
-                            <span class="margLeft10 forceFont">Erase slot</span>
-                        </button>
-                    </div>
-                </div>
-                <div id="SaveSlotMessage" class="colBySuccess centered margTop5 success"></div>
-            </div>
-            <!-- Save slot info -->
-            <div class="pad10">
-                <div id="SaveSlotData" class="flexFlowDownLeft hide">
-                    <!-- TAG: Save location disabled 
-                    <em>Position</em> 
-                    <div><span>x: </span><span id="SaveSlotGridX"></span></div>
-                    <div><span>y: </span><span id="SaveSlotGridY"></span></div> -->
-                    <em>Upgrades</em>
-                    <div><span>Rank: </span><span id="SaveSlotEquip"></span></div>
-                    <div><span>Attack moves: </span><span id="SaveSlotAbility"></span></div>
-                </div>
-            </div>
+        <div class="flexFlowDownTopCentre">
+            <div class="frame_Wood250x50 flexCentreChild bg_LightGrey margTop40"><input id="DispNameField" type="text" placeholder="Display Name" maxlength="10" autocomplete="off"/></div>
+            <button id="StartBtn" class="bg_Button285x60 margTop10" disabled><i class="fas fa-dragon"></i><span>&nbsp;Play</span></button>
+            <button id="MainMenuOptionsBtn" class="bg_Button285x60 margTop10"><i class="fas fa-cog"></i><span>&nbsp;Options</span></button>
         </div>
     </div>
 
     <div id="OptionsMenu" class="menuPanel bg_Paper512 deadCentreOfScreen hide">
         <button alt="close" id="CloseOptionsBtn"><i class="fas fa-window-close fa-2x"></i></button>
         <div class="flexFlowRightTop">
-            <ul id="OptionsMenuTabs">
-                <li id="OptionsTab_General" class="hide"><button class="bg_Button80 tabButton" data-panel-Id="GeneralOptions"><i class="fas fa-folder-open fa-3x"></i></button></li>
-                <li><button class="bg_Button80 tabButton margTop10 active" data-panel-Id="Controls"><i class="fas fa-gamepad fa-3x"></i></button></li>
+            <ul id="OptionsMenuTabs" class="flexGrow0 margRight20">
+                <li><button class="bg_Button80 tabButton active" data-panel-Id="SaveOptions"><i class="fas fa-folder-open fa-3x"></i></button></li>
+                <li><button class="bg_Button80 tabButton margTop10 " data-panel-Id="Controls"><i class="fas fa-gamepad fa-3x"></i></button></li>
                 <li><button class="bg_Button80 tabButton margTop10" data-panel-Id="Gameplay"><i class="fas fa-globe fa-3x"></i></button></li>
                 <li><button class="bg_Button80 tabButton margTop10" data-panel-Id="AudioOptions"><i class="fas fa-headphones fa-3x"></i></button></li>
             </ul>
 
-            <div id="GeneralOptions" class="optionPanel hide">
-                <div class="flexFlowDownCentre centredBlock">
-                    <button id="SaveBtn" class="flexFlowRightCentre">
+            <div id="SaveOptions" class="optionPanel flexFlowDownTopCentre active">
+                <div class="flexFlowDownTopCentre">
+                    <button id="SaveBtn" class="flexFlowRightCentre" disabled>
                         <div class="bg_Panel42 bgImg flexCentreChild"><i class="fas fa-save"></i></div>
                         <span class="margLeft10 forceFont">Save game</span>
                     </button>
                 </div>
+                <img src="Assets/GUI/Divider_350x8.png" class="margTop15" width="350" height="8" />
+                <div class="flexRightTopSpaceBetween margTop15">
+                    <div class="flexFlowDownTopCentre flexShrink0 margLeft10">
+                        <span>Save to browser:</span>
+                        <em id="LocalSaveUnavailText" class="margTop5">Unavailable</em>
+                        <span id="LocalSaveAvailCheckbox" class="margTop10"><input type="checkbox" id="LocalSaveCheck" /><label for="LocalSaveCheck" class="bgImg"></label></span>
+                    </div>
+                    <div id="LocalStorageData" class="flexGrow1 flexCol flexJustStartAlignCentre">
+                        <div class="flexCol flexJustAlignStart slotFont">
+                            <div>SLOT DATA</div>
+                            <div class="margTop10"><span>Rank: </span><span id="LocalStorageEquip">-</span></div>
+                            <div><span>Abilities: </span><span id="LocalStorageAbility">-</span></div>
+                            <!-- TAG: Save location disabled 
+                            <div>
+                                <span>Position: x </span>
+                                <span id="LocalStorageGridX"></span>
+                                <span>, y </span>
+                                <span id="LocalStorageGridY"></span>
+                            </div>-->
+                        </div>
+                    </div>
+                </div>
+                <img src="Assets/GUI/Divider_350x8.png" class="margTop15" width="350" height="8" />
+                <div class="margTop15">
+                    <div>Save to database (load priority):</div>
+                    <div class="flexFlowDownTopCentre">
+                        <div class="frame_Wood205x38 bgImg margTop10 bg_LightGrey posRel">
+                            <input id="SlotName" class="dbSlot" type="text" size="20" maxlength="25" pattern="^[A-Za-z0-9]{3,25}$" placeholder="Slot name" autocomplete="off" required/>
+                            <div class="floatingSpeechBox">Min 3 of any letter or number</div>
+                        </div>
+                        <div class="frame_Wood205x38 bgImg margTop5 bg_LightGrey posRel">
+                            <input id="Password" class="dbSlot" type="password" size="20" maxlength="20" pattern="^[A-Za-z0-9!@#$%^&*()-_]{3,20}$" placeholder="Password" autocomplete="off" required/>
+                            <div class="floatingSpeechBox">Min 3 of any letter, number, or !@#$%^&*()-_</div>
+                        </div>
+                    </div>
+                    <div class="flexRightTopSpaceBetween margTop10">
+                        <div class="flexFlowDownTopCentre flexGrow1">
+                            <div class="flexFlowDownLeft">
+                                <button id="LoadSlotBtn" class="flexFlowRightCentre">
+                                    <div class="bg_Panel42 bgImg flexCentreChild"><i class="fas fa-sign-in-alt"></i></div>
+                                    <span class="margLeft10 forceFont">Load</span>
+                                </button>
+                                <button id="CreateSlotBtn" class="flexFlowRightCentre margTop5">
+                                    <div class="bg_Panel42 bgImg flexCentreChild"><i class="fas fa-user-plus"></i></div>
+                                    <span class="margLeft10 forceFont">Create</span>
+                                </button>
+                                <button id="EraseSlotBtn" class="flexFlowRightCentre margTop5">
+                                    <div class="bg_Panel42 bgImg flexCentreChild"><i class="fas fa-user-minus"></i></div>
+                                    <span class="margLeft10 forceFont">Erase</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="flexGrow1 flexCol flexJustStartAlignCentre">
+                            <!-- Save slot info -->
+                            <div id="SaveSlotMessage" class="colBySuccess centered success hide"></div>
+                            <div id="SaveSlotData" class="flexCol flexJustAlignStart slotFont">
+                                <h4>SLOT DATA</h4>
+                                <div><span>Rank: </span><span id="SaveSlotEquip">-</span></div>
+                                <div><span>Abilities: </span><span id="SaveSlotAbility">-</span></div>
+                                <!-- TAG: Save location disabled 
+                                <div>
+                                    <span>Position: x </span>
+                                    <span id="SaveSlotGridX"></span>
+                                    <span>, y </span>
+                                    <span id="SaveSlotGridY"></span>
+                                </div>-->
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div id="Controls" class="optionPanel active flexFlowDownCentre">
+            <div id="Controls" class="optionPanel flexFlowDownTopCentre">
                 <div>
                     <div class="bgImg bg_KeysWASD centredBlock"></div>
                     <div>Move / Switch battle command</div>
@@ -207,7 +224,7 @@
                     <div>(Spacebar) Open chat log</div>
                 </div>
             </div>
-            <div id="Gameplay" class="optionPanel flexFlowDownCentre">
+            <div id="Gameplay" class="optionPanel flexFlowDownTopCentre">
                 <h4>Move beside an enemy to engage:</h4>
                 <img src="Assets/GUI/KnightOnMap.PNG" alt="Engagement" class="centered" />
                 <h4>Interact with these map objects:</h4>
@@ -239,10 +256,10 @@
         </div>
     </div>
 
-    <div id="GameOverMenu" class="menuPanel bg_Paper512 deadCentreOfScreen flexFlowDownCentre hidden">
+    <div id="GameOverMenu" class="menuPanel bg_Paper512 deadCentreOfScreen flexFlowDownTopCentre hidden">
         <h1>YOU DIED!</h1>
         <div class="margTop10">Well that sure sucks. Give it another try!</div>
-        <div class="bg_Button285x60 flexCentreChild margTop25"><input id="ResetGameBtn" type="button" value="Restart" /></div>
+        <button id="ResetGameBtn" class="bg_Button285x60 margTop25"><i class="fas fa-redo"></i><span>&nbsp;Restart</span></button>
     </div>
 
     <div class="flexRowCentreViewport">

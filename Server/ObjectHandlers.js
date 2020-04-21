@@ -72,6 +72,14 @@ module.exports = function(dbHdlr) {
                 }
                 // TAG: Save location disabled
                 // TODO: Move this back into the "else" statement once I've committed to loading position data.
+
+
+                if(orientObj.x == -1) {
+                    // TODO: If I return to saving & loading position data, need to account for this.
+                    // TODO: Both database and local storage initial setting will save default upgrades, but no posiiton to speak of, hence starting as -1
+                    // TODO: So inital spawn point needs to be used in this case!
+                }
+
                 // ==================================================== FROM HERE
                 // Get a spawn point
                 var spawnIndex = 0;

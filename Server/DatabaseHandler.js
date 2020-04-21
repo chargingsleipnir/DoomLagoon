@@ -94,7 +94,9 @@ module.exports = function() {
 
             socket.on("ReqCreateSlot", async function (data) {
                 // If username is successfully found, that's a fail - as usernames cannot be duplicated
-                var signUpSuccess = !(await CheckSingleRow("username", data.username));
+                var signUpSuccess = !(await CheckSingleRow("username", data.user.name));
+                var orient = data.slotData ? data.slotData.orientation : { x: -1, y: -1, dir: -1 };
+                var upgrades = data.slotData ? data.slotData.upgrades : { equip: 0, ability: 0 };
 
                 if (signUpSuccess) {
                     try {
@@ -102,10 +104,10 @@ module.exports = function() {
                         DeactivateSlots(socket.client.id);
                         await client.query("INSERT INTO players VALUES (DEFAULT, $1, $2, $3, $4, $5)", [
                             socket.client.id,
-                            data.username,
-                            bcrypt.hashSync(data.password, Consts.SALT_ROUNDS),
-                            null,
-                            null
+                            data.user.name,
+                            bcrypt.hashSync(data.user.password, Consts.SALT_ROUNDS),
+                            orient,
+                            upgrades
                         ]);
                     }
                     catch(e) {
@@ -113,7 +115,11 @@ module.exports = function() {
                         signUpSuccess = false;
                     }
                 }
-                socket.emit("RecCreateSlot", signUpSuccess);
+                socket.emit("RecCreateSlot", {
+                    success: signUpSuccess,
+                    gridPos: orient,
+                    upgrades: upgrades
+                });
             });
 
             socket.on("ReqEraseSlot", async function (data) {

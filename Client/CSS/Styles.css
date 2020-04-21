@@ -31,17 +31,15 @@ body {
     padding: 10px;
 }
 
-.bg_Button285x60 > input[type="button"] {
+button.bg_Button285x60 {
     border: none;
     background-color: transparent;
-    height: 100%;
-    width: 100%;
     color: white;
     font-size: 18pt;
     text-align: center;
 }
 
-.bg_Button285x60.disabled {
+.bg_Button285x60:disabled, button:disabled {
     opacity: 0.66;
     cursor: default;
     pointer-events: none;
@@ -267,6 +265,16 @@ h4 {
     padding: 15px;
 }
 
+.padLeftRight10 {
+    padding-left: 10px;
+    padding-Right: 10px;
+}
+
+.padLeftRight15 {
+    padding-left: 15px;
+    padding-Right: 15px;
+}
+
 .pad20 {
     padding: 20px;
 }
@@ -277,6 +285,10 @@ h4 {
 
 .margTop10 {
     margin-top: 10px;
+}
+
+.margTop15 {
+    margin-top: 15px;
 }
 
 .margTop25 {
@@ -299,6 +311,20 @@ h4 {
     margin-left: 40px;
 }
 
+.margRight20 {
+    margin-right: 20px;
+}
+
+.margLeft20Right5 {
+    margin-left: 20px;
+    margin-Right: 5px;
+}
+
+.margLeft20Right5 {
+    margin-left: 20px;
+    margin-Right: 5px;
+}
+
 .flexFlowRight {
     display: flex;
     flex-flow: row nowrap;
@@ -311,10 +337,34 @@ h4 {
     align-items: top;
 }
 
+.flexRightTopSpaceBetween {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-between;
+    align-items: top;
+}
+
 .flexFlowRightCentre {
     display: flex;
     flex-flow: row nowrap;
     justify-content: center;
+    align-items: center;
+}
+
+.wh100 {
+    width: 100%;
+    height: 100%;
+}
+.flexCol {
+    display: flex;
+    flex-flow: column nowrap;
+}
+.flexJustAlignStart {
+    justify-content: start;
+    align-items: flex-start;
+}
+.flexJustStartAlignCentre {
+    justify-content: start;
     align-items: center;
 }
 
@@ -325,7 +375,14 @@ h4 {
     align-items: flex-start;
 }
 
-.flexFlowDownCentre {
+.flexFlowDownCentreCentre {
+    display: flex;
+    flex-flow: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.flexFlowDownTopCentre {
     display: flex;
     flex-flow: column;
     justify-content: start;
@@ -337,8 +394,14 @@ h4 {
     z-index: 2;
 }
 
-#OptionsMenuTabs {
+.flexGrow0 {
     flex-grow: 0;
+}
+.flexGrow1 {
+    flex-grow: 1;
+}
+.flexShrink0 {
+    flex-shrink: 0;
 }
 
 ul {
@@ -577,4 +640,13 @@ button {
 #StartInitialMusicBtn {
     cursor: pointer;
     display: inline-flex;
+}
+
+
+/* SaveSlotData */
+
+.slotFont {
+    font-family: monospace;
+    font-size: large;
+    font-weight: bold;
 }

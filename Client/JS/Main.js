@@ -90,15 +90,21 @@ var Main = (() => {
             if(!Main.player)
                 return;
 
+            var willSave = false;
             if(Main.userPrefs.useLocalStorage) {
+                willSave = true;
                 console.log(`Saving data: `, Main.player.GetSavePack());
                 localStorage.setItem(Network.LOCAL_STORAGE_KEY, JSON.stringify(Main.player.GetSavePack()));
                 Main.DispMessage("Game saved locally.", 2);
             }
     
             if(Main.userPrefs.useDBStorage) {
+                willSave = true;
                 Network.Emit("ReqSave", Main.player.GetSavePack());
             }
+
+            if(!willSave)
+                Main.DispMessage("No save option selected.", 2);
         },
         DispMessage: (msg, seconds) => {
             if(msgQueue.length == 0) {
