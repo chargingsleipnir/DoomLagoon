@@ -6,11 +6,6 @@ class TiledMapScene extends SceneTransition {
         this.chestsByCoordInt = {};
     }
 
-    LoadMapData(jsonPath) {
-        // MAP
-        this.load.tilemapTiledJSON('tilemap', jsonPath);
-    }
-
     create() {
         super.create();
         

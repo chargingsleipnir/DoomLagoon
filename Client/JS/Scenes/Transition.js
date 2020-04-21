@@ -10,8 +10,7 @@ class SceneTransition extends Phaser.Scene {
         this.transitionOpen = true;
     }
 
-    create() {
-
+    init() {
         // TODO: Make this rectangular, at the exact aspect ratio of the canvas, for perfect scaling.
         var halfW = Main.phaserConfig.width * 0.5,
         halfH = Main.phaserConfig.height * 0.5;
@@ -21,48 +20,31 @@ class SceneTransition extends Phaser.Scene {
         this.mask = this.add.image(0, 0, 'mask').setPosition(halfW, halfH);
 
         this.cameras.main.setMask(new Phaser.Display.Masks.BitmapMask(this, this.mask));
+    }
 
-        var scene = this;
+    create() {
         this.events.on(Phaser.Scenes.Events.TRANSITION_OUT, () => {
+            const propertyConfig = { ease: 'Expo.easeInOut', from: this.MASK_MAX_SCALE, start: this.MASK_MAX_SCALE, to: 0 };
 
-            //console.log("Scene transition out event");
-
-            // TODO: This was heavily messing up the transitions - Find some other way to freeze the game when transitions start
-            //scene.scene.pause();
-
-            const propertyConfig = {
-                ease: 'Expo.easeInOut',
-                from: scene.MASK_MAX_SCALE,
-                start: scene.MASK_MAX_SCALE,
-                to: 0,
-            };
-
-            scene.tweens.add({
+            this.tweens.add({
                 duration: this.TRANSITION_TIME,
                 scaleX: propertyConfig,
                 scaleY: propertyConfig,
-                targets: scene.mask,
+                targets: this.mask,
             });
         });
 
         this.events.on(Phaser.Scenes.Events.CREATE, () => {
-
             if(!this.transitionOpen)
                 return;
 
-            const propertyConfig = {
-                ease: 'Expo.easeInOut',
-                from: 0,
-                start: 0,
-                to: scene.MASK_MAX_SCALE,
-            };
-        
-            scene.tweens.add({
+            const propertyConfig = { ease: 'Expo.easeInOut', from: 0, start: 0, to: this.MASK_MAX_SCALE };
+            this.tweens.add({
                 delay: this.TRANSITION_TIME,
                 duration: this.TRANSITION_TIME,
                 scaleX: propertyConfig,
                 scaleY: propertyConfig,
-                targets: scene.mask,
+                targets: this.mask,
             });
         });
     }

@@ -1,4 +1,4 @@
-class Battle extends SceneTransition {
+class Battle extends Phaser.Scene {
     
     constructor() {
         super("Battle");
@@ -43,24 +43,6 @@ class Battle extends SceneTransition {
             others: []
         };
         this.battleOver = false;
-    }
-
-    preload() {
-        this.load.image('battleBG_Grass_House_01', '../../Assets/BattleBackgrounds/Grass_House_01.png');
-        this.load.image('battleMenuBG', '../../Assets/GUI/Menu_450x100.png');
-        this.load.image('battleMenuMask', '../../Assets/GUI/menuMask_424x74.png');
-        this.load.image('battleMenuCursor', '../../Assets/GUI/arrowRight_32x32.png');
-
-        //* Being able to loop through this depends on very specific naming conventions using the "skin" and "move" names.
-        for(let i = 0; i < Main.animData.skins.length; i++) {
-            let skin = Main.animData.skins[i];
-            for(let j = 0; j < Main.animData.battle.moveKeys.length; j++) {
-                let move = Main.animData.battle.moveKeys[j];
-                let frame = Main.animData.battle.frameDetails[i][j];
-                if(frame != null)
-                    this.load.spritesheet(`${Main.animData.battle.skinPrefix}_${move}_${skin}`, `../../Assets/Sprites/${skin}/${move}.png`, { frameWidth: frame.w, frameHeight: frame.h, margin: 0, spacing: 0 });
-            }
-        }
     }
 
     create() {

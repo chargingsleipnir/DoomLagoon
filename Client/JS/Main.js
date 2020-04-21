@@ -1,6 +1,6 @@
 var Main = (() => {
 
-    var scenes = [Title, Overworld, Battle];
+    var scenes = [Title, Loader, Overworld, Battle];
     var gameMsgBox;
     var msgQueue = [];
     var timeoutHdlr;

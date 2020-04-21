@@ -11,44 +11,10 @@ class Overworld extends TiledMapScene {
     }
 
     init() {
+        super.init();
+        //this.mask.setScale(this.MASK_MAX_SCALE);
+
         InGameGUI.Init(this);
-    }
-
-    preload() {
-        Main.animData.skins.forEach((skin) => {
-            this.load.spritesheet(`${Main.animData.overworld.skinPrefix}_${skin}`, `../../Assets/Sprites/${skin}/WALK.png`, { frameWidth: 32, frameHeight: 32, margin: 1, spacing: 1 });
-        }, this);
-
-        this.LoadMapData('DataFiles/OverworldTilesetsEmbeded.json');
-
-        // Terrain
-        this.load.image('tileset_General', '../../Assets/Map/pipo-map001_Extruded.png');
-        this.load.image('tileset_Grass', '../../Assets/Map/pipo-map001_at-kusa.png');
-        this.load.image('tileset_Trees', '../../Assets/Map/pipo-map001_at-mori.png');
-        this.load.image('tileset_Sand', '../../Assets/Map/pipo-map001_at-sabaku.png');
-        this.load.image('tileset_Dirt', '../../Assets/Map/pipo-map001_at-tuti.png');
-        this.load.image('tileset_Water', '../../Assets/Map/pipo-map001_at-umi.png');
-        this.load.image('tileset_MountainBrown', '../../Assets/Map/pipo-map001_at-yama2.png');
-        this.load.image('tileset_MountainGrey', '../../Assets/Map/pipo-map001_at-yama3.png');
-
-        // Single images for Tiled object layer items
-        this.load.image('sign', '../../Assets/Map/Sign.png');
-        this.load.image('spring', '../../Assets/Map/Spring.png');
-        this.load.image('volcano', '../../Assets/Map/VolcaonActive.png');
-
-        // Chests
-        this.load.image('chestBrownClosed', '../../Assets/Map/ChestBrownClosed.png');
-        this.load.image('chestBrownOpen', '../../Assets/Map/ChestBrownOpen.png');
-        this.load.image('chestGreenClosed', '../../Assets/Map/ChestGreenClosed.png');
-        this.load.image('chestGreenOpen', '../../Assets/Map/ChestGreenOpen.png');
-        // Icons for chest contents
-        this.load.image('iconSword', '../../Assets/Icons/Sword.png');
-        this.load.image('iconCape', '../../Assets/Icons/Cape.png');
-        this.load.image('iconLance', '../../Assets/Icons/Lance.png');
-        this.load.image('iconShield', '../../Assets/Icons/Shield.png');
-        this.load.image('iconArmour', '../../Assets/Icons/Armour.png');
-        this.load.image('iconBookGreen', '../../Assets/Icons/BookGreen.png');
-        this.load.image('iconBookRed', '../../Assets/Icons/BookRed.png');
     }
 
     create(transferData) {
