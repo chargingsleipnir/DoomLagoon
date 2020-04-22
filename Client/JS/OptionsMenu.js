@@ -37,7 +37,6 @@ var OptionsMenu = (() => {
         localStoreDataExists = !!localStoreData;
     }
     function UpdateLSSlotData(gridPos, upgrades) {
-        console.log(upgrades);
         // TAG: Save location disabled
         //localStoreGridX.innerHTML = gridPos ? gridPos.x : "-";
         //localStoreGridY.innerHTML = gridPos ? gridPos.y : "-";

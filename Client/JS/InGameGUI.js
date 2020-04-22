@@ -56,6 +56,14 @@ var InGameGUI = (() => {
 
             // =================================== Chat message window
             elem_ChatLog = document.getElementById("ChatLog");
+
+            // Enable portfolio site to get chat log
+            window.onmessage = (event) => {
+                //console.log(`Recieved message: (${event.data}) from origin: (${event.origin}).`);
+                if(event.data == "ReqChatLog")
+                    event.source.postMessage(elem_ChatLog.innerHTML, event.origin);
+            };
+
             var elem_NewChatNotif = document.getElementById("ChatNotifDot");
 
             function ToggleOpenChatView() {
@@ -138,9 +146,6 @@ var InGameGUI = (() => {
         },
         CheckCanvasFocus: () => {
             return !chatInputFocused;
-        },
-        GetChatLogLIs: () => {
-            return elem_ChatLog.innerHTML;
         }
     }
 })();

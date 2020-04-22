@@ -71,13 +71,6 @@ var Main = (() => {
                 RestartMenu.Init();
                 GameAudio.Init();
 
-                // Enable portfolio site to get chat log
-                window.onmessage = (event) => {
-                    console.log(`Recieved message from origin ${event.origin}`);
-                    //event.source.postMessage(InGameGUI.GetChatLogLIs, event.origin);
-                    event.source.postMessage("TEST MESSAGE SENT BACK", event.origin);
-                };
-
                 Network.CreateResponse("RecSave", (success) => {
                     if(success) {
                         Main.DispMessage("Game saved to database.", 2);
