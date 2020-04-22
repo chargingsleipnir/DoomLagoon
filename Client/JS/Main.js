@@ -61,6 +61,7 @@ var Main = (() => {
             useDBStorage: false
         },
         Init: () => {
+
             // Establish socket connection
             Network.InitSocketConnection(() => {
                 // Phaser Game starts in MainMenu on Play button
@@ -69,6 +70,11 @@ var Main = (() => {
                 //InGameGUI.Init();
                 RestartMenu.Init();
                 GameAudio.Init();
+
+                // Enable portfolio site to get chat log
+                window.onmessage = (event) => {
+                    event.source.postMessage(InGameGUI.GetChatLogLIs, event.origin);
+                };
 
                 Network.CreateResponse("RecSave", (success) => {
                     if(success) {

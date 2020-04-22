@@ -2,6 +2,7 @@ var InGameGUI = (() => {
 
     var elem_ChatTextInput;
     var chatInputFocused;
+    var elem_ChatLog;
 
     function ChatInputFocus() {
         console.log("Chat input focus");
@@ -56,7 +57,7 @@ var InGameGUI = (() => {
             });
 
             // =================================== Chat message window
-            var elem_ChatLog = document.getElementById("ChatLog");
+            elem_ChatLog = document.getElementById("ChatLog");
             var elem_NewChatNotif = document.getElementById("ChatNotifDot");
 
             function ToggleOpenChatView() {
@@ -139,6 +140,9 @@ var InGameGUI = (() => {
         },
         CheckCanvasFocus: () => {
             return !chatInputFocused;
+        },
+        GetChatLogLIs: () => {
+            return elem_ChatLog.innerHTML;
         }
     }
 })();
