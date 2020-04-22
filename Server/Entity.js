@@ -5,23 +5,36 @@ module.exports = function(sprites) {
 
     function LookForAndUpdateNeighbors(cell, value) {
         // Update any potentially new neighbors of this map call that they also have a new neighbor.
-        
+
         var cellValue = mapData.GetValueXY(cell.x + 1, cell.y);
-        if (isNaN(cellValue))
-            sprites.allData[cellValue.spriteType][cellValue.id].UpdateNeighbor('LEFT', value);
-        
+        if (isNaN(cellValue)) {
+            if(sprites.allData[cellValue.spriteType][cellValue.id])
+                sprites.allData[cellValue.spriteType][cellValue.id].UpdateNeighbor('LEFT', value);
+            else
+                console.warn(`Despite being in the map data at x${cell.x + 1}:y${cell.y}, "sprites" list has no entry for spritetype ${cellValue.spriteType}, id ${cellValue.id}.`);
+        }
         cellValue = mapData.GetValueXY(cell.x - 1, cell.y);
         if (isNaN(cellValue)) {
-            sprites.allData[cellValue.spriteType][cellValue.id].UpdateNeighbor('RIGHT', value);
+            if(sprites.allData[cellValue.spriteType][cellValue.id])
+                sprites.allData[cellValue.spriteType][cellValue.id].UpdateNeighbor('RIGHT', value);
+            else
+                console.warn(`"Despite being in the map data at x${cell.x - 1}:y${cell.y}, "sprites" list has no entry for spritetype ${cellValue.spriteType}, id ${cellValue.id}.`);
         }
     
         cellValue = mapData.GetValueXY(cell.x, cell.y + 1);
-        if (isNaN(cellValue))
-            sprites.allData[cellValue.spriteType][cellValue.id].UpdateNeighbor('UP', value);
-    
+        if (isNaN(cellValue)) {
+            if(sprites.allData[cellValue.spriteType][cellValue.id])
+                sprites.allData[cellValue.spriteType][cellValue.id].UpdateNeighbor('UP', value);
+            else
+                console.warn(`"Despite being in the map data at x${cell.x}:y${cell.y + 1}, "sprites" list has no entry for spritetype ${cellValue.spriteType}, id ${cellValue.id}.`);
+        }
         cellValue = mapData.GetValueXY(cell.x, cell.y -1);
-        if (isNaN(cellValue))
-            sprites.allData[cellValue.spriteType][cellValue.id].UpdateNeighbor('DOWN', value);
+        if (isNaN(cellValue)) {
+            if(sprites.allData[cellValue.spriteType][cellValue.id])
+                sprites.allData[cellValue.spriteType][cellValue.id].UpdateNeighbor('DOWN', value);
+            else
+                console.warn(`"Despite being in the map data at x${cell.x}:y${cell.y - 1}, "sprites" list has no entry for spritetype ${cellValue.spriteType}, id ${cellValue.id}.`);
+        }
     }
 
     class Entity {
