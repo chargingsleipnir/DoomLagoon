@@ -110,18 +110,18 @@ module.exports = function(dbHdlr) {
                     upgrades: upgradeObj
                 });
 
-                player.Init();
-
-                // Set up all other network responses
-                player.SetupNetworkResponses(io, socket);
-
                 // Add player to lists
+                //* Lists get referenced in Init, this allData container needs to be above it to find player if required.
                 sprites.allData[Consts.spriteTypes.PLAYER][socket.client.id] = player;
                 sprites.updatePack[Consts.spriteTypes.PLAYER][socket.client.id] = {
                     x: orientObj.x * mapData.GetTileWidth(),
                     y: orientObj.y * mapData.GetTileHeight(),
                     dir: orientObj.dir
                 };
+
+                player.Init();
+                player.SetupNetworkResponses(io, socket);
+                
                 // Send new player data to all other players
                 socket.broadcast.emit("AddNewPlayer", player.GetInitPack());
 
