@@ -3,6 +3,7 @@
 .bgImg {
     background-position: center;
     background-repeat: no-repeat;
+    background-size: contain;
 }
 
 html {
@@ -174,21 +175,29 @@ input[type="range"]::-ms-track {
     cursor: pointer;
 }
 
+#Controls {
+    text-align: left;
+}
 
 .bg_KeysWASD {
     background-image: url("../Assets/GUI/controls_WASD.png");
-    width: 210px;
-    height: 140px;
+    width: 105px;
+    height: 70px;
 }
 .bg_KeysEnter {
     background-image: url("../Assets/GUI/controls_Enter.png");
-    width: 150px;
-    height: 75px;
+    width: 80px;
+    height: 40px;
+}
+.bg_KeysTab {
+    background-image: url("../Assets/GUI/controls_Tab.png");
+    width: 80px;
+    height: 50px;
 }
 .bg_KeysSpace {
     background-image: url("../Assets/GUI/controls_Space.png");
-    width: 300px;
-    height: 75px;
+    width: 160px;
+    height: 40px;
 }
 
 
@@ -303,6 +312,10 @@ h4 {
     margin-left: 10px;
 }
 
+.margLeft15 {
+    margin-left: 10px;
+}
+
 .margLeft25 {
     margin-left: 25px;
 }
@@ -325,7 +338,7 @@ h4 {
     margin-Right: 5px;
 }
 
-.flexFlowRight {
+.flexRow {
     display: flex;
     flex-flow: row nowrap;
 }
@@ -467,25 +480,26 @@ ul {
 
 #ChatLog {
     position: absolute;
-    bottom: 40px;
+    top: -5px;
+    right: -280px;
     z-index: 1;
     padding: 5px 10px;
-    width: 940px; /* Compensate for padding */
-    height: 200px;
-    background-color: rgba(255, 255, 255, 0.15);
+    width: 250px;
+    height: 600px;
+    background-color: rgba(255, 255, 255, 0.33);
     color: black;
     overflow-y: scroll;
 }
 
 .chatLogName {
-    font-size: small;
+    font-size: large;
     font-weight: bold;
-    color: blue;
+    color: darkblue;
 }
 .chatLogNameSelf {
-    font-size: small;
+    font-size: large;
     font-weight: bold;
-    color: red;
+    color: darkred;
 }
 
 #CanvasContainer {
@@ -648,5 +662,11 @@ button {
 .slotFont {
     font-family: monospace;
     font-size: large;
+    font-weight: bold;
+}
+
+.slotFontLarger {
+    font-family: monospace;
+    font-size: larger;
     font-weight: bold;
 }

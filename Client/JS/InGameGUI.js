@@ -1,6 +1,24 @@
 var InGameGUI = (() => {
 
-    var elemFocusString;
+    var elem_ChatTextInput;
+    var chatInputFocused;
+
+    function ChatInputFocus() {
+        console.log("Chat input focus");
+        chatInputFocused = true;
+        // No idea why the frame skip is necessary, but it is.
+        // At 0 it worked for Chrome and IE, 1 rewuired for FF
+        setTimeout(() => {
+            elem_ChatTextInput.focus();
+        }, 1);  
+        Main.game.input.keyboard.enabled = false;
+    }
+    function ChatInputBlur() {
+        console.log("Chat input blur");
+        chatInputFocused = false;
+        elem_ChatTextInput.blur();
+        Main.game.input.keyboard.enabled = true;
+    }
 
     return {
         Init: (overworldScene) => {
@@ -13,7 +31,6 @@ var InGameGUI = (() => {
             });
 
             // =================================== Chat input
-            var elem_ChatTextInput;
             function SendMsgToServer() {
                 if(elem_ChatTextInput.value != "") {
                     Network.Emit("ReqChatLogUpdate", { name: MainMenu.GetDispName(), msg: elem_ChatTextInput.value });
@@ -24,12 +41,11 @@ var InGameGUI = (() => {
 
             // Clicking the input field disables Phaser controls.
             elem_ChatTextInput.addEventListener('click', (event) => {
-                elemFocusString = event.currentTarget.tagName;
-                Main.game.input.keyboard.enabled = false;
+                ChatInputFocus();
             });
             // Enter key to send message
             elem_ChatTextInput.addEventListener('keyup', (event) => {
-                if(event.keyCode === 13 && elemFocusString == "INPUT")
+                if(event.keyCode === 13 && chatInputFocused)
                     SendMsgToServer();
             });
             // Also "send message" button
@@ -47,9 +63,20 @@ var InGameGUI = (() => {
                 elem_ChatLog.classList.toggle('hide');
                 elem_NewChatNotif.classList.add("hide");
             }
+            // Tab to switch focus
+            //* This event only works for switching canvas to input, as the call shuts off Phaser's input system
+            overworldScene.input.keyboard.on('keydown_TAB', ChatInputFocus);
+            elem_ChatTextInput.addEventListener('keydown', (e) => {
+                if(event.keyCode === 9) {
+                    ChatInputBlur();
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+            });
+
             // Space bar to open
             overworldScene.input.keyboard.on('keydown_SPACE', () => {
-                if(elemFocusString != "INPUT")
+                if(!chatInputFocused)
                     ToggleOpenChatView();
             });
             // Also "view chat" button
@@ -85,10 +112,8 @@ var InGameGUI = (() => {
             // TODO: Expand beyond debug, as game is more fully implemented.
             Main.game.canvas.addEventListener("click", (event) => {
                 //* NOTE: Not debug, very important!
-                elemFocusString = event.currentTarget.tagName;
-                elem_ChatTextInput.blur();
-
-                Main.game.input.keyboard.enabled = true;
+                ChatInputBlur();
+                
 
                 var posParent = Utility.html.ElemPos(event.currentTarget);
                 var posX = event.clientX - posParent.x;
@@ -113,7 +138,7 @@ var InGameGUI = (() => {
             }, false);
         },
         CheckCanvasFocus: () => {
-            return elemFocusString != "INPUT";
+            return !chatInputFocused;
         }
     }
 })();

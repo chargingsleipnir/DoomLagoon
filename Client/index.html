@@ -111,8 +111,7 @@
         <source src="./Assets/Sounds/dragon_attack.mp3">
     </audio>
 
-
-    <img src="Assets/TitleWooden.png" alt="Doom Lagoon" class="absCentreTop" />
+    <img src="Assets/TitlePixel.png" alt="Doom Lagoon" class="absCentreTop" />
 
     <div id="MainMenu" class="menuPanel bg_Paper512 deadCentreOfScreen">
         <div class="flexFlowDownTopCentre">
@@ -211,17 +210,31 @@
                 </div>
             </div>
             <div id="Controls" class="optionPanel flexFlowDownTopCentre">
-                <div>
-                    <div class="bgImg bg_KeysWASD centredBlock"></div>
-                    <div>Move / Switch battle command</div>
+                <div class="flexRow flexJustStartAlignCentre">
+                    <div class="bgImg bg_KeysWASD bgImg centredBlock"></div>
+                    <div class="margLeft15">
+                        <div>Map: move</div>
+                        <div>Battle: choose command</div>
+                    </div>
                 </div>
-                <div class="margTop25">
-                    <div class="bgImg bg_KeysEnter centredBlock"></div>
-                    <div>Interact / Select battle command</div>
+                <div class="flexRow flexJustStartAlignCentre margTop40">
+                    <div class="bgImg bg_KeysEnter bgImg centredBlock"></div>
+                    <div class="margLeft15">
+                        <div>Map: interact with faced object</div>
+                        <div>Battle: execute command</div>
+                        <div>Chat: send message</div>
+                    </div>
                 </div>
-                <div class="margTop25">
-                    <div class="bgImg bg_KeysSpace centredBlock"></div>
-                    <div>(Spacebar) Open chat log</div>
+                <div class="flexRow flexJustStartAlignCentre margTop40">
+                    <div class="bgImg bg_KeysTab bgImg centredBlock"></div>
+                    <div class="margLeft15">Swap between game & chat message controls</div>
+                </div>
+                <div class="flexRow flexJustStartAlignCentre margTop40">
+                    <div>
+                        <div>(Spacebar)</div>
+                        <div class="bgImg bg_KeysSpace bgImg centredBlock"></div>
+                    </div>
+                    <div class="margLeft15">Map: Open chat log</div>
                 </div>
             </div>
             <div id="Gameplay" class="optionPanel flexFlowDownTopCentre">
@@ -245,9 +258,9 @@
             </div>
             <div id="AudioOptions" class="optionPanel">
                 <label for="VolumeSliderMusic" class="centredBlock">Music Volume</label>
-                <input id="VolumeSliderMusic" class="centredBlock margTop10" type="range" min="0" max="1" step="0.01" value="0.15" />
+                <input id="VolumeSliderMusic" class="centredBlock margTop10" type="range" min="0" max="1" step="0.01" value="0.1" />
                 <label for="VolumeSliderSFX" class="centredBlock margTop40">Sound Effect Volume</label>
-                <input id="VolumeSliderSFX" class="centredBlock margTop10" type="range" min="0" max="1" step="0.01" value="0.3" />
+                <input id="VolumeSliderSFX" class="centredBlock margTop10" type="range" min="0" max="1" step="0.01" value="0.2" />
                 <div id="StartInitialMusicBtn" class="margTop40 flexFlowRightCentre">
                     <img src="Assets/GUI/smallArrow.png" width="27" height="27" />
                     <span>&nbsp;&nbsp;Start Prelude</span>
@@ -265,7 +278,7 @@
     <div class="flexRowCentreViewport">
         <div id="FullGameContainer" class="hide">
             <div id="GameMessageBox" class="centredBlock">This is a potential message from game to player.</div>
-            <ul id="ChatLog" class="hide"></ul>
+            <ul id="ChatLog" class="slotFontLarger hide"></ul>
             <div id="CanvasContainer"></div>
             <!-- TODO: Make this menu actually sitting within the game, overlapping some of the canvas graphical elements, like a true GUI. -->
             <div id="InGameBarMenu" class=".bgImg">
