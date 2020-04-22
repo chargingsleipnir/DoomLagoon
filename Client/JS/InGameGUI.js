@@ -5,7 +5,6 @@ var InGameGUI = (() => {
     var elem_ChatLog;
 
     function ChatInputFocus() {
-        console.log("Chat input focus");
         chatInputFocused = true;
         // No idea why the frame skip is necessary, but it is.
         // At 0 it worked for Chrome and IE, 1 rewuired for FF
@@ -15,7 +14,6 @@ var InGameGUI = (() => {
         Main.game.input.keyboard.enabled = false;
     }
     function ChatInputBlur() {
-        console.log("Chat input blur");
         chatInputFocused = false;
         elem_ChatTextInput.blur();
         Main.game.input.keyboard.enabled = true;
