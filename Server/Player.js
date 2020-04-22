@@ -277,7 +277,7 @@ module.exports = function(sprites) {
                 }
             }
             else {
-                console.warn(`Player ${this.id} new sprite neighbor is not an enemy`);
+                //console.warn(`Player ${this.id} new sprite neighbor is not an enemy`);
                 return;
             }
 
