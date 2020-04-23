@@ -46,7 +46,7 @@ class Battle extends Phaser.Scene {
     }
 
     create() {
-        this.bg = this.add.image(Main.phaserConfig.width * 0.5, Main.phaserConfig.height * 0.5, 'battleBG_Grass_House_01');
+        this.bg = this.add.image(Main.phaserConfig.width * 0.5, Main.phaserConfig.height * 0.5, 'battleBG_Field');
         this.bg.setDisplaySize(Main.phaserConfig.width, Main.phaserConfig.height);
         this.scaleFactorX = this.bg.scaleX;
         this.scaleFactorY = this.bg.scaleY;
@@ -107,13 +107,13 @@ class Battle extends Phaser.Scene {
 
         // ANIMATIONS
         //* Being able to loop through this depends on very specific naming conventions using the "skin" and "move" names.
-        for(let i = 0; i < Main.animData.skins.length; i++) {
-            let skin = Main.animData.skins[i];
-            for(let j = 0; j < Main.animData.battle.moveKeys.length; j++) {
-                let move = Main.animData.battle.moveKeys[j];
-                let frame = Main.animData.battle.frameDetails[i][j];
+        for(let i = 0; i < Main.spriteData.skins.length; i++) {
+            let skin = Main.spriteData.skins[i];
+            for(let j = 0; j < Main.spriteData.battle.moveKeys.length; j++) {
+                let move = Main.spriteData.battle.moveKeys[j];
+                let frame = Main.spriteData.battle.frameDetails[i][j];
                 if(frame != null)
-                    this.anims.create({ key	: `${skin}_${move}`, frames : this.anims.generateFrameNumbers(`${Main.animData.battle.skinPrefix}_${move}_${skin}`, { start: 0, end: frame.count }), repeat: move == 'IDLE' ? -1 : 0, frameRate: 16 });
+                    this.anims.create({ key	: `${skin}_${move}`, frames : this.anims.generateFrameNumbers(`${Main.spriteData.battle.skinPrefix}_${move}_${skin}`, { start: 0, end: frame.count }), repeat: move == 'IDLE' ? -1 : 0, frameRate: 16 });
             }
         }
 
@@ -362,7 +362,7 @@ class Battle extends Phaser.Scene {
         for(let i = 0; i < battleData.abilityLevel + 1; i++) {
             scene.menuAbilityOpts[i].active = true;
             scene.menuAbilityOpts[i].alpha = 1;
-            scene.menuAbilityOpts[i].text = Main.animData.battle["skin-move-actionNames"][battleData.equipLevel][i];
+            scene.menuAbilityOpts[i].text = Main.spriteData.battle["skin-move-actionNames"][battleData.equipLevel][i];
         }
         scene.equipLevel = battleData.equipLevel;
 
@@ -385,6 +385,9 @@ class Battle extends Phaser.Scene {
             y: menuPropertyConfig,
             targets: [scene.menuCont, scene.menuAbilityCmdCont, scene.menuAbilityMaskSprite]
         });
+
+        // Change the background based on the enemy being fought.
+        scene.SetBGAsset(battleData.enemyAssetKey);
 
         // Slide in characters
         scene.spriteEnemy.SetTemplate(battleData.enemyName, battleData.enemyAssetKey, battleData.enemyHPMax, battleData.enemyHPCurr);
@@ -487,6 +490,23 @@ class Battle extends Phaser.Scene {
 
         this.playerIdxObj.self = -1;
         this.playerIdxObj.others = [];
+    }
+
+    SetBGAsset(asset) {
+        var skinIdx = Main.spriteData.skins.indexOf(asset);
+        var region = Main.spriteData.region[skinIdx];
+        var texture = "battleBG_Field";
+        if(region == Consts.regions.SAND)
+            texture = "battleBG_Sand";
+        else if(region == Consts.regions.IRON)
+            texture = "battleBG_Iron";
+        else if(region == Consts.regions.VOLCANO)
+            texture = "battleBG_Volcano";
+        else if(region == Consts.regions.RUIN)
+            texture = "battleBG_Ruin";
+
+
+        this.bg.setTexture(texture, 0);
     }
 
     ChangeAbilityOption(indexChange) {

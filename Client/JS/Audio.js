@@ -7,8 +7,8 @@ var GameAudio = (() => {
 
     var frameRate = 60;
 
-    var volumeMusic = 0.1;
-    var volumeSFX = 0.2;
+    var volumeMusic = 0.15;
+    var volumeSFX = 0.15;
 
     var intervalRef;
 

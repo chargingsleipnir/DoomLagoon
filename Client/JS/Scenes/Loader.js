@@ -48,8 +48,8 @@ class Loader extends SceneTransition {
             assetText.destroy();
         });
         
-        Main.animData.skins.forEach((skin) => {
-            this.load.spritesheet(`${Main.animData.overworld.skinPrefix}_${skin}`, `../../Assets/Sprites/${skin}/WALK.png`, { frameWidth: 32, frameHeight: 32, margin: 1, spacing: 1 });
+        Main.spriteData.skins.forEach((skin) => {
+            this.load.spritesheet(`${Main.spriteData.overworld.skinPrefix}_${skin}`, `../../Assets/Sprites/${skin}/WALK.png`, { frameWidth: 32, frameHeight: 32, margin: 1, spacing: 1 });
         }, this);
 
         // ==================================== OVERWORLD SCENE
@@ -87,19 +87,24 @@ class Loader extends SceneTransition {
 
         // ==================================== BATTLE SCENE
 
-        this.load.image('battleBG_Grass_House_01', '../../Assets/BattleBackgrounds/Grass_House_01.png');
+        this.load.image('battleBG_Field', '../../Assets/BattleBackgrounds/Grass_House.png');
+        this.load.image('battleBG_Sand', '../../Assets/BattleBackgrounds/Desert.png');
+        this.load.image('battleBG_Iron', '../../Assets/BattleBackgrounds/Mountain.png');
+        this.load.image('battleBG_Volcano', '../../Assets/BattleBackgrounds/Lava.png');
+        this.load.image('battleBG_Ruin', '../../Assets/BattleBackgrounds/Ruin.png');
+        
         this.load.image('battleMenuBG', '../../Assets/GUI/Menu_450x100.png');
         this.load.image('battleMenuMask', '../../Assets/GUI/menuMask_424x74.png');
         this.load.image('battleMenuCursor', '../../Assets/GUI/arrowRight_32x32.png');
 
         //* Being able to loop through this depends on very specific naming conventions using the "skin" and "move" names.
-        for(let i = 0; i < Main.animData.skins.length; i++) {
-            let skin = Main.animData.skins[i];
-            for(let j = 0; j < Main.animData.battle.moveKeys.length; j++) {
-                let move = Main.animData.battle.moveKeys[j];
-                let frame = Main.animData.battle.frameDetails[i][j];
+        for(let i = 0; i < Main.spriteData.skins.length; i++) {
+            let skin = Main.spriteData.skins[i];
+            for(let j = 0; j < Main.spriteData.battle.moveKeys.length; j++) {
+                let move = Main.spriteData.battle.moveKeys[j];
+                let frame = Main.spriteData.battle.frameDetails[i][j];
                 if(frame != null)
-                    this.load.spritesheet(`${Main.animData.battle.skinPrefix}_${move}_${skin}`, `../../Assets/Sprites/${skin}/${move}.png`, { frameWidth: frame.w, frameHeight: frame.h, margin: 0, spacing: 0 });
+                    this.load.spritesheet(`${Main.spriteData.battle.skinPrefix}_${move}_${skin}`, `../../Assets/Sprites/${skin}/${move}.png`, { frameWidth: frame.w, frameHeight: frame.h, margin: 0, spacing: 0 });
             }
         }
     }

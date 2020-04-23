@@ -30,7 +30,7 @@ var Main = (() => {
     return {
         game: null,
         player: null,
-        animData: null,
+        spriteData: null,
         phaserConfig: {
             title: "Doom Lagoon",
             type: Phaser.WEBGL,

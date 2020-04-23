@@ -20,13 +20,13 @@ class Overworld extends TiledMapScene {
     create(transferData) {
         super.create();
 
-        Main.animData.skins.forEach((skin) => {
-            Main.animData.overworld.keys.forEach((key) => {
+        Main.spriteData.skins.forEach((skin) => {
+            Main.spriteData.overworld.keys.forEach((key) => {
                 this.anims.create({
                     key	: skin + '-' + key,
-                    frames : this.anims.generateFrameNumbers(`${Main.animData.overworld.skinPrefix}_${skin}`, { start: Main.animData.overworld.frames[key].start, end: Main.animData.overworld.frames[key].end }),
-                    repeat : Main.animData.overworld.repeat,
-                    frameRate : Main.animData.overworld.frameRate
+                    frames : this.anims.generateFrameNumbers(`${Main.spriteData.overworld.skinPrefix}_${skin}`, { start: Main.spriteData.overworld.frames[key].start, end: Main.spriteData.overworld.frames[key].end }),
+                    repeat : Main.spriteData.overworld.repeat,
+                    frameRate : Main.spriteData.overworld.frameRate
                 });
             }, this);
         }, this);

@@ -9,7 +9,7 @@ class Title extends Phaser.Scene {
         this.load.image('TitleBG', '../../Assets/Overworld.png');
 
         // Loading this one scene early so in the next scene, my primary loader, I can use this file's data for sprite sheet loading.
-        this.load.json('AnimData', '../../JS/Sprites/AnimationData.json');
+        this.load.json('SpriteData', '../../JS/Sprites/SpriteData.json');
     }
 
     create ()
@@ -18,7 +18,7 @@ class Title extends Phaser.Scene {
         GameAudio.FadeIn(1);
 
         // As commented above
-        Main.animData = this.cache.json.get('AnimData');
+        Main.spriteData = this.cache.json.get('SpriteData');
 
         this.scene.launch("Loader");
     }

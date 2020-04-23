@@ -161,10 +161,10 @@ for(var i = 0; i < layerObj.objects.length; i++) {
             x: obj.x / JSON_Overworld.tilewidth,
             y: obj.y / JSON_Overworld.tileheight
         }
-        if(obj.type == Consts.spawnTypes.PLAYER) {
+        if(obj.type == Consts.pointTypes.PLAYER) {
             playerSpawns.push(gridPos);
         }
-        else if(obj.type == Consts.spawnTypes.ENEMY) {
+        else if(obj.type == Consts.pointTypes.ENEMY) {
             var spawnObj = {
                 gridPos: gridPos,
                 props: {}
@@ -175,6 +175,10 @@ for(var i = 0; i < layerObj.objects.length; i++) {
 
             enemySpawns.push(spawnObj);
         }
+        //! Skipping this usage of managing regions for now, as it comes with unnecessary overhead.
+        // else if(obj.type == Consts.pointTypes.REGION) {
+        //     console.log(`Region marker name: ${obj.name}, object: `, obj);
+        // }
     }
     else {
         var xLoops = obj.width / JSON_Overworld.tilewidth;

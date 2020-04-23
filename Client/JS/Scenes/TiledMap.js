@@ -4,12 +4,15 @@ class TiledMapScene extends SceneTransition {
         super(sceneName);
         this.map = null;
         this.chestsByCoordInt = {};
+        this.regionByCoordInt = {};
     }
 
     create() {
         super.create();
         
         this.map = this.make.tilemap({ key: 'tilemap'});
+
+        console.log(this.map);
 
         // Params: Tiled name (found in json), Phaser name
         var tileset_General = this.map.addTilesetImage('Toppers', 'tileset_General');
@@ -36,6 +39,16 @@ class TiledMapScene extends SceneTransition {
         this.map.createFromObjects('Objects', 11, { key: "volcano", frame: 0 });
         for(var i = 0; i < this.map.objects[0].objects.length; i++) {
             var obj = this.map.objects[0].objects[i];
+            //console.log(obj);
+
+            // For now, skip over spawn points, regions markers, etc.
+            //* For some ungodly reason, the "point" property is renamed "rectangle" - likely that all object shapes receive this name
+            //! Skipping this usage of managing regions for now, as it comes with unnecessary overhead.
+            if(obj.rectangle) {
+                //if(obj.type == Consts.pointTypes.REGION) {}
+                continue;
+            }
+
             if(obj.type == Consts.tileTypes.SIGN) {
                 this.map.createFromObjects('Objects', obj.id, { key: "sign", frame: 0 });
             }

@@ -52,13 +52,14 @@
     exports.CACHE_NEXT_MOVE_PCT = 0.85;
 
     exports.moveCacheSlots = { FROM: 0, TO: 1, NEXT: 2 };
-    exports.spawnTypes = { PLAYER: 0, ENEMY: 1, NPC: 2 };
+    exports.pointTypes = { PLAYER: 0, ENEMY: 1, REGION: 2 };
     exports.battleCommands = { FIGHT: 0, RUN: 1 }
 
     exports.depthExceptions = { TILEMAP_OVERLAP_LAYER: 9999 }
 
     exports.tileTypes = { BLOCK: 0, WALK: 1, SIGN: 2, SPRING: 3, CHEST: 4, CAVERN: 5 };
     exports.terrainTypes = { BRIDGE: 0 } // Grass, Sand, Dirt, etc...
+    exports.regions = { HOME: 0, FIELD: 1, SAND: 2, IRON: 3, VOLCANO: 4, RUIN: 5 };
     exports.chestTypes = { EQUIPMENT: 0, ABILITY: 1 };
 
     //* Although this could be player "assetKeys", keep this as numeric values here to use in calculating strength bonuses.
