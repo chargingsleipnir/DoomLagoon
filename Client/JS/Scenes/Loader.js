@@ -132,8 +132,15 @@ class Loader extends SceneTransition {
                 localStorageData = JSON.parse(storeData);
         }
 
-        // TODO: I guess I'll have to adapt this to send all of the local storage data, not just orientation
+        var startingOverworld = false;
         this.input.keyboard.on('keydown_ENTER', () => {
+            if(startingOverworld) {
+                console.warn("Overworld loading. Patience is a virtue.");
+                return;
+            }
+
+            startingOverworld = true;
+
             Network.Emit("ReqBuildPlayer", {
                 localStorage: localStorageData,
                 dispName: MainMenu.GetDispName()

@@ -45,7 +45,7 @@ class Overworld extends TiledMapScene {
 
         // First emission sent from server - assign proper id, setup map, etc.
         Network.CreateResponse("GetServerGameData", (data) => {
-            //console.log(data);
+            console.log(`Initial sprite data from server: `, data);
             for (let i = 0; i < data.sprites.length; i++) {
                 var isPlayer = data.sprites[i].type == Consts.spriteTypes.PLAYER;
                 this.sprites[data.sprites[i].type][data.sprites[i].id] = new NetSprite(
@@ -58,6 +58,8 @@ class Overworld extends TiledMapScene {
                     isPlayer
                 );
             }
+
+            Main.player.active = true;
         });
 
         // and tell everyone else about player. Adding new players after this player has joined

@@ -17,6 +17,7 @@ var OptionsMenu = (() => {
     //var saveSlotGridY;
     var saveSlotEquip;
     var saveSlotAbility;
+    var reqSlotChangeOut = false;
 
     var input_SlotName;
     var input_Password;
@@ -188,6 +189,7 @@ var OptionsMenu = (() => {
 
             // TODO: If they do this during gameplay, the player/game needs to be updated to match database information
             Network.CreateResponse("RecLoadSlot", (recObj) => {
+                reqSlotChangeOut = false;
                 console.log("Load slot successful: ", recObj.success);
 
                 if(recObj.success) {
@@ -215,6 +217,7 @@ var OptionsMenu = (() => {
                 ResetSlotInfo();
             });
             Network.CreateResponse("RecCreateSlot", (recObj) => {
+                reqSlotChangeOut = false;
                 console.log("Create slot successful: ", recObj.success);
 
                 if(recObj.success) {
@@ -238,6 +241,7 @@ var OptionsMenu = (() => {
                 ResetSlotInfo();
             });
             Network.CreateResponse("RecEraseSlot", (recObj) => {
+                reqSlotChangeOut = false;
                 console.log("Erase slot successful: ", recObj.success);
 
                 if(recObj.activeSlot) {
@@ -261,15 +265,23 @@ var OptionsMenu = (() => {
             });
 
             document.getElementById('LoadSlotBtn').addEventListener('click', (e) => {
+                if(reqSlotChangeOut)
+                    return;
+                
                 GameAudio.SFXPlay("click");
+                reqSlotChangeOut = true;
                 Network.Emit("ReqLoadSlot", {
                     username: input_SlotName.value,
                     password: input_Password.value
                 });
             });
             document.getElementById('CreateSlotBtn').addEventListener('click', (e) => {
+                if(reqSlotChangeOut)
+                    return;
+                
                 GameAudio.SFXPlay("click");
                 if(input_SlotName.checkValidity() && input_Password.checkValidity()) {
+                    reqSlotChangeOut = true;
                     Network.Emit("ReqCreateSlot", {
                         user: {
                             name: input_SlotName.value,
@@ -286,7 +298,11 @@ var OptionsMenu = (() => {
                 }
             });
             document.getElementById('EraseSlotBtn').addEventListener('click', (e) => {
+                if(reqSlotChangeOut)
+                    return;
+                
                 GameAudio.SFXPlay("click");
+                reqSlotChangeOut = true;
                 Network.Emit("ReqEraseSlot", {
                     username: input_SlotName.value,
                     password: input_Password.value

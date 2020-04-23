@@ -31,10 +31,13 @@ var InGameGUI = (() => {
 
             // =================================== Chat input
             function SendMsgToServer() {
-                if(elem_ChatTextInput.value != "") {
-                    Network.Emit("ReqChatLogUpdate", { name: MainMenu.GetDispName(), msg: elem_ChatTextInput.value });
-                    elem_ChatTextInput.value = "";
+                if(elem_ChatTextInput.value == "") {
+                    console.log("Will not send blank message");
+                    return;
                 }
+
+                Network.Emit("ReqChatLogUpdate", { name: MainMenu.GetDispName(), msg: elem_ChatTextInput.value });
+                elem_ChatTextInput.value = "";
             }
             elem_ChatTextInput = document.getElementById("PlayerChatMsg");
 
@@ -103,8 +106,11 @@ var InGameGUI = (() => {
                 }
             });
     
+            var reqCellValueOut = false;
             // =================================== CLICK TO GET CELL VALUE
             Network.CreateResponse("RecCellValue", function (data) {
+                reqCellValueOut = false;
+
                 if(isNaN(data.cellValue)) {
                     if(data.cellValue) {
                         var value = JSON.parse(JSON.stringify(data.cellValue));
@@ -118,6 +124,9 @@ var InGameGUI = (() => {
             });
             // TODO: Expand beyond debug, as game is more fully implemented.
             Main.game.canvas.addEventListener("click", (event) => {
+                if(reqCellValueOut)
+                    return;
+
                 //* NOTE: Not debug, very important!
                 ChatInputBlur();
                 
@@ -141,6 +150,7 @@ var InGameGUI = (() => {
                 // console.log(`canvas click event, worldX - (worldX % overworldScene.MapTile) - x: ${worldX - (worldX % overworldScene.MapTileWidth_Zoomed)}, y: ${worldY - (worldY % overworldScene.MapTileHeight_Zoomed)}`);
                 // console.log(`canvas click event, as cells - x: ${cellX}, y: ${cellY}`);
 
+                reqCellValueOut = true;
                 Network.Emit("ReqCellValue", { x: cellX, y: cellY });
             }, false);
         },

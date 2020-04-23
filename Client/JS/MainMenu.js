@@ -22,6 +22,7 @@ var MainMenu = (() => {
             btn_StartGame = document.getElementById('StartBtn');
             btn_StartGame.addEventListener("click", (e) => {
                 btn_StartGame.blur();
+                btn_StartGame.disabled = true;
                 btn_Options.disabled = true;
                 OptionsMenu.EnteringGame();
                 GameAudio.SFXPlay("click");

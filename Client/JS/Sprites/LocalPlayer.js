@@ -12,6 +12,8 @@ class LocalPlayer extends Sprite {
     constructor(scene, serverData) {
         super(scene, { x: serverData.orientation.x, y: serverData.orientation.y }, serverData.assetKey, serverData.orientation.dir, MainMenu.GetDispName());
 
+        this.active = false;
+
         this.keyHeld = 0;
         this.neighbors = { LEFT: 0, RIGHT: 0, UP: 0, DOWN: 0 };
         
@@ -24,7 +26,6 @@ class LocalPlayer extends Sprite {
         this.moveFracCovered = 0.0;
 
         this.moveRequestConfrmed = true;
-        this.assessRequestConfirmed = true;
 
         this.inBattle = false;
 
@@ -99,13 +100,17 @@ class LocalPlayer extends Sprite {
         //* DEBUG ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
         // Single-time key press, only repeats if held after about a second
+        var reqInteractionOut = false;
         scene.input.keyboard.on('keydown_ENTER', () => {
             // Redundant check
             if(this.inBattle)
                 return;
 
+            if(reqInteractionOut)
+                return;
+
             if(InGameGUI.CheckCanvasFocus()) {
-                self.assessRequestConfirmed = false;
+                reqInteractionOut = true;
                 Network.Emit("ReqCellInteraction", self.GetCellDiffByDir());
             }
         });
@@ -140,7 +145,7 @@ class LocalPlayer extends Sprite {
         });
 
         Network.CreateResponse("RecCellInteraction", function (data) {
-            self.assessRequestConfirmed = true;
+            reqInteractionOut = false;
             //console.log(`From server, data at cell x: ${data.gridX}, y: ${data.gridY} is: `, data.cellValue);
             if(data.cellValue == Consts.tileTypes.SIGN) {
                 Main.DispMessage(data.interactionObj.msg, 3);
@@ -181,6 +186,9 @@ class LocalPlayer extends Sprite {
     }
 
     Update() {
+        if(!this.active)
+            return;
+
         this.gameObjCont.depth = this.gameObjCont.y;
 
         //console.log("================================================");

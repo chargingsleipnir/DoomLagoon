@@ -5,6 +5,8 @@ var Main = (() => {
     var msgQueue = [];
     var timeoutHdlr;
     var seconds;
+
+    var reqSaveOut = false;
             
     function ResetDispMessage() {
         if(!gameMsgBox.classList.contains("fadeIn"))
@@ -72,9 +74,11 @@ var Main = (() => {
                 GameAudio.Init();
 
                 Network.CreateResponse("RecSave", (success) => {
-                    if(success) {
+                    reqSaveOut = false;
+                    if(success)
                         Main.DispMessage("Game saved to database.", 2);
-                    }
+                    else
+                        console.warn("Database save unsuccessful");
                 });
 
                 gameMsgBox = document.getElementById("GameMessageBox");
@@ -101,7 +105,10 @@ var Main = (() => {
     
             if(Main.userPrefs.useDBStorage) {
                 willSave = true;
-                Network.Emit("ReqSave", Main.player.GetSavePack());
+                if(!reqSaveOut) {
+                    reqSaveOut = true;
+                    Network.Emit("ReqSave", Main.player.GetSavePack());
+                }
             }
 
             if(!willSave)
