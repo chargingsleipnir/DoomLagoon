@@ -47,6 +47,7 @@ var Main = (() => {
                 console.log("Post Boot callback, game:", game);
 
                 Main.game = game;
+                Main.game.canvas.oncontextmenu = () => { return false; };
 
                 // TODO: Still a phaser 2 thing? Not even sure what it is, check it out.
                 //game.time.advancedTiming = true;
