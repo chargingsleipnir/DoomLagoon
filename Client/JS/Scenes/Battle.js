@@ -5,16 +5,14 @@ class Battle extends Phaser.Scene {
 
         this.bg = null;
 
-        this.menuCont = null;
-        this.menuContX = 0;
+        this.cmdMenuCont = null;
+        this.cmdMenuContX = 0;
         this.menuContYOffScreen = 0;
         this.menuContYOnScreen = 0;
     
         // Needs to be seperated for mask to work.
         this.menuAbilityCmdCont = null;
         this.menuAbilityMaskSprite = null;
-    
-        this.menuBG = null;
     
         this.menuCursor = null;
         this.menuCmdIndex = Consts.battleCommands.FIGHT;
@@ -51,59 +49,75 @@ class Battle extends Phaser.Scene {
         this.scaleFactorX = this.bg.scaleX;
         this.scaleFactorY = this.bg.scaleY;
 
-        // Build command menu
-        this.menuCont = this.add.container(0, 0);
+        // ====================================== BUILDING MENUS
 
-        this.menuBG = this.add.image(0, 0, 'battleMenuBG');
-        this.menuBG.setOrigin(0.5);
-        this.menuCont.add(this.menuBG);
+        // ------------------------ Player commands (centre)
+        this.cmdMenuCont = this.add.container(0, 0);
 
-        this.menuContX = (this.menuBG.width * 0.5) + 10;
-        this.menuContYOffScreen = Main.phaserConfig.height + (this.menuBG.height * 0.5) + 10;
-        this.menuContYOnScreen = Main.phaserConfig.height - (this.menuBG.height * 0.5) - 10;
+        var menuBGCmd = this.add.image(0, 0, 'battleMenuCommandBG');
+        menuBGCmd.setOrigin(0.5);
+        this.cmdMenuCont.add(menuBGCmd);
+
+        this.cmdMenuContX = Main.phaserConfig.width * 0.5;
+        this.menuContYOffScreen = Main.phaserConfig.height + (menuBGCmd.height * 0.5) + 10;
+        this.menuContYOnScreen = Main.phaserConfig.height - (menuBGCmd.height * 0.5) - 10;
         
         // X is set perfectly, y being just barely off screen
-        this.menuCont.setPosition(this.menuContX, this.menuContYOffScreen);
+        this.cmdMenuCont.setPosition(this.cmdMenuContX, this.menuContYOffScreen);
         
-        this.menuAbilityCmdCont = this.add.container(this.menuContX, this.menuContYOffScreen);
+        this.menuAbilityCmdCont = this.add.container(this.cmdMenuContX, this.menuContYOffScreen);
 
         // TODO: Make these menu options images instead of text, or find way to stylize fairly well here.
         // TODO: For so long as there's only 2 menu options, this works well enough for now.
-        this.menuAbilityOpts.push(this.add.text(-150, 0, "Attack 0", Consts.STYLE_DISP_NAME));
+        this.menuAbilityOpts.push(this.add.text(-140, 0, "Attack 0", Consts.STYLE_DISP_NAME));
         this.menuAbilityOpts[0].setOrigin(0, 0.5);
         this.menuAbilityCmdCont.add(this.menuAbilityOpts[0]);
 
         for(let i = 1; i < Consts.abilityUpgrades.LEVEL2 + 1; i++) {
-            this.menuAbilityOpts.push(this.add.text(-150, this.MENU_ABILITY_OPT_SPACE * i, "Attack " + i, Consts.STYLE_DISP_NAME));
+            this.menuAbilityOpts.push(this.add.text(-140, this.MENU_ABILITY_OPT_SPACE * i, "Attack " + i, Consts.STYLE_DISP_NAME));
             this.menuAbilityOpts[i].setOrigin(0, 0.5);
             this.menuAbilityOpts[i].alpha = 0;
             this.menuAbilityOpts[i].active = false;
             this.menuAbilityCmdCont.add(this.menuAbilityOpts[i]);
         }
 
-        this.menuAbilityMaskSprite = this.make.sprite({ x: this.menuContX, y: this.menuContYOffScreen, key: "battleMenuMask", add: false });
+        this.menuAbilityMaskSprite = this.make.sprite({ x: this.cmdMenuContX, y: this.menuContYOffScreen, key: "battleMenuCommandMask", add: false });
         var menuBitmapMask = new Phaser.Display.Masks.BitmapMask(this, this.menuAbilityMaskSprite);
 
         this.menuAbilityCmdCont.mask = menuBitmapMask;
 
         // Ability level indicators
-        this.powerIndicator = new LevelIndicator(this, this.menuCont, -10, "Power", 0xff7b00, 1);
-        this.speedIndicator = new LevelIndicator(this, this.menuCont, 40, "Speed", 0xfffb00, 3);
+        this.powerIndicator = new LevelIndicator(this, this.cmdMenuCont, 0, "Power", 0xff7b00, 1);
+        this.speedIndicator = new LevelIndicator(this, this.cmdMenuCont, 50, "Speed", 0xfffb00, 3);
 
         // Run command sits independent of the three attack options
-        var runCmd = this.add.text(150, 0, "Run", Consts.STYLE_DISP_NAME);
+        var runCmd = this.add.text(145, 0, "Run", Consts.STYLE_DISP_NAME);
         runCmd.setOrigin(0, 0.5);
-        this.menuCont.add(runCmd);
+        this.cmdMenuCont.add(runCmd);
 
         this.menuCursor = this.add.image(0, 0, 'battleMenuCursor');
         this.menuCursor.setOrigin(0.5);
-        this.menuCont.add(this.menuCursor);
+        this.cmdMenuCont.add(this.menuCursor);
 
         this.menuCmdXPos[Consts.battleCommands.FIGHT] = this.menuAbilityOpts[0].x - this.menuCursor.width * 0.5 - 10;
         this.menuCmdXPos[Consts.battleCommands.RUN] = runCmd.x - this.menuCursor.width * 0.5 - 10;
         this.SetMenuOption(Consts.battleCommands.FIGHT);
 
         this.SetActionReady(false);
+
+        // ------------------------ Enemy details (Left)
+        var menuBGEnemyDets = this.add.image((-menuBGCmd.width * 0.5) - 10, 0, 'battleMenuDetailBG');
+        menuBGEnemyDets.setOrigin(1.0, 0.5);
+        this.cmdMenuCont.add(menuBGEnemyDets);
+        var progressIndEnemy = new ProgIndr(this, this.cmdMenuCont, (-menuBGCmd.width * 0.5) - 10 - menuBGEnemyDets.width + 15, 0, "Enemy");
+        
+        // ------------------------ Player details (Right)
+        var menuBGPlayersDets = this.add.image((menuBGCmd.width * 0.5) + 10, 0, 'battleMenuDetailBG');
+        menuBGPlayersDets.setOrigin(0, 0.5);
+        this.cmdMenuCont.add(menuBGPlayersDets);
+        var progressIndPlayerTop = new ProgIndr(this, this.cmdMenuCont, (menuBGCmd.width * 0.5) + 25, -27, "Player T");
+        var progressIndPlayerMiddle = new ProgIndr(this, this.cmdMenuCont, (menuBGCmd.width * 0.5) + 25, 0, "Player M");
+        var progressIndPlayerBottom = new ProgIndr(this, this.cmdMenuCont, (menuBGCmd.width * 0.5) + 25, 27, "Player B");
 
         // ANIMATIONS
         //* Being able to loop through this depends on very specific naming conventions using the "skin" and "move" names.
@@ -117,17 +131,19 @@ class Battle extends Phaser.Scene {
             }
         }
 
-        // 4 sprites to hold here permanently, 1 enemy and 3 players to use as needed.
-        this.spriteEnemy = new BattleSprite(this, -1, { x: 250, y: 325 }, -200, 'KnightAxeRed', true);
-        this.spritePlayers[0] = new BattleSprite(this, 0, { x: 700, y: 350 }, Main.phaserConfig.width + 200, 'FighterAxeBlue');
-        this.spritePlayers[1] = new BattleSprite(this, 1, { x: 775, y: 250 }, Main.phaserConfig.width + 200, 'FighterAxeBlue');
-        this.spritePlayers[2] = new BattleSprite(this, 2, { x: 800, y: 450 }, Main.phaserConfig.width + 200, 'FighterAxeBlue');
+        // 4 sprites to hold here permanently, 1 enemy and 3 players to use as needed. Middle player's position if used first, hence they're at index 0.
+        this.spriteEnemy = new BattleSprite(this, -1, { x: 250, y: 325 }, -200, 'KnightAxeRed', progressIndEnemy, true);
+        this.spritePlayers[0] = new BattleSprite(this, 0, { x: 700, y: 310 }, Main.phaserConfig.width + 200, 'FighterAxeBlue', progressIndPlayerMiddle);
+        this.spritePlayers[1] = new BattleSprite(this, 1, { x: 625, y: 270 }, Main.phaserConfig.width + 200, 'FighterAxeBlue', progressIndPlayerTop);
+        this.spritePlayers[2] = new BattleSprite(this, 2, { x: 775, y: 350 }, Main.phaserConfig.width + 200, 'FighterAxeBlue', progressIndPlayerBottom);
+        this.spritePlayers[1].SetActive(false);
+        this.spritePlayers[2].SetActive(false);
 
         var self = this;
 
         Network.CreateResponse('RecAddPlayer', (playerObj) => {
             this.playerIdxObj.others.push(playerObj.battlePosIndex);
-            this.spritePlayers[playerObj.battlePosIndex].SetTemplate(playerObj.name, playerObj.assetKey, playerObj.hpMax, playerObj.hpCurr);
+            this.spritePlayers[playerObj.battlePosIndex].SetTemplate(playerObj.name, playerObj.assetKey, playerObj.hpCurr, playerObj.hpMax);
             this.spritePlayers[playerObj.battlePosIndex].EnterBattle(this.LAUNCH_TIME, this.LAUNCH_TIME * 0.5);
 
             console.log(`Player ${playerObj.name} added at battle posiiton index ${playerObj.battlePosIndex}. HP: ${playerObj.hpCurr} of ${playerObj.hpMax}`);
@@ -383,14 +399,14 @@ class Battle extends Phaser.Scene {
             delay: scene.LAUNCH_TIME,
             duration: scene.LAUNCH_TIME * 0.5,
             y: menuPropertyConfig,
-            targets: [scene.menuCont, scene.menuAbilityCmdCont, scene.menuAbilityMaskSprite]
+            targets: [scene.cmdMenuCont, scene.menuAbilityCmdCont, scene.menuAbilityMaskSprite]
         });
 
         // Change the background based on the enemy being fought.
         scene.SetBGAsset(battleData.enemyAssetKey);
 
         // Slide in characters
-        scene.spriteEnemy.SetTemplate(battleData.enemyName, battleData.enemyAssetKey, battleData.enemyHPMax, battleData.enemyHPCurr);
+        scene.spriteEnemy.SetTemplate(battleData.enemyName, battleData.enemyAssetKey, battleData.enemyHPCurr, battleData.enemyHPMax);
         scene.spriteEnemy.EnterBattle(scene.LAUNCH_TIME, scene.LAUNCH_TIME * 0.5);
         
         scene.playerIdxObj.self = battleData.playerIdxObj.self;
@@ -398,12 +414,12 @@ class Battle extends Phaser.Scene {
 
         if(scene.playerIdxObj.self > -1) {
             var selfData = battleData.playerData[scene.playerIdxObj.self];
-            scene.spritePlayers[scene.playerIdxObj.self].SetTemplate(selfData.name, selfData.assetKey, selfData.hpMax, selfData.hpCurr);
+            scene.spritePlayers[scene.playerIdxObj.self].SetTemplate(selfData.name, selfData.assetKey, selfData.hpCurr, selfData.hpMax);
             scene.spritePlayers[scene.playerIdxObj.self].EnterBattle(scene.LAUNCH_TIME, scene.LAUNCH_TIME * 0.5);
         }
         for(let i = 0; i < scene.playerIdxObj.others.length; i++) {
             var playerData = battleData.playerData[scene.playerIdxObj.others[i]];
-            scene.spritePlayers[scene.playerIdxObj.others[i]].SetTemplate(playerData.name, playerData.assetKey, playerData.hpMax, playerData.hpCurr);
+            scene.spritePlayers[scene.playerIdxObj.others[i]].SetTemplate(playerData.name, playerData.assetKey, playerData.hpCurr, playerData.hpMax);
             scene.spritePlayers[scene.playerIdxObj.others[i]].EnterBattle(scene.LAUNCH_TIME, scene.LAUNCH_TIME * 0.5);
         }
     }
@@ -419,7 +435,7 @@ class Battle extends Phaser.Scene {
 
     SetActionReady(beReady) {
         this.actionReady = beReady;
-        this.menuCont.alpha = beReady ? 1 : 0.5;
+        //this.cmdMenuCont.alpha = beReady ? 1 : 0.5;
         this.menuAbilityCmdCont.alpha = beReady ? 1 : 0.5;
     }
 
@@ -474,7 +490,7 @@ class Battle extends Phaser.Scene {
             delay: this.LAUNCH_TIME * 0.25,
             duration: this.LAUNCH_TIME * 0.5,
             y: menuPropertyConfig,
-            targets: [this.menuCont, this.menuAbilityCmdCont, this.menuAbilityMaskSprite]
+            targets: [this.cmdMenuCont, this.menuAbilityCmdCont, this.menuAbilityMaskSprite]
         });
 
         this.spritePlayers[this.playerIdxObj.self].ExitBattle(this.LAUNCH_TIME * 0.25, this.LAUNCH_TIME * 0.75);

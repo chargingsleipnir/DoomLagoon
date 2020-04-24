@@ -93,9 +93,10 @@ class Loader extends SceneTransition {
         this.load.image('battleBG_Volcano', '../../Assets/BattleBackgrounds/Lava.png');
         this.load.image('battleBG_Ruin', '../../Assets/BattleBackgrounds/Ruin.png');
         
-        this.load.image('battleMenuBG', '../../Assets/GUI/Menu_450x100.png');
-        this.load.image('battleMenuMask', '../../Assets/GUI/menuMask_424x74.png');
-        this.load.image('battleMenuCursor', '../../Assets/GUI/arrowRight_32x32.png');
+        this.load.image('battleMenuCommandBG', '../../Assets/GUI/menu_Single_Divided_400x100.png');
+        this.load.image('battleMenuDetailBG', '../../Assets/GUI/menu_Single_260x100.png');
+        this.load.image('battleMenuCommandMask', '../../Assets/GUI/menu_Single_Divided_Mask_400x88.png');
+        this.load.image('battleMenuCursor', '../../Assets/GUI/arrowRight_24x24.png');
 
         //* Being able to loop through this depends on very specific naming conventions using the "skin" and "move" names.
         for(let i = 0; i < Main.spriteData.skins.length; i++) {

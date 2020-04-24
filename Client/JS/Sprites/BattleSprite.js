@@ -1,19 +1,20 @@
 class BattleSprite {
 
-    constructor(scene, battlePosIndex, idlePos, offScreenX, assetKey, flipX = false) {
+    constructor(scene, battlePosIndex, idlePos, offScreenX, assetKey, progressIndicator, flipX = false) {
 
         this.scene = scene;
         this.battlePosIndex = battlePosIndex;
         this.idlePos = idlePos;
         this.offScreenX = offScreenX;
         this.assetKey = assetKey;
+        this.progIndr = progressIndicator;
 
         this.assetIndex = -1;
         this.moveKeyIndex = -1;
 
-        this.hpMax = 0;
-        this.hpPctTo = 0;
-        this.hpDispIncrement = 1;
+        // this.hpMax = 0;
+        // this.hpPctTo = 0;
+        // this.hpDispIncrement = 1;
 
         this.AnimEndCB = () => {};
         this.actionObj = null;
@@ -35,40 +36,40 @@ class BattleSprite {
         }
 
         // Add name above of the circle.
-        this.nameText = scene.add.text(90 * this.flipXFactor, -30, "", Consts.STYLE_DISP_NAME);
-        this.nameText.setOrigin(0.5);
+        //this.nameText = scene.add.text(90 * this.flipXFactor, -30, "", Consts.STYLE_DISP_NAME);
+        //this.nameText.setOrigin(0.5);
 
         this.damageText = scene.add.text(-50 * this.flipXFactor, -this.sprite.width - 10, "", Consts.STYLE_DISP_DAMAGE);
         this.damageText.setOrigin(0.5);
         this.damageText.alpha = 0;
 
         // Action timer and hp indicators.
-        var actionArcBG = scene.add.graphics();
-        this.actionArc = scene.add.graphics();
-        var hpArcBG = scene.add.graphics();
-        this.hpArc = scene.add.graphics();
+        // var actionArcBG = scene.add.graphics();
+        // this.actionArc = scene.add.graphics();
+        // var hpArcBG = scene.add.graphics();
+        // this.hpArc = scene.add.graphics();
 
-        // Add curr HP in the middle of the circle.
-        this.hpCurrText = scene.add.text(90 * this.flipXFactor, 20, "", Consts.STYLE_DISP_NAME);
-        this.hpCurrText.setOrigin(0.5);
+        // // Add curr HP in the middle of the circle.
+        // this.hpCurrText = scene.add.text(90 * this.flipXFactor, 20, "", Consts.STYLE_DISP_NAME);
+        // this.hpCurrText.setOrigin(0.5);
 
-        // TODO: Add number that pops up each time sprite takes damage or heals.
-        this.gameObjCont.add(this.nameText);
+        // // TODO: Add number that pops up each time sprite takes damage or heals.
+        // this.gameObjCont.add(this.nameText);
         this.gameObjCont.add(this.damageText);
-        this.gameObjCont.add(actionArcBG);
-        this.gameObjCont.add(this.actionArc);
-        this.gameObjCont.add(hpArcBG);
-        this.gameObjCont.add(this.hpArc);
-        this.gameObjCont.add(this.hpCurrText);
+        // this.gameObjCont.add(actionArcBG);
+        // this.gameObjCont.add(this.actionArc);
+        // this.gameObjCont.add(hpArcBG);
+        // this.gameObjCont.add(this.hpArc);
+        // this.gameObjCont.add(this.hpCurrText);
 
-        actionArcBG.fillStyle(0x222222, 1);
-        actionArcBG.fillCircle(90 * this.flipXFactor, 20, 25);
-        hpArcBG.fillStyle(0x800303, 1);
-        hpArcBG.fillCircle(90 * this.flipXFactor, 20, 20);
+        // actionArcBG.fillStyle(0x222222, 1);
+        // actionArcBG.fillCircle(90 * this.flipXFactor, 20, 25);
+        // hpArcBG.fillStyle(0x800303, 1);
+        // hpArcBG.fillCircle(90 * this.flipXFactor, 20, 20);
 
-        this.hpPctFrom = this.hpPctTo = 100;
-        this.hpChangeFactor = -1;
-        this.DrawHP(this.hpPctTo);
+        // this.hpPctFrom = this.hpPctTo = 100;
+        // this.hpChangeFactor = -1;
+        // this.DrawHP(this.hpPctTo);
 
         this.inBattle = false;
 
@@ -108,15 +109,20 @@ class BattleSprite {
         }, this.scene);
     }
 
-    SetTemplate(name, assetKey, hpMax, hpCurr) {
+    SetTemplate(name, assetKey, hpCurr, hpMax) {
         this.inBattle = true;
 
-        this.nameText.text = name;
+        // this.nameText.text = name;
         this.UpdateAsset(assetKey);
 
-        this.hpMax = hpMax;
-        this.hpCurrText.text = hpCurr;
-        this.UpdateHPByCurrMax(hpCurr, hpMax);
+        // this.hpMax = hpMax;
+        // this.UpdateHPByCurrMax(hpCurr, hpMax);
+
+        this.progIndr.SetTemplate(name, hpCurr, hpMax);
+    }
+
+    SetActive(isActive) {
+        this.progIndr.SetActive(isActive);
     }
 
     UpdateAsset(assetKey) {
@@ -138,6 +144,7 @@ class BattleSprite {
             targets: this.gameObjCont,
             onComplete: () => {
                 // Play idle as you get in.
+                this.SetActive(true);
                 this.PlayAnim(0);
             }
         });
@@ -189,6 +196,7 @@ class BattleSprite {
             x: battleEnterConfig,
             targets: this.gameObjCont,
             onComplete: () => {
+                this.SetActive(false);
                 this.gameObjCont.alpha = 1;
             }
         });
@@ -205,6 +213,7 @@ class BattleSprite {
             alpha: spriteDieConfig,
             targets: this.gameObjCont,
             onComplete: () => {
+                this.SetActive(false);
                 // Reset this BattleSprite slot to possibly still be commendeered by someone else.
                 this.gameObjCont.x = this.offScreenX;
                 this.gameObjCont.alpha = 1;
@@ -215,23 +224,27 @@ class BattleSprite {
 
     Update() {
         //console.log(`Hp to: ${this.hpPctTo}, from: ${this.hpPctFrom}`);
-        if(this.hpPctTo != this.hpPctFrom) {
-            this.hpPctFrom += (this.hpDispIncrement * this.hpChangeFactor);
-            // Safety check to ensure a single frame blip doesn't cause the value to go past the first check and increment forever.
-            if(this.hpPctTo - (this.hpPctFrom * this.hpChangeFactor) <= this.hpDispIncrement * 2)
-                this.hpPctFrom = this.hpPctTo;
+        // if(this.hpPctTo != this.hpPctFrom) {
+        //     this.hpPctFrom += (this.hpDispIncrement * this.hpChangeFactor);
+        //     // Safety check to ensure a single frame blip doesn't cause the value to go past the first check and increment forever.
+        //     if(this.hpPctTo - (this.hpPctFrom * this.hpChangeFactor) <= this.hpDispIncrement * 2)
+        //         this.hpPctFrom = this.hpPctTo;
 
-            this.DrawHP(this.hpPctFrom);
-        }
+        //     this.DrawHP(this.hpPctFrom);
+        // }
+
+        this.progIndr.Update();
     }
 
     UpdateActionTimer(percentage) {
-        this.actionArc.clear();
-        this.actionArc.fillStyle(0x004cff, 1);
-        this.actionArc.moveTo(90 * this.flipXFactor, 20);
-        this.actionArc.arc(90 * this.flipXFactor, 20, 25, Phaser.Math.DegToRad(0), Phaser.Math.DegToRad(-360 * (percentage * 0.01)), true);
-        this.actionArc.closePath();
-        this.actionArc.fillPath();
+        // this.actionArc.clear();
+        // this.actionArc.fillStyle(0x004cff, 1);
+        // this.actionArc.moveTo(90 * this.flipXFactor, 20);
+        // this.actionArc.arc(90 * this.flipXFactor, 20, 25, Phaser.Math.DegToRad(0), Phaser.Math.DegToRad(-360 * (percentage * 0.01)), true);
+        // this.actionArc.closePath();
+        // this.actionArc.fillPath();
+
+        this.progIndr.DrawAction(percentage);
     }
 
     // Little pop-up number
@@ -261,23 +274,25 @@ class BattleSprite {
             //return;
         }
 
-        this.hpCurrText.text = hpCurr;
+        this.progIndr.UpdateHPByCurrMax(hpCurr, hpMax);
 
-        this.hpPctFrom = this.hpPctTo;
-        this.hpPctTo = Math.floor((hpCurr / hpMax) * 100);
+        // this.hpCurrText.text = hpCurr;
 
-        // Presume to show losing health, but if hp is gained, show increasing health.
-        this.hpChangeFactor = -1;
-        if(this.hpPctTo > this.hpPctFrom)
-            this.hpChangeFactor = 1;
+        // this.hpPctFrom = this.hpPctTo;
+        // this.hpPctTo = Math.floor((hpCurr / hpMax) * 100);
+
+        // // Presume to show losing health, but if hp is gained, show increasing health.
+        // this.hpChangeFactor = -1;
+        // if(this.hpPctTo > this.hpPctFrom)
+        //     this.hpChangeFactor = 1;
     }
 
-    DrawHP(percentage) {
-        this.hpArc.clear();
-        this.hpArc.fillStyle(0x058003, 1);
-        this.hpArc.moveTo(90 * this.flipXFactor, 20);
-        this.hpArc.arc(90 * this.flipXFactor, 20, 20, Phaser.Math.DegToRad(0), Phaser.Math.DegToRad(360 * (percentage * 0.01)));
-        this.hpArc.closePath();
-        this.hpArc.fillPath();
-    }
+    // DrawHP(percentage) {
+    //     this.hpArc.clear();
+    //     this.hpArc.fillStyle(0x058003, 1);
+    //     this.hpArc.moveTo(90 * this.flipXFactor, 20);
+    //     this.hpArc.arc(90 * this.flipXFactor, 20, 20, Phaser.Math.DegToRad(0), Phaser.Math.DegToRad(360 * (percentage * 0.01)));
+    //     this.hpArc.closePath();
+    //     this.hpArc.fillPath();
+    // }
 }
