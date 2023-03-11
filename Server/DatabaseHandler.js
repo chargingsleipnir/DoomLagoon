@@ -15,12 +15,13 @@ var configObj = process.env.PORT ? {
 
 const client = new Client(configObj);
 
-//console.log("process.env.DATABASE_URL: ", process.env.DATABASE_URL);
+console.log(`process.env.DATABASE_URL <${process.env.DATABASE_URL}>`);
 //* DB TEST -> in terminal, "npm run printFullTable"
 
 async function Connect() {
     try {
-        await client.connect();
+        console.log("Attempting databse connection...");
+        await client.connect((err) => { throw err; });
         console.log("Successfully connected to database.");
     }
     catch(e) {
@@ -33,6 +34,8 @@ module.exports = function() {
 
     async function CheckSingleRow(column, data) {
         try {
+            if(!client?._connected) throw "Not connected to DB";
+
             const {rows} = await client.query(`SELECT FROM players WHERE ${column} = $1`, [data]);
             if(rows.length == 1)
                 return true;
@@ -44,6 +47,8 @@ module.exports = function() {
     }
     async function CheckLoginCreds(data) {
         try {
+            if(!client?._connected) throw "Not connected to DB";
+
             const {rows} = await client.query("SELECT passhash FROM players WHERE username = $1", [data.username]);
             if(rows.length != 1)
                throw "Either 0 or 2+ matches for username & password."
@@ -57,6 +62,8 @@ module.exports = function() {
     }
     async function DeactivateSlots(socketID) {
         try {
+            if(!client?._connected) throw "Not connected to DB";
+
             await client.query("UPDATE players SET socketID = null WHERE socketid = $1", [socketID]);
         }
         catch(e) {
@@ -72,6 +79,8 @@ module.exports = function() {
                 var upgrades = null;
                 if (success) {
                     try {
+                        if(!client?._connected) throw "Not connected to DB";
+
                         DeactivateSlots(socket.client.id);
                         await client.query("UPDATE players SET socketID = $1 WHERE username = $2", [socket.client.id, data.username]);
                         const {rows} = await client.query(`SELECT orientation, upgrades FROM players WHERE username = $1`, [data.username]);
@@ -100,6 +109,8 @@ module.exports = function() {
 
                 if (signUpSuccess) {
                     try {
+                        if(!client?._connected) throw "Not connected to DB";
+
                         // First, see if this user is already signed into another slot
                         DeactivateSlots(socket.client.id);
                         await client.query("INSERT INTO players VALUES (DEFAULT, $1, $2, $3, $4, $5)", [
@@ -127,6 +138,8 @@ module.exports = function() {
                 var activeSlot = false;
                 if (success) {
                     try {
+                        if(!client?._connected) throw "Not connected to DB";
+
                         // Check to see whether the slot being erased is even the one that is currently being used.
                         const {rows} = await client.query("SELECT socketid FROM players WHERE username = $1", [data.username]);
                         activeSlot = rows[0]['socketid'] == socket.client.id;
@@ -147,6 +160,8 @@ module.exports = function() {
             socket.on("ReqSave", async function (data) {
                 var success = true;
                 try {
+                    if(!client?._connected) throw "Not connected to DB";
+                    
                     await client.query("UPDATE players SET orientation = $1, upgrades = $2 WHERE socketID = $3", [data.orientation, data.upgrades, socket.client.id]);
                 }
                 catch(e) {
@@ -160,7 +175,10 @@ module.exports = function() {
         },
         GetPlayerData: async (socketID) => {
             try {
-                const {rows} = await client.query(`SELECT orientation, upgrades FROM players WHERE socketID = $1`, [socketID]);
+                if(!client?._connected) throw "Not connected to DB";
+
+                const { rows } = await client.query(`SELECT orientation, upgrades FROM players WHERE socketID = $1`, [socketID]);
+
                 if(rows.length == 1)
                     return rows[0];
 
@@ -175,6 +193,8 @@ module.exports = function() {
             var entryFound = await CheckSingleRow("socketID", socketID);
             if(entryFound) {
                 try {
+                    if(!client?._connected) throw "Not connected to DB";
+
                     await client.query("UPDATE players SET orientation = $1, upgrades = $2 WHERE socketid = $3", [orientObj, upgradeObj, socketID]);
                 }
                 catch(e) {
@@ -186,6 +206,8 @@ module.exports = function() {
             var entryFound = await CheckSingleRow("socketID", socketID);
             if(entryFound) {
                 try {
+                    if(!client?._connected) throw "Not connected to DB";
+
                     if(orientObj && upgradeObj)
                         await client.query("UPDATE players SET socketID = null, orientation = $1, upgrades = $2 WHERE socketid = $3", [orientObj, upgradeObj, socketID]);
                     else

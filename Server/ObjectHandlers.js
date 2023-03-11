@@ -40,7 +40,7 @@ module.exports = function(dbHdlr) {
         },
         InitSocketCalls: (io, socket) => {
             socket.on("ReqBuildPlayer", async function (initData) {
-                console.log(`ReqBuildPlayer reached.`)
+                // console.log(`ReqBuildPlayer reached.`)
 
                 // TAG: Save location disabled
                 // Well I can still save the locations, I'm just not loading them right now.
@@ -57,8 +57,8 @@ module.exports = function(dbHdlr) {
                 // Check database first
                 // Sign-in ahead of this call will populate socketID field in db, allowing check here to work.
                 var dbPlayer = await dbHdlr.GetPlayerData(socket.client.id);
-                console.log(`- dbPlayer:`, dbPlayer);
-                console.log(`- localStorage:`, initData.localStorage);
+                // console.log(`- dbPlayer:`, dbPlayer);
+                // console.log(`- localStorage:`, initData.localStorage);
 
                 if(dbPlayer) {
                     if(dbPlayer["upgrades"])
