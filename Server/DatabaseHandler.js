@@ -2,7 +2,7 @@ const bcrypt = require('bcrypt');
 var Consts = require('../Shared/Consts.js');
 const {Client} = require('pg');
 
-var configObj = process.env.PORT ? {
+var configObj = process.env.DATABASE_URL ? {
     connectionString: process.env.DATABASE_URL,
     ssl: { rejectUnauthorized: false }
 } : {
@@ -161,7 +161,7 @@ module.exports = function() {
                 var success = true;
                 try {
                     if(!client?._connected) throw "Not connected to DB";
-                    
+
                     await client.query("UPDATE players SET orientation = $1, upgrades = $2 WHERE socketID = $3", [data.orientation, data.upgrades, socket.client.id]);
                 }
                 catch(e) {
