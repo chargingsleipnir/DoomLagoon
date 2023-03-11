@@ -40,6 +40,8 @@ module.exports = function(dbHdlr) {
         },
         InitSocketCalls: (io, socket) => {
             socket.on("ReqBuildPlayer", async function (initData) {
+                console.log(`ReqBuildPlayer reached.`)
+
                 // TAG: Save location disabled
                 // Well I can still save the locations, I'm just not loading them right now.
                 // I'd rather use the spawn points until it's worth the time to develop a check for the saved coordinates
@@ -55,6 +57,9 @@ module.exports = function(dbHdlr) {
                 // Check database first
                 // Sign-in ahead of this call will populate socketID field in db, allowing check here to work.
                 var dbPlayer = await dbHdlr.GetPlayerData(socket.client.id);
+                console.log(`- dbPlayer:`, dbPlayer);
+                console.log(`- localStorage:`, initData.localStorage);
+
                 if(dbPlayer) {
                     if(dbPlayer["upgrades"])
                         orientObj = dbPlayer["orientation"];
@@ -68,8 +73,9 @@ module.exports = function(dbHdlr) {
                 }
                 // Otherwise, create spawn point
                 else {
-
+                    console.log(`- No storage data retrieved.`);
                 }
+
                 // TAG: Save location disabled
                 // TODO: Move this back into the "else" statement once I've committed to loading position data.
 
@@ -109,6 +115,8 @@ module.exports = function(dbHdlr) {
                     dir: orientObj.dir,
                     upgrades: upgradeObj
                 });
+
+                console.log(`- player:`, player);
 
                 // Add player to lists
                 //* Lists get referenced in Init, this allData container needs to be above it to find player if required.
