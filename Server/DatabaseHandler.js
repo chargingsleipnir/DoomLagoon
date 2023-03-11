@@ -1,39 +1,29 @@
 const bcrypt = require('bcrypt');
 var Consts = require('../Shared/Consts.js');
-const {Client} = require('pg');
+const { Client } = require('pg');
 
-// ! Cannot connect right now. Even when connection is successful, the queries just hang.
-// TODO: Check local DB environment, run local postgres instance and check it out.
-// TODO: Apply same checks to "neon" or whatever new postgres host that is available.
+// console.log(`process.env:`, process.env);
+let client;
+if(process.env.DATABASE_URL) {
+    client = new Client(process.env.DATABASE_URL);
+}
+else {
+    client = new Client();
+}
 
-const configObj = undefined;
-// const configObj = process.env.DATABASE_URL ? {
-//     connectionString: process.env.DATABASE_URL,
-//     ssl: { rejectUnauthorized: false }
-// } : {
-//     user: "postgres",
-//     password: "admin",
-//     host: "localhost",
-//     port: 5432,
-//     database: "doomLagoonDB"
-// }
-
-const client = new Client(configObj);
-
-console.log(`process.env.DATABASE_URL <${process.env.DATABASE_URL}>`);
 //* DB TEST -> in terminal, "npm run printFullTable"
 
-async function Connect() {
+const DbConnect = async () => {
     try {
         console.log("Attempting databse connection...");
-        await client.connect((err) => { throw err; });
-        console.log("Successfully connected to database.");
+        await client.connect();
+        console.log(`Database connection success <${client?._connected}>`);
     }
     catch(e) {
         console.error(`Failed to connect to database: ${e}`);
     }
 }
-Connect();
+DbConnect();
 
 module.exports = function() {
 
@@ -115,6 +105,8 @@ module.exports = function() {
                 if (signUpSuccess) {
                     try {
                         if(!client?._connected) throw "Not connected to DB";
+
+                        // console.log(`TEST INSERT ROW: name <${data.user.name}>, raw password <${data.user.password}>`);
 
                         // First, see if this user is already signed into another slot
                         DeactivateSlots(socket.client.id);
