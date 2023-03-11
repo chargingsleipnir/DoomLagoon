@@ -2,16 +2,21 @@ const bcrypt = require('bcrypt');
 var Consts = require('../Shared/Consts.js');
 const {Client} = require('pg');
 
-var configObj = process.env.DATABASE_URL ? {
-    connectionString: process.env.DATABASE_URL,
-    ssl: { rejectUnauthorized: false }
-} : {
-    user: "postgres",
-    password: "admin",
-    host: "localhost",
-    port: 5432,
-    database: "doomLagoonDB"
-}
+// ! Cannot connect right now. Even when connection is successful, the queries just hang.
+// TODO: Check local DB environment, run local postgres instance and check it out.
+// TODO: Apply same checks to "neon" or whatever new postgres host that is available.
+
+const configObj = undefined;
+// const configObj = process.env.DATABASE_URL ? {
+//     connectionString: process.env.DATABASE_URL,
+//     ssl: { rejectUnauthorized: false }
+// } : {
+//     user: "postgres",
+//     password: "admin",
+//     host: "localhost",
+//     port: 5432,
+//     database: "doomLagoonDB"
+// }
 
 const client = new Client(configObj);
 
