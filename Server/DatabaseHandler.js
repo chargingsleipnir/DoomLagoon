@@ -5,7 +5,12 @@ const { Client } = require('pg');
 // console.log(`process.env:`, process.env);
 let client;
 if(process.env.DATABASE_URL) {
-    client = new Client(process.env.DATABASE_URL);
+    client = new Client({
+        connectionString: process.env.DATABASE_URL,
+        ssl: {
+            rejectUnauthorized: false
+        }
+    });
 }
 else {
     client = new Client();
